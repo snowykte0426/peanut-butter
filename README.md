@@ -23,7 +23,7 @@ Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotl
 ### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.1.0")
+    implementation("com.github.snowykte0426:peanut-butter:1.1.1")
     
     // Optional: Add only what you need
     // For validation features
@@ -46,7 +46,7 @@ dependencies {
 <dependency>
   <groupId>com.github.snowykte0426</groupId>
   <artifactId>peanut-butter</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.1</version>
 </dependency>
 
 <!-- Optional: Add only what you need -->

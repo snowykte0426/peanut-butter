@@ -20,7 +20,7 @@ Peanut-Butter is designed to be **lightweight and modular**. You only need to in
 
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.1.0")
+    implementation("com.github.snowykte0426:peanut-butter:1.1.1")
     
     // Choose your logging implementation (required for any logging functionality)
     implementation("ch.qos.logback:logback-classic:1.5.13")
