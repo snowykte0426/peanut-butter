@@ -97,6 +97,7 @@ This library is designed with **dependency minimization** in mind:
 - Usage Guide: [docs/USAGE.md](docs/USAGE.md)
 - Release Notes: [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md)
 - API (Javadoc): https://javadoc.jitpack.io/com/github/snowykte0426/peanut-butter/latest/javadoc/
+- Security Policy: [SECURITY.md](SECURITY.md)
 
 ## Requirements
 
@@ -105,3 +106,16 @@ This library is designed with **dependency minimization** in mind:
 - **For validation**: Jakarta Bean Validation 3.0+
 - **For coroutine logging**: Kotlin Coroutines 1.7.3+
 - **For Spring Boot integration**: Spring Boot 3.1.x
+
+## Version Support Policy
+All released versions are supported **except `1.1.1`**, which is explicitly excluded from maintenance and security updates.
+
+| Version | Support |
+|---------|---------|
+| 1.1.1 | Not supported (excluded) |
+| Any other released version | Supported |
+
+If you are on 1.1.1, upgrade to the latest patch or minor release to continue receiving fixes and security updates.
+
+## Security
+For vulnerability reporting and full disclosure process, see the dedicated [Security Policy](SECURITY.md).
