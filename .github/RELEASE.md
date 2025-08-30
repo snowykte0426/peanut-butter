@@ -1,4 +1,3 @@
-```
 ## v{VERSION}
 
 ### Summary
@@ -54,4 +53,3 @@ dependencies {
 
 ---
 *See README.md and docs/USAGE.md for detailed examples and usage patterns.*
-```
