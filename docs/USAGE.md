@@ -7,6 +7,7 @@ This guide provides comprehensive examples and best practices for using the Pean
 - [Field Validation](#field-validation)
 - [Logging Extensions](#logging-extensions)
 - [Coroutine Logging](#coroutine-logging)
+- [TimeZone Utilities](#timezone-utilities)
 - [Best Practices](#best-practices)
 - [Advanced Examples](#advanced-examples)
 
@@ -47,7 +48,7 @@ public class RegistrationForm {
 ```java
 @FieldEquals(
     fields = {"password", "passwordConfirm"}, 
-    message = "비밀번호와 비밀번호 확인이 일치하지 않습니다."
+    message = "Password and confirmation do not match."
 )
 public class UserForm {
     private String password;
@@ -76,7 +77,7 @@ public class UserForm {
 ```java
 @FieldNotEquals(
     fields = {"currentPassword", "newPassword"}, 
-    message = "새 비밀번호는 현재 비밀번호와 달라야 합니다."
+    message = "New password must be different from current password."
 )
 public class PasswordChangeForm {
     private String currentPassword;
@@ -381,93 +382,128 @@ val result = logWarningOnException("Operation", defaultValue) {
 }
 ```
 
-## Advanced Examples
+## TimeZone Utilities
 
-### Complex Validation Scenario
+Powerful utilities for configuring and working with application-wide time zones. Includes Spring Boot auto-configuration, runtime switching, and convenient conversion/inspection helpers.
 
-```java
-@FieldEquals(fields = {"email", "emailConfirm"})
-@FieldEquals(fields = {"password", "passwordConfirm"})
-@FieldNotEquals(fields = {"username", "password"})
-@FieldNotEquals(fields = {"username", "email"})
-public class ComplexRegistrationForm {
-    @NotBlank
-    private String username;
-    
-    @Email
-    private String email;
-    private String emailConfirm;
-    
-    @Size(min = 8)
-    private String password;
-    private String passwordConfirm;
-}
+### 1. Auto Configuration (Spring Boot)
+
+Add properties to your `application.yml` (auto configuration active by default unless disabled):
+
+```yaml
+peanut-butter:
+  timezone:
+    enabled: true          # Enable/disable auto configuration (default true)
+    zone: UTC              # Target timezone (default UTC)
+    enable-logging: true   # Log on initialization / failures (default true)
 ```
 
-### Microservice Architecture Example
+On startup the library sets `user.timezone` and `TimeZone.setDefault(...)`.
+
+### 2. Supported Time Zones
+
+`SupportedTimeZone` enum:
+```
+UTC, KST, JST, GMT, WET, BST, CET, WEST, CEST, EET, EEST, MST, PT, ET
+```
+Match is case‑insensitive and also accepts the underlying Zone ID (e.g. `Asia/Seoul`).
+
+### 3. Enabling via Annotation
+
+```kotlin
+@SpringBootApplication
+@EnableAutomaticTimeZone
+class Application
+```
+
+(Annotation is optional if classpath scanning and properties are sufficient.)
+
+### 4. Programmatic Control
+
+Use `TimeZoneInitializer` bean (injected by Spring) to switch at runtime:
 
 ```kotlin
 @Service
-class UserMicroservice {
-    private val logger by lazyLogger()
-    
-    suspend fun handleUserRequest(request: UserRequest): UserResponse {
-        return withLoggingContext("req-${request.id}") {
-            logInfoAsync("Handling user request: {}", request.type)
-            
-            val result = logExecutionTimeAsync("Request processing") {
-                when (request.type) {
-                    "CREATE" -> createUserWithRetry(request.userData)
-                    "UPDATE" -> updateUserWithValidation(request.userData)
-                    "DELETE" -> deleteUserSafely(request.userId)
-                    else -> throw IllegalArgumentException("Unknown request type")
-                }
-            }
-            
-            logInfoAsync("Request completed successfully")
-            result
-        }
-    }
-    
-    private suspend fun createUserWithRetry(userData: UserData): User {
-        return retryWithLogging(
-            operation = "User creation",
-            maxAttempts = 3
-        ) {
-            userRepository.saveAsync(userData)
-        }
-    }
+class TimeZoneService(private val initializer: TimeZoneInitializer) {
+    fun switchToKst() = initializer.changeTimeZone("KST")
+    fun switchToUtc() = initializer.changeTimeZone(SupportedTimeZone.UTC)
+    fun current(): TimeZone = initializer.getCurrentTimeZone()
+    fun supported(): List<SupportedTimeZone> = initializer.getSupportedTimeZones()
 }
 ```
 
-### Performance Monitoring Example
+### 5. Extension Functions Overview
 
+| Purpose | Function | Example |
+|---------|----------|---------|
+| Current time in zone | `Any.getCurrentTimeIn(zone)` | `getCurrentTimeIn(SupportedTimeZone.UTC)` |
+| Current time by string | `Any.getCurrentTimeIn("KST")` | `getCurrentTimeIn("KST")` |
+| Convert `LocalDateTime` -> `ZonedDateTime` | `LocalDateTime.inTimeZone(zone)` | `now.inTimeZone("ET")` |
+| Convert between zones | `ZonedDateTime.convertToTimeZone(zone)` | `zdt.convertToTimeZone("PT")` |
+| Check current default | `Any.isCurrentTimeZone(zone)` | `isCurrentTimeZone("UTC")` |
+| Get display name | `Any.getCurrentTimeZoneDisplayName()` | `getCurrentTimeZoneDisplayName()` |
+| Temporary zone context | `Any.withTimeZone(zone) {}` | `withTimeZone("UTC") { runJob() }` |
+
+### 6. Usage Examples
+
+#### Get Current Time in Multiple Zones
 ```kotlin
-class PerformanceMonitoringService {
-    suspend fun monitorSystemPerformance() {
-        executeParallelWithLogging {
-            listOf(
-                suspend { monitorDatabasePerformance() },
-                suspend { monitorAPIPerformance() },
-                suspend { monitorMemoryUsage() },
-                suspend { monitorCPUUsage() }
-            )
-        }
-    }
-    
-    private suspend fun monitorDatabasePerformance() {
-        logExecutionTimeAsync("Database health check") {
-            databaseHealthChecker.checkHealth()
-        }
-    }
-    
-    private suspend fun monitorAPIPerformance() {
-        logMethodExecutionAsync("API performance check") {
-            apiPerformanceChecker.checkPerformance()
-        }
-    }
+val utcNow = getCurrentTimeIn(SupportedTimeZone.UTC)
+val seoulNow = getCurrentTimeIn("KST")
+```
+
+#### Convert LocalDateTime
+```kotlin
+val createdAt: LocalDateTime = LocalDateTime.now()
+val createdInEt = createdAt.inTimeZone("ET")
+```
+
+#### Convert ZonedDateTime
+```kotlin
+val utcZdt = ZonedDateTime.now(ZoneId.of("UTC"))
+val inPacific = utcZdt.convertToTimeZone(SupportedTimeZone.PT)
+```
+
+#### Temporary TimeZone Context
+```kotlin
+withTimeZone("UTC") {
+    // All date/time APIs inside see the temporary default
+    generateDailyReport()
 }
 ```
+
+#### Safe Runtime Switch with Logging
+```kotlin
+try {
+    initializer.changeTimeZone("KST")
+} catch (ex: IllegalArgumentException) {
+    logWarn("Unsupported timezone request: {}", ex.message)
+}
+```
+
+### 7. Error Handling
+
+Invalid zone strings throw `IllegalArgumentException`:
+```kotlin
+val t = runCatching { getCurrentTimeIn("NOT_A_ZONE") }
+if (t.isFailure) logWarn("Invalid timezone input")
+```
+
+### 8. Best Practices
+
+- Prefer enum constants over raw strings for compile‑time safety
+- Keep runtime switches rare; frequent switches can confuse scheduled tasks
+- Wrap critical business logic in `withTimeZone` instead of manually restoring defaults
+- Log all administrative changes to default timezone
+- Use `SupportedTimeZone.fromString(value)` to gracefully validate input
+
+### 9. Migration to v1.1.0
+
+If upgrading from <= 1.0.2:
+1. Bump dependency version to `1.1.0`
+2. (Optional) Add `peanut-butter.timezone` section to `application.yml`
+3. Use `@EnableAutomaticTimeZone` if you want explicit opt‑in
+4. Replace ad‑hoc `TimeZone.setDefault(...)` calls with `TimeZoneInitializer` or `withTimeZone`
 
 ---
 
