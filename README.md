@@ -1,120 +1,71 @@
-# Peanut-Butter 🥜🧈
+# Peanut-Butter
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java Version](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.java.net/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.25-purple.svg)](https://kotlinlang.org/)
 
-A comprehensive utility library providing essential tools and helper functions for Java and Kotlin development.
+Peanut-Butter is a modular utility library for JVM (Java & Kotlin) projects. It provides production‑oriented building blocks for validation, structured logging (sync & coroutine), performance instrumentation, and application‑wide time zone management (with Spring Boot auto‑configuration).
 
-## ✨ Features
+## Feature Overview
 
-### 🔍 Field Validation Annotations
-- **`@FieldEquals`** - Validates that specified fields have equal values
-- **`@FieldNotEquals`** - Validates that specified fields have different values
+| Area | Capabilities |
+|------|--------------|
+| Field Validation | Class‑level equality / inequality annotations (`@FieldEquals`, `@FieldNotEquals`) with Jakarta Bean Validation integration |
+| Logging (Sync) | Logger helpers, structured & conditional logging, performance timers, exception handling wrappers |
+| Logging (Coroutines) | Async‑safe logging, execution timing for suspend functions, correlation (MDC) context, parallel operation instrumentation, retry with backoff |
+| Time Zone Management | Spring Boot auto configuration, runtime switching, safe temporary context, enum‑backed zone resolution, conversion extensions |
+| Performance Helpers | Execution/method timing, memory usage snapshot logging |
 
-### 📝 Logging Extensions (Kotlin)
-- **Basic Logging** - `logger()`, `logInfo()`, `logDebug()`, `logError()` etc.
-- **Performance Logging** - `logExecutionTime()`, `logMethodExecution()`
-- **Exception Handling** - `logOnException()`, `logWarningOnException()`
+## Installation
 
-### ⚡ Coroutine Logging Extensions (Kotlin)
-- **Async Logging** - `logInfoAsync()`, `logDebugAsync()`, `logErrorAsync()` etc.
-- **Async Performance** - `logExecutionTimeAsync()`, `logMethodExecutionAsync()`
-- **Advanced Features** - `retryWithLogging()`, `withLoggingContext()`, `executeParallelWithLogging()`
-
-### 🌍 TimeZone Utilities (Spring Boot + Core)
-- **Auto Configuration** - configure default TimeZone via `peanut-butter.timezone.*` properties
-- **Annotation** - `@EnableAutomaticTimeZone` for explicit activation
-- **Runtime Control** - `TimeZoneInitializer.changeTimeZone("UTC")`
-- **Enum** - `SupportedTimeZone` (UTC, KST, JST, GMT, WET, BST, CET, WEST, CEST, EET, EEST, MST, PT, ET)
-- **Extensions** - `getCurrentTimeIn()`, `inTimeZone()`, `convertToTimeZone()`, `withTimeZone()`
-
-## 🚀 Quick Start
-
-### Installation
-
-#### Gradle
+### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
     implementation("com.github.snowykte0426:peanut-butter:1.1.0")
 }
 ```
 
-#### Maven
+### Maven
 ```xml
 <dependency>
-    <groupId>com.github.snowykte0426</groupId>
-    <artifactId>peanut-butter</artifactId>
-    <version>1.1.0</version>
+  <groupId>com.github.snowykte0426</groupId>
+  <artifactId>peanut-butter</artifactId>
+  <version>1.1.0</version>
 </dependency>
 ```
 
-### Basic Usage
+## Documentation
 
-#### Field Validation
-```java
-@FieldEquals(fields = {"password", "passwordConfirm"})
-@FieldNotEquals(fields = {"username", "password"})
-public class UserForm {
-    private String username;
-    private String password;
-    private String passwordConfirm;
-}
-```
+- Usage Guide: [docs/USAGE.md](docs/USAGE.md)
+- Release Notes: [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md)
+- API (Javadoc): https://javadoc.jitpack.io/com/github/snowykte0426/peanut-butter/latest/javadoc/
 
-#### Logging
-```kotlin
-class UserService {
-    fun createUser(userData: UserData) {
-        logInfo("Creating user: {}", userData.username)
-        
-        val result = logExecutionTime("User creation") {
-            userRepository.save(userData)
-        }
-    }
-}
-```
+## Requirements
 
-#### Coroutine Logging
-```kotlin
-class AsyncUserService {
-    suspend fun createUserAsync(userData: UserData) {
-        logInfoAsync("Creating user asynchronously: {}", userData.username)
-        
-        val result = logExecutionTimeAsync("Async user creation") {
-            userRepository.saveAsync(userData)
-        }
-    }
-}
-```
+- Java 17+
+- Kotlin 1.9+ (for Kotlin / coroutine features)
+- SLF4J 2.0+ (logging API)
+- Jakarta Bean Validation 3.0+ (validation annotations)
+- Kotlin Coroutines 1.7.3+ (async logging features)
+- Spring Boot 3.1.x (optional; for auto time zone configuration)
 
-## 📚 Documentation
+## Versioning & Compatibility
 
-- **[Usage Guide](docs/USAGE.md)** - Comprehensive usage examples and best practices
-- **[API Documentation](https://javadoc.jitpack.io/com/github/snowykte0426/peanut-butter/latest/javadoc/)** - Full API reference
+The project follows semantic versioning (MAJOR.MINOR.PATCH). Backward incompatible changes are announced under **Breaking Changes** in the release notes.
 
-## 🔧 Requirements
+## Contributing
 
-- **Java 17+**
-- **SLF4J 2.0+** (for logging features)
-- **Jakarta Bean Validation 3.0+** (for validation features)
-- **Kotlin Coroutines 1.7.3+** (for coroutine logging features)
-- **Spring Boot 3.1.x** (when using TimeZone auto-configuration)
+Contributions, issue reports, and improvement suggestions are welcome. Please open an issue or submit a pull request with a clear description and relevant tests when applicable.
 
-## 🤝 Contributing
+## License
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Distributed under the MIT License. See [LICENSE](LICENSE) for full text.
 
-## 📄 License
+## Author
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Kim Tae Eun** (snowykte0426)
-- 📧 Email: snowykte0426@naver.com
-- 🐙 GitHub: [@snowykte0426](https://github.com/snowykte0426)
+Kim Tae Eun (snowykte0426)  
+Email: snowykte0426@naver.com  
+GitHub: https://github.com/snowykte0426
 
 ---
-
-**Made with ❤️ for the Java & Kotlin community**
+For detailed examples and best practices, refer to the Usage Guide.
