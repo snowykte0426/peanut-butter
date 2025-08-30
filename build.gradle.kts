@@ -1,5 +1,6 @@
 plugins {
     java
+    kotlin("jvm")
     `maven-publish`
 }
 
@@ -14,17 +15,38 @@ java {
     withJavadocJar()
 }
 
+//kotlin {
+//    jvmToolchain(17)
+//}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    // Kotlin
+    implementation(kotlin("stdlib"))
+    implementation(kotlin("reflect"))
+    
+    // Validation
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     implementation("org.glassfish:jakarta.el:4.0.2")
     
+    // Logging - SLF4J API (required)
+    //api("org.slf4j:slf4j-api:2.0.9")
+    
+    // Logging - Default implementation (optional, can be excluded)
+    implementation("ch.qos.logback:logback-classic:1.4.14") {
+        // Users can exclude this and provide their own implementation
+        isTransitive = false
+    }
+    
+    // Test dependencies
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.8.0")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
