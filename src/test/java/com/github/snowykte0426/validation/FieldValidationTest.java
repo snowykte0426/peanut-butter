@@ -12,7 +12,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @FieldEquals와 @FieldNotEquals 어노테이션의 테스트 클래스입니다.
+ * Test class for @FieldEquals and @FieldNotEquals annotations.
  * 
  * @author Kim Tae Eun
  */
@@ -35,7 +35,7 @@ public class FieldValidationTest {
         user.email2 = "test@example.com";
         
         Set<ConstraintViolation<TestUserEquals>> violations = validator.validate(user);
-        assertTrue(violations.isEmpty(), "같은 값을 가진 필드들은 검증을 통과해야 합니다");
+        assertTrue(violations.isEmpty(), "Fields with same values should pass validation");
     }
     
     @Test
@@ -47,12 +47,11 @@ public class FieldValidationTest {
         user.email2 = "test@example.com";
         
         Set<ConstraintViolation<TestUserEquals>> violations = validator.validate(user);
-        assertFalse(violations.isEmpty(), "다른 값을 가진 필드들은 검증에 실패해야 합니다");
-        
-        // phone 그룹의 필드들에서 오류가 발생했는지 확인
+        assertFalse(violations.isEmpty(), "Fields with different values should fail validation");
+
         boolean hasPhoneViolation = violations.stream()
             .anyMatch(v -> v.getPropertyPath().toString().contains("phoneNumber"));
-        assertTrue(hasPhoneViolation, "전화번호 필드에서 검증 오류가 발생해야 합니다");
+        assertTrue(hasPhoneViolation, "Validation error should occur for phone number fields");
     }
     
     @Test
@@ -62,17 +61,17 @@ public class FieldValidationTest {
         user.password = "secret123";
         
         Set<ConstraintViolation<TestUserNotEquals>> violations = validator.validate(user);
-        assertTrue(violations.isEmpty(), "서로 다른 값을 가진 필드들은 검증을 통과해야 합니다");
+        assertTrue(violations.isEmpty(), "Fields with different values should pass validation");
     }
     
     @Test
     void testFieldNotEquals_SameValues_ShouldFail() {
         TestUserNotEquals user = new TestUserNotEquals();
         user.username = "john_doe";
-        user.password = "john_doe"; // username과 같은 값
+        user.password = "john_doe";
         
         Set<ConstraintViolation<TestUserNotEquals>> violations = validator.validate(user);
-        assertFalse(violations.isEmpty(), "같은 값을 가진 필드들은 검증에 실패해야 합니다");
+        assertFalse(violations.isEmpty(), "Fields with same values should fail validation");
     }
     
     @Test
@@ -84,14 +83,14 @@ public class FieldValidationTest {
         user.email2 = "test@example.com";
         
         Set<ConstraintViolation<TestUserEquals>> violations = validator.validate(user);
-        assertTrue(violations.isEmpty(), "null 값들도 동일하므로 검증을 통과해야 합니다");
+        assertTrue(violations.isEmpty(), "Null values are equal so validation should pass");
     }
     
     /**
-     * @FieldEquals 테스트용 클래스
+     * Test class for @FieldEquals
      */
-    @FieldEquals(fields = {"phoneNumber1", "phoneNumber2"}, message = "전화번호가 일치하지 않습니다")
-    @FieldEquals(fields = {"email1", "email2"}, message = "이메일이 일치하지 않습니다")
+    @FieldEquals(fields = {"phoneNumber1", "phoneNumber2"}, message = "Phone numbers must match")
+    @FieldEquals(fields = {"email1", "email2"}, message = "Emails must match")
     static class TestUserEquals {
         String phoneNumber1;
         String phoneNumber2;
@@ -100,9 +99,9 @@ public class FieldValidationTest {
     }
     
     /**
-     * @FieldNotEquals 테스트용 클래스
+     * Test class for @FieldNotEquals
      */
-    @FieldNotEquals(fields = {"username", "password"}, message = "사용자명과 비밀번호는 달라야 합니다")
+    @FieldNotEquals(fields = {"username", "password"}, message = "Username and password must be different")
     static class TestUserNotEquals {
         String username;
         String password;

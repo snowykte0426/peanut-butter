@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 /**
- * @FieldNotEquals 어노테이션의 검증 로직을 구현하는 클래스입니다.
+ * Validator implementation for @FieldNotEquals annotation.
  * 
  * @author Kim Tae Eun
  */
@@ -47,15 +47,13 @@ public class FieldNotEqualsValidator implements ConstraintValidator<FieldNotEqua
             if (values.size() < MINIMUM_FIELDS_FOR_VALIDATION) {
                 return true;
             }
-            
-            // 중복되는 값이 있는지 확인
+
             Set<Object> uniqueValues = new HashSet<>();
             List<Integer> duplicateIndices = new ArrayList<>();
             
             for (int i = 0; i < values.size(); i++) {
                 Object value = values.get(i);
                 if (!uniqueValues.add(value)) {
-                    // 현재 값과 동일한 값을 가진 이전 인덱스도 찾아서 추가
                     for (int j = 0; j < i; j++) {
                         if (Objects.equals(values.get(j), value) && !duplicateIndices.contains(j)) {
                             duplicateIndices.add(j);
@@ -78,12 +76,12 @@ public class FieldNotEqualsValidator implements ConstraintValidator<FieldNotEqua
             return true;
             
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("필드 접근 중 오류가 발생했습니다: " + e.getMessage(), e);
+            throw new RuntimeException("Error accessing field: " + e.getMessage(), e);
         }
     }
     
     /**
-     * 클래스 계층구조에서 필드를 찾습니다.
+     * Finds a field in the class hierarchy.
      */
     private Field getField(Class<?> clazz, String fieldName) {
         Class<?> currentClass = clazz;

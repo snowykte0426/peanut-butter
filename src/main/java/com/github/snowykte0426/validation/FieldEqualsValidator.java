@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 /**
- * @FieldEquals 어노테이션의 검증 로직을 구현하는 클래스입니다.
+ * Validator implementation for @FieldEquals annotation.
  * 
  * @author Kim Tae Eun
  */
@@ -47,8 +47,7 @@ public class FieldEqualsValidator implements ConstraintValidator<FieldEquals, Ob
             if (values.size() < MINIMUM_FIELDS_FOR_VALIDATION) {
                 return true;
             }
-            
-            // 모든 값이 동일한지 확인
+
             Object firstValue = values.get(0);
             boolean allEqual = values.stream()
                 .allMatch(value -> Objects.equals(firstValue, value));
@@ -66,12 +65,12 @@ public class FieldEqualsValidator implements ConstraintValidator<FieldEquals, Ob
             return true;
             
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("필드 접근 중 오류가 발생했습니다: " + e.getMessage(), e);
+            throw new RuntimeException("Error accessing field: " + e.getMessage(), e);
         }
     }
     
     /**
-     * 클래스 계층구조에서 필드를 찾습니다.
+     * Finds a field in the class hierarchy.
      */
     private Field getField(Class<?> clazz, String fieldName) {
         Class<?> currentClass = clazz;
