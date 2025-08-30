@@ -3,44 +3,69 @@ package com.github.snowykte0426.timezone
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.TestPropertySource
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.context.annotation.Configuration
+import io.kotest.assertions.throwables.shouldThrow
 import java.util.*
 
-@SpringBootTest
-@TestPropertySource(properties = [
-    "peanut-butter.timezone.zone=UTC",
-    "peanut-butter.timezone.enabled=true",
-    "peanut-butter.timezone.enable-logging=false"
-])
 class TimeZoneAutoConfigurationTest : FunSpec({
 
-    @Autowired
-    lateinit var timeZoneInitializer: TimeZoneInitializer
+    lateinit var originalTimeZone: TimeZone
 
-    test("should create TimeZoneInitializer bean successfully") {
-        timeZoneInitializer shouldNotBe null
+    beforeEach {
+        originalTimeZone = TimeZone.getDefault()
     }
 
-    test("should apply configured timezone correctly") {
-        val currentTimeZone = timeZoneInitializer.getCurrentTimeZone()
-        currentTimeZone.id shouldBe "UTC"
+    afterEach {
+        TimeZone.setDefault(originalTimeZone)
+        System.setProperty("user.timezone", originalTimeZone.id)
     }
 
-    test("should change timezone programmatically") {
-        timeZoneInitializer.changeTimeZone(SupportedTimeZone.KST)
-        TimeZone.getDefault().id shouldBe "Asia/Seoul"
+    test("should initialize timezone correctly with valid configuration") {
+        val properties = TimeZoneProperties(zone = "UTC", enableLogging = false)
+        val configuration = TimeZoneAutoConfiguration(properties)
 
-        timeZoneInitializer.changeTimeZone("JST")
-        TimeZone.getDefault().id shouldBe "Asia/Tokyo"
+        configuration.init()
+
+        TimeZone.getDefault().id shouldBe "UTC"
+        System.getProperty("user.timezone") shouldBe "UTC"
     }
 
-}) {
-    @SpringBootApplication
-    @EnableAutomaticTimeZone
-    @Configuration
-    class TestApplication
-}
+    test("should throw exception for unsupported timezone") {
+        val properties = TimeZoneProperties(zone = "INVALID", enableLogging = false)
+        val configuration = TimeZoneAutoConfiguration(properties)
+
+        shouldThrow<IllegalArgumentException> {
+            configuration.init()
+        }
+    }
+
+    test("should create TimeZoneInitializer bean") {
+        val properties = TimeZoneProperties(zone = "KST", enableLogging = false)
+        val configuration = TimeZoneAutoConfiguration(properties)
+
+        val initializer = configuration.timeZoneInitializer()
+
+        initializer shouldNotBe null
+        initializer.getSupportedTimeZones().size shouldBe 14
+    }
+
+    test("should initialize different timezones correctly") {
+        listOf("KST", "JST", "UTC", "GMT").forEach { zone ->
+            val properties = TimeZoneProperties(zone = zone, enableLogging = false)
+            val configuration = TimeZoneAutoConfiguration(properties)
+
+            configuration.init()
+
+            val expectedTimeZone = SupportedTimeZone.fromString(zone)!!
+            TimeZone.getDefault().id shouldBe expectedTimeZone.zoneId
+        }
+    }
+
+    test("should handle logging enabled configuration") {
+        val properties = TimeZoneProperties(zone = "UTC", enableLogging = true)
+        val configuration = TimeZoneAutoConfiguration(properties)
+
+        configuration.init()
+
+        TimeZone.getDefault().id shouldBe "UTC"
+    }
+})

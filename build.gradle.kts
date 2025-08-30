@@ -52,7 +52,6 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testImplementation("io.kotest:kotest-assertions-core:5.8.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:3.1.5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
