@@ -13,6 +13,8 @@ import java.util.*;
  */
 public class FieldEqualsValidator implements ConstraintValidator<FieldEquals, Object> {
     
+    private static final int MINIMUM_FIELDS_FOR_VALIDATION = 2;
+    
     private String[] fieldNames;
     private String message;
     
@@ -24,7 +26,7 @@ public class FieldEqualsValidator implements ConstraintValidator<FieldEquals, Ob
     
     @Override
     public boolean isValid(Object object, ConstraintValidatorContext context) {
-        if (object == null || fieldNames.length < 2) {
+        if (object == null || fieldNames.length < MINIMUM_FIELDS_FOR_VALIDATION) {
             return true;
         }
         
@@ -42,7 +44,7 @@ public class FieldEqualsValidator implements ConstraintValidator<FieldEquals, Ob
                 }
             }
             
-            if (values.size() < 2) {
+            if (values.size() < MINIMUM_FIELDS_FOR_VALIDATION) {
                 return true;
             }
             
