@@ -36,6 +36,7 @@ dependencies {
 
     compileOnly("org.springframework.boot:spring-boot-starter:3.1.5")
     compileOnly("org.springframework.boot:spring-boot-configuration-processor:3.1.5")
+    compileOnly("org.springframework:spring-web:6.2.8")
 
     compileOnly("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     compileOnly("org.glassfish:jakarta.el:4.0.2")
