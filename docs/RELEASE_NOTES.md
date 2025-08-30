@@ -1,5 +1,69 @@
 # Release Notes
 
+## v1.1.0
+
+### Summary
+Added automatic TimeZone configuration & utility features enabling application-wide default timezone control, conversion utilities, temporary timezone context execution, and Spring Boot auto-configuration support.
+
+### New Features
+- **Automatic TimeZone Configuration**: Sets the JVM default timezone at startup (`TimeZoneAutoConfiguration`, `TimeZoneProperties`)
+- **Configuration Annotation**: `@EnableAutomaticTimeZone` for explicit activation when desired
+- **Programmatic Control**: Runtime timezone switching via `TimeZoneInitializer` (`changeTimeZone()`, `getCurrentTimeZone()`)
+- **Supported Enum**: `SupportedTimeZone` (UTC, KST, JST, GMT, WET, BST, CET, WEST, CEST, EET, EEST, MST, PT, ET)
+- **Extension Utilities**:
+  - Current time retrieval: `Any.getCurrentTimeIn(...)`
+  - Conversions: `LocalDateTime.inTimeZone(...)`, `ZonedDateTime.convertToTimeZone(...)`
+  - Default timezone comparison: `Any.isCurrentTimeZone(...)`
+  - Temporary context execution: `Any.withTimeZone(...)`
+  - Display name lookup: `Any.getCurrentTimeZoneDisplayName()`
+
+### Improvements
+- Property controls: `peanut-butter.timezone.enabled`, `zone`, `enable-logging` for fine‑grained behavior & logging
+- Clearer error signaling: Unsupported timezone triggers descriptive `IllegalArgumentException`
+- Logging integration: Successful initialization/change uses `logInfo`, failures use `logWarn`
+
+### Bug Fixes
+- None (feature-focused release)
+
+### Breaking Changes
+- None (no changes to existing public APIs)
+
+### Deprecated
+- None
+
+### Key Features
+- Global default TimeZone auto setup & runtime switching
+- Safe temporary TimeZone context (`withTimeZone`)
+- Enum-backed validation & standardized timezone identifiers
+- Built-in observability through existing logging utilities
+
+### Requirements
+- Java 17+
+- Kotlin 1.9+
+- Spring Boot 3.1.x (when using auto-configuration)
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.1.0")
+}
+```
+
+### Migration Guide
+1. Bump dependency version 1.0.2 → 1.1.0
+2. (Optional) Add application.yml configuration:
+   ```yaml
+   peanut-butter:
+     timezone:
+       enabled: true
+       zone: KST
+       enable-logging: true
+   ```
+3. Inject `TimeZoneInitializer` for runtime changes (e.g. `changeTimeZone("UTC")`)
+4. Replace ad‑hoc timezone handling with `withTimeZone(...)` where appropriate
+
+---
+
 ## v1.0.2
 
 ### Summary

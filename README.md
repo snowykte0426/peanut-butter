@@ -22,6 +22,13 @@ A comprehensive utility library providing essential tools and helper functions f
 - **Async Performance** - `logExecutionTimeAsync()`, `logMethodExecutionAsync()`
 - **Advanced Features** - `retryWithLogging()`, `withLoggingContext()`, `executeParallelWithLogging()`
 
+### 🌍 TimeZone Utilities (Spring Boot + Core)
+- **Auto Configuration** - configure default TimeZone via `peanut-butter.timezone.*` properties
+- **Annotation** - `@EnableAutomaticTimeZone` for explicit activation
+- **Runtime Control** - `TimeZoneInitializer.changeTimeZone("UTC")`
+- **Enum** - `SupportedTimeZone` (UTC, KST, JST, GMT, WET, BST, CET, WEST, CEST, EET, EEST, MST, PT, ET)
+- **Extensions** - `getCurrentTimeIn()`, `inTimeZone()`, `convertToTimeZone()`, `withTimeZone()`
+
 ## 🚀 Quick Start
 
 ### Installation
@@ -29,7 +36,7 @@ A comprehensive utility library providing essential tools and helper functions f
 #### Gradle
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.0.2")
+    implementation("com.github.snowykte0426:peanut-butter:1.1.0")
 }
 ```
 
@@ -38,7 +45,7 @@ dependencies {
 <dependency>
     <groupId>com.github.snowykte0426</groupId>
     <artifactId>peanut-butter</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -92,6 +99,7 @@ class AsyncUserService {
 - **SLF4J 2.0+** (for logging features)
 - **Jakarta Bean Validation 3.0+** (for validation features)
 - **Kotlin Coroutines 1.7.3+** (for coroutine logging features)
+- **Spring Boot 3.1.x** (when using TimeZone auto-configuration)
 
 ## 🤝 Contributing
 

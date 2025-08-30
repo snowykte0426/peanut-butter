@@ -42,7 +42,7 @@ public class FieldValidationTest {
     void testFieldEquals_DifferentValues_ShouldFail() {
         TestUserEquals user = new TestUserEquals();
         user.phoneNumber1 = "010-1234-5678";
-        user.phoneNumber2 = "010-8765-4321"; // 다른 값
+        user.phoneNumber2 = "010-8765-4321"; // different value
         user.email1 = "test@example.com";
         user.email2 = "test@example.com";
         

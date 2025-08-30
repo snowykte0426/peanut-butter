@@ -10,7 +10,7 @@
     {
       "name": "peanut-butter.timezone.zone",
       "type": "java.lang.String",
-      "defaultValue": "KST",
+      "defaultValue": "UTC",
       "description": "Timezone to set. Supported: UTC, KST, JST, GMT, WET, BST, CET, WEST, CEST, EET, EEST, MST, PT, ET"
     },
     {

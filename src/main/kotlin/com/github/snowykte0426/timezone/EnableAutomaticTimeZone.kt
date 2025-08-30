@@ -5,33 +5,31 @@ import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.AnnotationTarget
 
 /**
- * TimeZone 설정 기능을 활성화하는 어노테이션
+ * Enables automatic TimeZone configuration for the application.
  *
- * 사용법:
+ * Usage:
  * ```kotlin
  * @SpringBootApplication
- * @EnableTimeZoneSet
+ * @EnableAutomaticTimeZone
  * class Application
  * ```
  *
- * 설정 방법:
- * 1. application.yml을 통한 설정:
+ * Configuration (application.yml):
  * ```yaml
  * peanut-butter:
  *   timezone:
- *     zone: KST
- *     enabled: true
- *     enableLogging: true
+ *     zone: KST            # Target timezone
+ *     enabled: true        # Enable auto configuration
+ *     enable-logging: true # Log on initialization / change
  * ```
  *
- * 2. Configuration 클래스를 통한 설정:
+ * Programmatic override example:
  * ```kotlin
  * @Configuration
  * class TimeZoneConfig {
  *     @Bean
- *     fun timeZoneProperties(): TimeZoneProperties {
- *         return TimeZoneProperties(zone = "UTC", enableLogging = false)
- *     }
+ *     fun timeZoneProperties(): TimeZoneProperties =
+ *         TimeZoneProperties(zone = "UTC", enableLogging = false)
  * }
  * ```
  */
