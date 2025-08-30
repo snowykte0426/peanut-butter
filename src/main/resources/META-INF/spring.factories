@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.github.snowykte0426.timezone.TimeZoneAutoConfiguration
+

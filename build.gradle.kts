@@ -29,6 +29,10 @@ dependencies {
     implementation(kotlin("reflect"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
+    // Spring Boot
+    implementation("org.springframework.boot:spring-boot-starter:3.1.5")
+    implementation("org.springframework.boot:spring-boot-configuration-processor:3.1.5")
+
     // Validation
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
@@ -48,6 +52,7 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testImplementation("io.kotest:kotest-assertions-core:5.8.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.1.5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
