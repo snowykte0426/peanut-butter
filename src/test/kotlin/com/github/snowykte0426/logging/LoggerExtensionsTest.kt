@@ -12,7 +12,7 @@ class LoggerExtensionsTest : FunSpec({
         val testInstance = TestClass()
         val logger = testInstance.logger()
         
-        logger.name shouldBe "com.github.snowykte0426.logging.LoggerExtensionsTest\$TestClass"
+        logger.name shouldBe "com.github.snowykte0426.logging.TestClass"
     }
     
     test("logger(name) should return logger with custom name") {
@@ -34,37 +34,33 @@ class LoggerExtensionsTest : FunSpec({
         val testInstance = TestClass()
         val lazyLogger by testInstance.lazyLogger()
         
-        lazyLogger.name shouldBe "com.github.snowykte0426.logging.LoggerExtensionsTest\$TestClass"
+        lazyLogger.name shouldBe "com.github.snowykte0426.logging.TestClass"
     }
     
     test("companionLogger should return logger for enclosing class") {
         val logger = TestClassWithCompanion.logger()
         
-        logger.name shouldBe "com.github.snowykte0426.logging.LoggerExtensionsTest\$TestClassWithCompanion"
+        logger.name shouldBe "com.github.snowykte0426.logging.TestClassWithCompanion"
     }
     
     test("convenient logging functions should work") {
         val testInstance = TestClass()
-        
-        // These should not throw exceptions
+
         testInstance.logDebug("Debug message")
         testInstance.logInfo("Info message")
         testInstance.logWarn("Warn message")
         testInstance.logError("Error message")
         testInstance.logTrace("Trace message")
-        
-        // Test with arguments
+
         testInstance.logInfo("Info with args: {} and {}", "arg1", "arg2")
-        
-        // Test with exception
+
         val exception = RuntimeException("Test exception")
         testInstance.logError("Error with exception", exception)
     }
     
     test("conditional logging functions should work") {
         val testInstance = TestClass()
-        
-        // These should not throw exceptions and should only log if level is enabled
+
         testInstance.logDebugIf { "Debug message" }
         testInstance.logInfoIf { "Info message" }
         testInstance.logWarnIf { "Warn message" }
@@ -77,7 +73,7 @@ class LoggerExtensionsTest : FunSpec({
         val expectedResult = "test result"
         
         val result = testInstance.logExecutionTime("test operation") {
-            Thread.sleep(10) // Small delay to measure
+            Thread.sleep(10)
             expectedResult
         }
         
