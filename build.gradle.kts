@@ -59,7 +59,7 @@ publishing {
 
                 scm {
                     connection.set("scm:git:git://github.com/snowykte0426/peanut-butter.git")
-                    developerConnection.set("scm:git:ssh://github.com/snowykte0426/peanut-butter.git") // .git 중복 제거
+                    developerConnection.set("scm:git:ssh://git@github.com/snowykte0426/peanut-butter.git")
                     url.set("https://github.com/snowykte0426/peanut-butter")
                 }
             }
