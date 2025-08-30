@@ -2,41 +2,40 @@
 ## v{VERSION}
 
 ### Summary
-[릴리즈에 대한 간단한 설명을 작성하세요]
+[Provide a concise summary of this release]
 
 ### New Features
-[새로 추가된 기능들을 나열하세요]
+[List newly added features]
 - **Feature 1**: Description
 - **Feature 2**: Description
 
 ### Improvements
-[기존 기능의 개선사항들을 나열하세요]
+[List notable enhancements]
 - **Improvement 1**: Description
 - **Improvement 2**: Description
 
 ### Bug Fixes
-[수정된 버그들을 나열하세요]
+[List resolved defects]
 - **Fix 1**: Description
 - **Fix 2**: Description
 
 ### Breaking Changes
-[호환성을 깨뜨리는 변경사항들을 나열하세요 (해당하는 경우)]
-- **Breaking Change 1**: Description and migration guide
-- **Breaking Change 2**: Description and migration guide
+[List breaking changes if any]
+- **Breaking Change 1**: Description + migration guidance
+- **Breaking Change 2**: Description + migration guidance
 
 ### Deprecated
-[향후 제거 예정인 기능들을 나열하세요 (해당하는 경우)]
+[List items newly marked deprecated]
 - **Deprecated Feature 1**: Will be removed in v{FUTURE_VERSION}
 - **Deprecated Feature 2**: Will be removed in v{FUTURE_VERSION}
 
-### Key Features
-[이번 릴리즈의 핵심 기능들을 강조하세요]
-- Feature highlight 1
-- Feature highlight 2
-- Feature highlight 3
+### Key Highlights
+[Emphasize most relevant improvements]
+- Highlight 1
+- Highlight 2
+- Highlight 3
 
 ### Requirements
-[시스템 요구사항을 명시하세요]
 - Java {JAVA_VERSION}+
 - {DEPENDENCY_NAME} {VERSION}+
 
@@ -48,13 +47,11 @@ dependencies {
 ```
 
 ### Migration Guide
-[이전 버전에서 업그레이드하는 방법을 설명하세요 (필요한 경우)]
-
+[Describe how to upgrade from previous versions if needed]
 1. Update dependency version
 2. Review breaking changes
-3. Update deprecated usage
+3. Update deprecated usages
 
 ---
-
-*For detailed usage examples and documentation, please refer to the README.md*
+*See README.md and docs/USAGE.md for detailed examples and usage patterns.*
 ```
