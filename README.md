@@ -9,47 +9,34 @@ Java 개발을 위한 종합 유틸리티 라이브러리입니다. 필수 도�
 Jakarta Bean Validation을 기반으로 한 커스텀 검증 어노테이션들을 제공합니다.
 
 #### 📋 @FieldEquals
-같은 그룹 내의 필드들이 동일한 값을 가져야 함을 검증합니다.
+지정된 필드들이 동일한 값을 가져야 함을 검증합니다.
 
 ```java
+@FieldEquals(fields = {"password", "passwordConfirm"}, message = "비밀번호가 일치하지 않습니다")
+@FieldEquals(fields = {"email", "emailConfirm"}, message = "이메일이 일치하지 않습니다")
 public class UserForm {
-    @FieldEquals(group = "phone", message = "전화번호가 일치하지 않습니다")
-    private String phoneNumber;
-    
-    @FieldEquals(group = "phone", message = "전화번호가 일치하지 않습니다")
-    private String phoneNumberConfirm;
-    
-    @FieldEquals(group = "email", message = "이메일이 일치하지 않습니다")
+    private String password;
+    private String passwordConfirm;
     private String email;
-    
-    @FieldEquals(group = "email", message = "이메일이 일치하지 않습니다")
     private String emailConfirm;
 }
 ```
 
 #### 📋 @FieldNotEquals
-같은 그룹 내의 필드들이 서로 다른 값을 가져야 함을 검증합니다.
+지정된 필드들이 서로 다른 값을 가져야 함을 검증합니다.
 
 ```java
+@FieldNotEquals(fields = {"username", "password"}, message = "사용자명과 비밀번호는 달라야 합니다")
 public class SecurityForm {
-    @FieldNotEquals(group = "credentials", message = "사용자명과 비밀번호는 달라야 합니다")
     private String username;
-    
-    @FieldNotEquals(group = "credentials", message = "사용자명과 비밀번호는 달라야 합니다")
     private String password;
-    
-    @FieldNotEquals(group = "questions", message = "보안 질문들은 서로 달라야 합니다")
-    private String securityQuestion1;
-    
-    @FieldNotEquals(group = "questions", message = "보안 질문들은 서로 달라야 합니다")
-    private String securityQuestion2;
 }
 ```
 
 ### 주요 특징
 
-- **그룹 기반 검증**: `group` 속성으로 검증할 필드들을 그룹화
-- **기본 그룹**: `group`을 지정하지 않으면 클래스 내 모든 같은 어노테이션 필드가 하나의 그룹으로 묶임
+- **필드 기반 검증**: `fields` 배열로 검증할 필드들을 명시적으로 지정
+- **다중 검증**: 하나의 클래스에 여러 개의 검증 규칙 적용 가능
 - **커스텀 메시지**: `message` 속성으로 검증 실패 시 표시할 메시지 커스터마이징
 - **Jakarta Bean Validation 호환**: 표준 검증 프레임워크와 완전 호환
 - **상속 지원**: 부모 클래스의 필드도 검증에 포함
@@ -101,7 +88,6 @@ public class Example {
         form.setPassword("password123");
         form.setPasswordConfirm("password123");
         form.setUsername("user");
-        form.setPassword("password123"); // username과 다른 값
         
         Set<ConstraintViolation<MyForm>> violations = validator.validate(form);
         
@@ -115,14 +101,11 @@ public class Example {
     }
 }
 
+@FieldEquals(fields = {"password", "passwordConfirm"}, message = "비밀번호가 일치하지 않습니다")
+@FieldNotEquals(fields = {"username", "password"}, message = "사용자명과 비밀번호는 달라야 합니다")
 class MyForm {
-    @FieldEquals(group = "password", message = "비밀번호가 일치하지 않습니다")
     private String password;
-    
-    @FieldEquals(group = "password", message = "비밀번호가 일치하지 않습니다")
     private String passwordConfirm;
-    
-    @FieldNotEquals(group = "security", message = "사용자명과 비밀번호는 달라야 합니다")
     private String username;
     
     // getters and setters...
@@ -142,11 +125,9 @@ public class UserController {
     }
 }
 
+@FieldEquals(fields = {"email", "emailConfirm"}, message = "이메일이 일치하지 않습니다")
 class UserRegistrationDto {
-    @FieldEquals(group = "email", message = "이메일이 일치하지 않습니다")
     private String email;
-    
-    @FieldEquals(group = "email", message = "이메일이 일치하지 않습니다")
     private String emailConfirm;
     
     // getters and setters...
