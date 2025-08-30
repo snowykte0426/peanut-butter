@@ -9,7 +9,7 @@ on:
     types: [published]
 
 jobs:
-  test:
+  Test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -38,8 +38,8 @@ jobs:
           path: '**/build/test-results/test/TEST-*.xml'
           reporter: java-junit
 
-  build:
-    needs: test
+  Build:
+    needs: Test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
