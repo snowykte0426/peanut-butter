@@ -1,5 +1,57 @@
 # Release Notes
 
+## v1.1.2
+
+### Summary
+**Spring Boot 3.x Compatibility Fix** - Resolved `@ConstructorBinding` annotation issue that caused application startup failures in Spring Boot 3.x environments.
+
+### Bug Fixes
+- **Fixed Spring Boot 3.x compatibility**: Removed `@ConstructorBinding` annotation from `TimeZoneProperties` class to resolve startup error: `com.github.snowykte0426.timezone.TimeZoneProperties declares @ConstructorBinding on a no-args constructor`
+- **Updated configuration binding**: Changed to Spring Boot 3.x compatible property binding approach for data classes with default values
+
+### Improvements
+- **Enhanced Spring Boot compatibility**: Now fully compatible with Spring Boot 3.1.x - 3.5.x
+- **Simplified property configuration**: Removed unnecessary annotations for cleaner code
+
+### Breaking Changes
+- None (fully backward compatible)
+
+### Deprecated
+- None
+
+### Key Features
+- All features from v1.1.1 remain unchanged
+- **Zero forced dependencies** beyond SLF4J API and Kotlin stdlib
+- **Modular design** allowing selective feature usage
+- **Framework agnostic** - works with or without Spring Boot
+
+### Requirements
+- **Minimum**: Java 17+ and SLF4J 2.0+
+- **For Kotlin features**: Kotlin 1.9+
+- **For validation**: Jakarta Bean Validation 3.0+
+- **For coroutine logging**: Kotlin Coroutines 1.7.3+
+- **For Spring Boot integration**: Spring Boot 3.1.x - 3.5.x
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.1.2")
+}
+```
+
+### Migration Guide
+**From v1.1.1 to v1.1.2**: Simply update the version number. No code changes required.
+
+```kotlin
+// Before
+implementation("com.github.snowykte0426:peanut-butter:1.1.1")
+
+// After  
+implementation("com.github.snowykte0426:peanut-butter:1.1.2")
+```
+
+---
+
 ## v1.1.1
 
 ### Summary
