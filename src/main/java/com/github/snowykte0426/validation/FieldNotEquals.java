@@ -6,18 +6,7 @@ import jakarta.validation.Payload;
 import java.lang.annotation.*;
 
 /**
- * 지정된 필드들이 서로 다른 값을 가져야 함을 검증하는 어노테이션입니다.
- * 
- * <p>사용 예시:</p>
- * <pre>
- * {@code
- * @FieldNotEquals(fields = {"username", "password"}, message = "사용자명과 비밀번호는 달라야 합니다")
- * public class SecurityForm {
- *     private String username;
- *     private String password;
- * }
- * }
- * </pre>
+ * Validates that specified fields have different values.
  * 
  * @author Kim Tae Eun
  */
@@ -29,35 +18,35 @@ import java.lang.annotation.*;
 public @interface FieldNotEquals {
     
     /**
-     * 검증할 필드명들을 지정합니다.
+     * Field names to validate for inequality.
      * 
-     * @return 검증할 필드명 배열
+     * @return array of field names
      */
     String[] fields();
     
     /**
-     * 검증 실패 시 표시할 메시지입니다.
+     * Error message when validation fails.
      * 
-     * @return 오류 메시지
+     * @return error message
      */
-    String message() default "필드 값들이 서로 달라야 합니다";
+    String message() default "Fields must have different values";
     
     /**
-     * 검증 그룹을 지정합니다.
+     * Validation groups.
      * 
-     * @return 검증 그룹
+     * @return validation groups
      */
     Class<?>[] groups() default {};
     
     /**
-     * 페이로드를 지정합니다.
+     * Payload for validation.
      * 
-     * @return 페이로드
+     * @return payload
      */
     Class<? extends Payload>[] payload() default {};
     
     /**
-     * 같은 클래스에 여러 개의 @FieldNotEquals 어노테이션을 적용할 때 사용됩니다.
+     * Container for multiple @FieldNotEquals annotations.
      */
     @Target({ElementType.TYPE})
     @Retention(RetentionPolicy.RUNTIME)
