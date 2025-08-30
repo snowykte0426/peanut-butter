@@ -29,7 +29,7 @@ A comprehensive utility library providing essential tools and helper functions f
 #### Gradle
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.1.0")
+    implementation("com.github.snowykte0426:peanut-butter:1.0.2")
 }
 ```
 
@@ -38,7 +38,7 @@ dependencies {
 <dependency>
     <groupId>com.github.snowykte0426</groupId>
     <artifactId>peanut-butter</artifactId>
-    <version>1.1.0</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -83,7 +83,7 @@ class AsyncUserService {
 
 ## 📚 Documentation
 
-- **[Usage Guide](USAGE.md)** - Comprehensive usage examples and best practices
+- **[Usage Guide](docs/USAGE.md)** - Comprehensive usage examples and best practices
 - **[API Documentation](https://javadoc.jitpack.io/com/github/snowykte0426/peanut-butter/latest/javadoc/)** - Full API reference
 
 ## 🔧 Requirements
