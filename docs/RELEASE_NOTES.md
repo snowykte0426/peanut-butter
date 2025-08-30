@@ -6,10 +6,10 @@
 **Dependency Minimization Release** - Transformed Peanut-Butter into a truly lightweight, modular library with **zero forced dependencies**. Users now only receive essential dependencies and can selectively add optional features as needed.
 
 ### Major Improvements
-- **🚀 Zero Forced Dependencies**: Reduced core dependencies to only SLF4J API + Kotlin stdlib (from ~20+ transitive dependencies)
-- **📦 Modular Architecture**: All features except basic logging are now optional with `compileOnly` dependencies
-- **🎯 Selective Feature Usage**: Users can choose exactly which features to include in their projects
-- **📖 Enhanced Documentation**: Comprehensive dependency management guides and feature matrix
+- **Zero Forced Dependencies**: Reduced core dependencies to only SLF4J API + Kotlin stdlib (from ~20+ transitive dependencies)
+- **Modular Architecture**: All features except basic logging are now optional with `compileOnly` dependencies
+- **Selective Feature Usage**: Users can choose exactly which features to include in their projects
+- **Enhanced Documentation**: Comprehensive dependency management guides and feature matrix
 
 ### Improvements
 - **DEPENDENCY_GUIDE.md**: Complete guide for dependency management
