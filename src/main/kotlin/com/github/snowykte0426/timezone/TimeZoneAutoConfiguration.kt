@@ -1,6 +1,7 @@
 package com.github.snowykte0426.timezone
 
-import org.slf4j.LoggerFactory
+import com.github.snowykte0426.logging.logInfo
+import com.github.snowykte0426.logging.logWarn
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -24,8 +25,6 @@ open class TimeZoneAutoConfiguration(
     private val timeZoneProperties: TimeZoneProperties
 ) {
 
-    private val log = LoggerFactory.getLogger(TimeZoneAutoConfiguration::class.java)
-
     @PostConstruct
     fun init() {
         try {
@@ -38,7 +37,7 @@ open class TimeZoneAutoConfiguration(
             TimeZone.setDefault(timeZone)
 
             if (timeZoneProperties.enableLogging) {
-                log.info(
+                logInfo(
                     "Default timezone set to {} ({}): Current time: {}",
                     supportedTimeZone.displayName,
                     supportedTimeZone.zoneId,
@@ -48,7 +47,7 @@ open class TimeZoneAutoConfiguration(
 
         } catch (e: Exception) {
             if (timeZoneProperties.enableLogging) {
-                log.warn("Failed to set default timezone to '{}': {}", timeZoneProperties.zone, e.message, e)
+                logWarn("Failed to set default timezone to '{}': {}", timeZoneProperties.zone, e.message, e)
             }
             throw e
         }

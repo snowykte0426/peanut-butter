@@ -1,6 +1,7 @@
 package com.github.snowykte0426.timezone
 
-import org.slf4j.LoggerFactory
+import com.github.snowykte0426.logging.logInfo
+import com.github.snowykte0426.logging.logWarn
 import java.time.LocalDateTime
 import java.util.*
 
@@ -11,19 +12,18 @@ class TimeZoneInitializer(
     private val properties: TimeZoneProperties
 ) {
 
-    private val log = LoggerFactory.getLogger(TimeZoneInitializer::class.java)
-
     /**
      * Changes the timezone programmatically.
      */
     fun changeTimeZone(timeZone: SupportedTimeZone) {
         try {
             val tz = timeZone.toTimeZone()
+
             System.setProperty("user.timezone", timeZone.zoneId)
             TimeZone.setDefault(tz)
 
             if (properties.enableLogging) {
-                log.info(
+                logInfo(
                     "Timezone changed to {} ({}): Current time: {}",
                     timeZone.displayName,
                     timeZone.zoneId,
@@ -33,7 +33,7 @@ class TimeZoneInitializer(
 
         } catch (e: Exception) {
             if (properties.enableLogging) {
-                log.warn("Failed to change timezone to '{}': {}", timeZone.name, e.message, e)
+                logWarn("Failed to change timezone to '{}': {}", timeZone.name, e.message, e)
             }
             throw e
         }
