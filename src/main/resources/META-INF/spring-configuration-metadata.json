@@ -3,7 +3,7 @@
     {
       "name": "peanut-butter.timezone",
       "type": "com.github.snowykte0426.timezone.TimeZoneProperties",
-      "description": "TimeZone 설정을 위한 프로퍼티"
+      "description": "Configuration properties for timezone settings"
     }
   ],
   "properties": [
@@ -11,20 +11,19 @@
       "name": "peanut-butter.timezone.zone",
       "type": "java.lang.String",
       "defaultValue": "KST",
-      "description": "설정할 타임존. 지원 타임존: UTC, KST, JST, GMT, WET, BST, CET, WEST, CEST, EET, EEST, MST, PT, ET"
+      "description": "Timezone to set. Supported: UTC, KST, JST, GMT, WET, BST, CET, WEST, CEST, EET, EEST, MST, PT, ET"
     },
     {
       "name": "peanut-butter.timezone.enabled",
       "type": "java.lang.Boolean",
       "defaultValue": true,
-      "description": "타임존 설정 활성화 여부"
+      "description": "Enable timezone configuration feature"
     },
     {
       "name": "peanut-butter.timezone.enable-logging",
       "type": "java.lang.Boolean",
       "defaultValue": true,
-      "description": "타임존 설정 시 로그 출력 여부"
+      "description": "Enable logging when timezone is configured"
     }
   ]
 }
-
