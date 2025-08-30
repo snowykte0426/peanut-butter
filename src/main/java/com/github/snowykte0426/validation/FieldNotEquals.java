@@ -5,11 +5,10 @@ import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
-@Target({ElementType.FIELD})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = FieldNotEqualsValidator.class)
 @Documented
-@Repeatable(FieldNotEquals.List.class)
 public @interface FieldNotEquals {
 
     String group() default "";
