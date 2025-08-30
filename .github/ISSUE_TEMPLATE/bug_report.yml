@@ -1,0 +1,80 @@
+name: Bug Report
+description: Report a reproducible defect to help improve quality.
+title: "[Bug] <short summary>"
+labels: [bug]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please fill out all required sections. Issues may be auto-closed if reproduction details are missing.
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-Submission Checklist
+      options:
+        - label: I searched for existing issues (open & closed) and found no duplicate.
+          required: true
+        - label: I reproduced the problem on a supported version (all except 1.1.1).
+          required: true
+        - label: I prepared a minimal reproducible sample (code/project/steps).
+          required: true
+  - type: input
+    id: affected_versions
+    attributes:
+      label: Affected Version(s)
+      description: Single version or range (e.g. 1.0.0, 1.2.x, ">=1.0.0 <1.3.0")
+      placeholder: ">=1.0.0 <1.2.0"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, JVM/JDK, Gradle, relevant libs (exact versions)
+      placeholder: macOS 14 / Temurin JDK 21 / Gradle 8.9
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem Description
+      description: What happened? Expected vs actual behavior.
+      placeholder: |
+        Expected: ...
+        Actual: ...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction Steps
+      description: Numbered steps including minimal code / configuration.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Stack Trace (trimmed)
+      description: Remove sensitive information. Provide only relevant excerpt.
+      render: shell
+  - type: dropdown
+    id: regression
+    attributes:
+      label: Regression?
+      description: Did this work in a previous supported version (≠1.1.1) and then break?
+      options:
+        - Unknown
+        - Yes (regression)
+        - No (new issue)
+    validations:
+      required: true
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Screenshots, links, hypotheses, related discussions.

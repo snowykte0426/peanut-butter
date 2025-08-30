@@ -1,0 +1,52 @@
+name: Feature Request
+description: Propose a new capability or an improvement.
+title: "[Feature] <short summary>"
+labels: [enhancement]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please describe the problem first, then the proposed solution. Keep it focused and user‑oriented.
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-Submission Checklist
+      options:
+        - label: I confirmed no existing issue/PR already covers this.
+          required: true
+        - label: I clearly separated the underlying problem from the proposed solution.
+          required: true
+        - label: I reviewed the support policy (all versions except 1.1.1 are supported).
+          required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / Background
+      description: What limitation, friction, or gap exists today?
+      placeholder: Currently ... makes it difficult to ...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed Solution
+      description: Core idea, API sketch, configuration changes.
+      placeholder: Add a new function ... that allows ...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Considered Alternatives
+      description: Other approaches or existing workarounds.
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact / Migration
+      description: Any compatibility, performance, or learning curve implications.
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: References, links, related discussions.

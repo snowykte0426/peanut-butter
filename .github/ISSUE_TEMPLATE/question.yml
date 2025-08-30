@@ -1,0 +1,53 @@
+name: Question / Help
+description: Ask about usage, configuration, or clarify unexpected behavior.
+title: "[Question] <short summary>"
+labels: [question]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template when you are unsure whether something is a bug or need clarification on usage.
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-Submission Checklist
+      options:
+        - label: I reviewed README and docs/USAGE.md.
+          required: true
+        - label: I searched existing issues.
+          required: true
+        - label: I checked behavior on a supported version (all except 1.1.1).
+          required: true
+  - type: input
+    id: version
+    attributes:
+      label: Library Version In Use
+      placeholder: 1.2.0
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Background / What You Tried
+      description: What are you trying to achieve and where are you blocked?
+    validations:
+      required: true
+  - type: textarea
+    id: code
+    attributes:
+      label: Relevant Code / Config (trimmed)
+      render: kotlin
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Result
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Result / Messages
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Screenshots, ideas, links, etc.

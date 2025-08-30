@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security Vulnerability Report
+    url: https://github.com/snowykte0426/peanut-butter/security/policy
+    about: Please report suspected vulnerabilities privately via the security policy page.
+  - name: Usage & Integration Guide
+    url: https://github.com/snowykte0426/peanut-butter/blob/main/docs/USAGE.md
+    about: Consult the usage guide before opening a question issue.
