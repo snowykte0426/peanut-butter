@@ -4,6 +4,7 @@ This guide provides comprehensive examples and best practices for using the Pean
 
 ## Table of Contents
 
+- [Dependency Management](#dependency-management)
 - [Field Validation](#field-validation)
 - [Logging Extensions](#logging-extensions)
 - [Coroutine Logging](#coroutine-logging)
@@ -11,7 +12,69 @@ This guide provides comprehensive examples and best practices for using the Pean
 - [Best Practices](#best-practices)
 - [Advanced Examples](#advanced-examples)
 
+## Dependency Management
+
+Peanut-Butter is designed to be **lightweight and modular**. You only need to include dependencies for the features you actually use.
+
+### Core Installation (Minimal)
+
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.1.0")
+    
+    // Choose your logging implementation (required for any logging functionality)
+    implementation("ch.qos.logback:logback-classic:1.5.13")
+    // OR implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.21.1")
+}
+```
+
+This gives you:
+- ✅ Basic logging extensions (`logger()`, `logInfo()`, etc.)
+- ✅ Performance timing utilities
+- ✅ Core timezone enums and utilities
+
+### Add Features as Needed
+
+#### For Validation Annotations
+```kotlin
+dependencies {
+    // Add validation support
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+    implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+    implementation("org.glassfish:jakarta.el:4.0.2") // For expression evaluation
+}
+```
+
+#### For Coroutine Logging
+```kotlin
+dependencies {
+    // Add coroutine support
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+}
+```
+
+#### For Spring Boot Auto-Configuration
+```kotlin
+dependencies {
+    // Add Spring Boot integration
+    implementation("org.springframework.boot:spring-boot-starter:3.1.5")
+}
+```
+
+### Feature Availability Matrix
+
+| Feature | Core Only | + Validation | + Coroutines | + Spring Boot |
+|---------|-----------|--------------|--------------|---------------|
+| Basic logging | ✅ | ✅ | ✅ | ✅ |
+| Performance timing | ✅ | ✅ | ✅ | ✅ |
+| Timezone utilities | ✅ | ✅ | ✅ | ✅ |
+| `@FieldEquals` annotations | ❌ | ✅ | ✅ | ✅ |
+| Async logging (`logInfoAsync`) | ❌ | ❌ | ✅ | ✅ |
+| Auto timezone configuration | ❌ | ❌ | ❌ | ✅ |
+
 ## Field Validation
+
+**Dependencies required**: Jakarta Validation API + implementation
 
 ### @FieldEquals Annotation
 
