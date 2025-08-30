@@ -1,11 +1,11 @@
 plugins {
     java
-    kotlin("jvm")
+    kotlin("jvm") version "1.9.25"
     `maven-publish`
 }
 
 group = "com.github.snowykte0426"
-version = "1.0.0"
+version = "1.1.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -15,9 +15,9 @@ java {
     withJavadocJar()
 }
 
-//kotlin {
-//    jvmToolchain(17)
-//}
+kotlin {
+    jvmToolchain(17)
+}
 
 repositories {
     mavenCentral()
@@ -34,10 +34,10 @@ dependencies {
     implementation("org.glassfish:jakarta.el:4.0.2")
     
     // Logging - SLF4J API (required)
-    //api("org.slf4j:slf4j-api:2.0.9")
+    api("org.slf4j:slf4j-api:2.0.9")
     
     // Logging - Default implementation (optional, can be excluded)
-    implementation("ch.qos.logback:logback-classic:1.4.14") {
+    implementation("ch.qos.logback:logback-classic:1.5.13") {
         // Users can exclude this and provide their own implementation
         isTransitive = false
     }
