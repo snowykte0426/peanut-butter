@@ -60,7 +60,6 @@ public class FieldValidationTest {
         TestUserNotEquals user = new TestUserNotEquals();
         user.username = "john_doe";
         user.password = "secret123";
-        user.confirmPassword = "different456";
         
         Set<ConstraintViolation<TestUserNotEquals>> violations = validator.validate(user);
         assertTrue(violations.isEmpty(), "서로 다른 값을 가진 필드들은 검증을 통과해야 합니다");
@@ -71,7 +70,6 @@ public class FieldValidationTest {
         TestUserNotEquals user = new TestUserNotEquals();
         user.username = "john_doe";
         user.password = "john_doe"; // username과 같은 값
-        user.confirmPassword = "different456";
         
         Set<ConstraintViolation<TestUserNotEquals>> violations = validator.validate(user);
         assertFalse(violations.isEmpty(), "같은 값을 가진 필드들은 검증에 실패해야 합니다");
@@ -92,31 +90,21 @@ public class FieldValidationTest {
     /**
      * @FieldEquals 테스트용 클래스
      */
+    @FieldEquals(fields = {"phoneNumber1", "phoneNumber2"}, message = "전화번호가 일치하지 않습니다")
+    @FieldEquals(fields = {"email1", "email2"}, message = "이메일이 일치하지 않습니다")
     static class TestUserEquals {
-        @FieldEquals(group = "phone", message = "전화번호가 일치하지 않습니다")
         String phoneNumber1;
-        
-        @FieldEquals(group = "phone", message = "전화번호가 일치하지 않습니다")
         String phoneNumber2;
-        
-        @FieldEquals(group = "email", message = "이메일이 일치하지 않습니다")
         String email1;
-        
-        @FieldEquals(group = "email", message = "이메일이 일치하지 않습니다")
         String email2;
     }
     
     /**
      * @FieldNotEquals 테스트용 클래스
      */
+    @FieldNotEquals(fields = {"username", "password"}, message = "사용자명과 비밀번호는 달라야 합니다")
     static class TestUserNotEquals {
-        @FieldNotEquals(group = "credentials", message = "사용자명과 비밀번호는 달라야 합니다")
         String username;
-        
-        @FieldNotEquals(group = "credentials", message = "사용자명과 비밀번호는 달라야 합니다")
         String password;
-        
-        @FieldNotEquals(group = "passwords", message = "비밀번호들은 서로 달라야 합니다")
-        String confirmPassword;
     }
 }

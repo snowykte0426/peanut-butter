@@ -6,103 +6,69 @@ import jakarta.validation.ConstraintValidatorContext;
 import java.lang.reflect.Field;
 import java.util.*;
 
+/**
+ * @FieldNotEquals 어노테이션의 검증 로직을 구현하는 클래스입니다.
+ * 
+ * @author Kim Tae Eun
+ */
 public class FieldNotEqualsValidator implements ConstraintValidator<FieldNotEquals, Object> {
     
-    private static final Map<Class<?>, Map<String, List<Field>>> fieldCache = new HashMap<>();
+    private String[] fieldNames;
+    private String message;
     
     @Override
     public void initialize(FieldNotEquals constraintAnnotation) {
+        this.fieldNames = constraintAnnotation.fields();
+        this.message = constraintAnnotation.message();
     }
     
     @Override
     public boolean isValid(Object object, ConstraintValidatorContext context) {
-        if (object == null) {
+        if (object == null || fieldNames.length < 2) {
             return true;
         }
         
-        Class<?> clazz = object.getClass();
-        Map<String, List<Field>> groupedFields = getGroupedFields(clazz);
-        
-        boolean isValid = true;
-        context.disableDefaultConstraintViolation();
-        
-        for (Map.Entry<String, List<Field>> entry : groupedFields.entrySet()) {
-            String group = entry.getKey();
-            List<Field> fields = entry.getValue();
-            
-            if (fields.size() < 2) {
-                continue;
-            }
-            
-            if (!validateGroup(object, fields, group, context)) {
-                isValid = false;
-            }
-        }
-        
-        return isValid;
-    }
-
-    private Map<String, List<Field>> getGroupedFields(Class<?> clazz) {
-        return fieldCache.computeIfAbsent(clazz, this::collectGroupedFields);
-    }
-
-    private Map<String, List<Field>> collectGroupedFields(Class<?> clazz) {
-        Map<String, List<Field>> groupedFields = new HashMap<>();
-
-        Class<?> currentClass = clazz;
-        while (currentClass != null && currentClass != Object.class) {
-            for (Field field : currentClass.getDeclaredFields()) {
-                FieldNotEquals[] annotations = field.getAnnotationsByType(FieldNotEquals.class);
-                
-                for (FieldNotEquals annotation : annotations) {
-                    String group = annotation.group().isEmpty() ? "" : annotation.group();
-                    groupedFields.computeIfAbsent(group, k -> new ArrayList<>()).add(field);
-                }
-            }
-            currentClass = currentClass.getSuperclass();
-        }
-        
-        return groupedFields;
-    }
-
-    private boolean validateGroup(Object object, List<Field> fields, String group, ConstraintValidatorContext context) {
         try {
             List<Object> values = new ArrayList<>();
-            List<String> fieldNames = new ArrayList<>();
-            String errorMessage = null;
+            List<String> accessibleFieldNames = new ArrayList<>();
             
-            for (Field field : fields) {
-                field.setAccessible(true);
-                Object value = field.get(object);
-                values.add(value);
-                fieldNames.add(field.getName());
-
-                if (errorMessage == null) {
-                    FieldNotEquals annotation = field.getAnnotation(FieldNotEquals.class);
-                    if (annotation != null && (annotation.group().equals(group) || (annotation.group().isEmpty() && group.equals("")))) {
-                        errorMessage = annotation.message();
-                    }
+            for (String fieldName : fieldNames) {
+                Field field = getField(object.getClass(), fieldName);
+                if (field != null) {
+                    field.setAccessible(true);
+                    Object value = field.get(object);
+                    values.add(value);
+                    accessibleFieldNames.add(fieldName);
                 }
             }
-
+            
+            if (values.size() < 2) {
+                return true;
+            }
+            
+            // 중복되는 값이 있는지 확인
             Set<Object> uniqueValues = new HashSet<>();
-            List<Object> duplicates = new ArrayList<>();
+            List<Integer> duplicateIndices = new ArrayList<>();
             
-            for (Object value : values) {
+            for (int i = 0; i < values.size(); i++) {
+                Object value = values.get(i);
                 if (!uniqueValues.add(value)) {
-                    duplicates.add(value);
+                    // 현재 값과 동일한 값을 가진 이전 인덱스도 찾아서 추가
+                    for (int j = 0; j < i; j++) {
+                        if (Objects.equals(values.get(j), value) && !duplicateIndices.contains(j)) {
+                            duplicateIndices.add(j);
+                        }
+                    }
+                    duplicateIndices.add(i);
                 }
             }
             
-            if (!duplicates.isEmpty()) {
-                for (int i = 0; i < values.size(); i++) {
-                    if (duplicates.contains(values.get(i))) {
-                        context.buildConstraintViolationWithTemplate(
-                            errorMessage != null ? errorMessage : "Field values must not be equal"
-                        )
-                        .addPropertyNode(fieldNames.get(i))
+            if (!duplicateIndices.isEmpty()) {
+                context.disableDefaultConstraintViolation();
+                for (int index : duplicateIndices) {
+                    context.buildConstraintViolationWithTemplate(message)
+                        .addPropertyNode(accessibleFieldNames.get(index))
                         .addConstraintViolation();
-                    }
                 }
                 return false;
             }
@@ -110,7 +76,22 @@ public class FieldNotEqualsValidator implements ConstraintValidator<FieldNotEqua
             return true;
             
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to access field values: " + e.getMessage(), e);
+            throw new RuntimeException("필드 접근 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
+    }
+    
+    /**
+     * 클래스 계층구조에서 필드를 찾습니다.
+     */
+    private Field getField(Class<?> clazz, String fieldName) {
+        Class<?> currentClass = clazz;
+        while (currentClass != null && currentClass != Object.class) {
+            try {
+                return currentClass.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                currentClass = currentClass.getSuperclass();
+            }
+        }
+        return null;
     }
 }
