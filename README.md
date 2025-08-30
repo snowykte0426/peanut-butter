@@ -1,41 +1,50 @@
 # Peanut-Butter 🥜🧈
 
-A comprehensive utility library for Java and Kotlin development.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Java Version](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.java.net/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.25-purple.svg)](https://kotlinlang.org/)
 
-## Features
+A comprehensive utility library providing essential tools and helper functions for Java and Kotlin development.
 
-### Field Validation Annotations
-- `@FieldEquals` - Validates that specified fields have equal values
-- `@FieldNotEquals` - Validates that specified fields have different values
+## ✨ Features
 
-### Logging Extensions (Kotlin)
-- `logger()` - Simple logger creation for any class
-- `logInfo()`, `logDebug()`, `logError()` etc. - Convenient logging methods
-- `logExecutionTime()` - Performance logging with timing
-- `logMethodExecution()` - Method entry/exit tracking
-- `logOnException()` - Exception handling with logging
+### 🔍 Field Validation Annotations
+- **`@FieldEquals`** - Validates that specified fields have equal values
+- **`@FieldNotEquals`** - Validates that specified fields have different values
 
-## Installation
+### 📝 Logging Extensions (Kotlin)
+- **Basic Logging** - `logger()`, `logInfo()`, `logDebug()`, `logError()` etc.
+- **Performance Logging** - `logExecutionTime()`, `logMethodExecution()`
+- **Exception Handling** - `logOnException()`, `logWarningOnException()`
 
-### Gradle
+### ⚡ Coroutine Logging Extensions (Kotlin)
+- **Async Logging** - `logInfoAsync()`, `logDebugAsync()`, `logErrorAsync()` etc.
+- **Async Performance** - `logExecutionTimeAsync()`, `logMethodExecutionAsync()`
+- **Advanced Features** - `retryWithLogging()`, `withLoggingContext()`, `executeParallelWithLogging()`
+
+## 🚀 Quick Start
+
+### Installation
+
+#### Gradle
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.0.0")
+    implementation("com.github.snowykte0426:peanut-butter:1.1.0")
 }
 ```
 
-### Maven
+#### Maven
 ```xml
 <dependency>
     <groupId>com.github.snowykte0426</groupId>
     <artifactId>peanut-butter</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
-## Quick Examples
+### Basic Usage
 
-### Validation
+#### Field Validation
 ```java
 @FieldEquals(fields = {"password", "passwordConfirm"})
 @FieldNotEquals(fields = {"username", "password"})
@@ -46,7 +55,7 @@ public class UserForm {
 }
 ```
 
-### Logging (Kotlin)
+#### Logging
 ```kotlin
 class UserService {
     fun createUser(userData: UserData) {
@@ -59,18 +68,45 @@ class UserService {
 }
 ```
 
-## Requirements
+#### Coroutine Logging
+```kotlin
+class AsyncUserService {
+    suspend fun createUserAsync(userData: UserData) {
+        logInfoAsync("Creating user asynchronously: {}", userData.username)
+        
+        val result = logExecutionTimeAsync("Async user creation") {
+            userRepository.saveAsync(userData)
+        }
+    }
+}
+```
 
-- Java 17+
-- SLF4J 2.0+ (for logging features)
-- Jakarta Bean Validation 3.0+ (for validation features)
+## 📚 Documentation
 
-## License
+- **[Usage Guide](USAGE.md)** - Comprehensive usage examples and best practices
+- **[API Documentation](https://javadoc.jitpack.io/com/github/snowykte0426/peanut-butter/latest/javadoc/)** - Full API reference
 
-MIT License
+## 🔧 Requirements
 
-## Author
+- **Java 17+**
+- **SLF4J 2.0+** (for logging features)
+- **Jakarta Bean Validation 3.0+** (for validation features)
+- **Kotlin Coroutines 1.7.3+** (for coroutine logging features)
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Author
 
 **Kim Tae Eun** (snowykte0426)
-- Email: snowykte0426@naver.com
-- GitHub: [@snowykte0426](https://github.com/snowykte0426)
+- 📧 Email: snowykte0426@naver.com
+- 🐙 GitHub: [@snowykte0426](https://github.com/snowykte0426)
+
+---
+
+**Made with ❤️ for the Java & Kotlin community**
