@@ -1,80 +1,73 @@
 # Peanut-Butter 🥜🧈
 
-A comprehensive utility library for Java development, providing essential tools and helper functions.
+A comprehensive utility library for Java and Kotlin development.
 
 ## Features
 
 ### Field Validation Annotations
+- `@FieldEquals` - Validates that specified fields have equal values
+- `@FieldNotEquals` - Validates that specified fields have different values
 
-Custom validation annotations based on Jakarta Bean Validation.
-
-#### @FieldEquals
-Validates that specified fields have equal values.
-
-#### @FieldNotEquals  
-Validates that specified fields have different values.
-
-### Key Features
-
-- **Explicit field validation**: Specify fields to validate using `fields` array
-- **Multiple validations**: Apply multiple validation rules to a single class
-- **Custom messages**: Customize error messages with `message` attribute
-- **Jakarta Bean Validation compatible**: Fully compatible with standard validation framework
-- **Inheritance support**: Validates fields from parent classes
-- **Null-safe**: Safe handling of null values
+### Logging Extensions (Kotlin)
+- `logger()` - Simple logger creation for any class
+- `logInfo()`, `logDebug()`, `logError()` etc. - Convenient logging methods
+- `logExecutionTime()` - Performance logging with timing
+- `logMethodExecution()` - Method entry/exit tracking
+- `logOnException()` - Exception handling with logging
 
 ## Installation
 
-### Gradle (build.gradle.kts)
-
+### Gradle
 ```kotlin
-dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.0.0")
-    
-    // Jakarta Bean Validation dependencies
-    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
-    implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
-    implementation("org.glassfish:jakarta.el:4.0.2")
-}
-```
-
-### Via JitPack
-
-```kotlin
-repositories {
-    maven { url = uri("https://jitpack.io") }
-}
-
 dependencies {
     implementation("com.github.snowykte0426:peanut-butter:1.0.0")
 }
 ```
 
-## Quick Example
+### Maven
+```xml
+<dependency>
+    <groupId>com.github.snowykte0426</groupId>
+    <artifactId>peanut-butter</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
 
+## Quick Examples
+
+### Validation
 ```java
-@FieldEquals(fields = {"password", "passwordConfirm"}, message = "Passwords must match")
-@FieldNotEquals(fields = {"username", "password"}, message = "Username and password must be different")
+@FieldEquals(fields = {"password", "passwordConfirm"})
+@FieldNotEquals(fields = {"username", "password"})
 public class UserForm {
     private String username;
     private String password;
     private String passwordConfirm;
-    // getters and setters...
+}
+```
+
+### Logging (Kotlin)
+```kotlin
+class UserService {
+    fun createUser(userData: UserData) {
+        logInfo("Creating user: {}", userData.username)
+        
+        val result = logExecutionTime("User creation") {
+            userRepository.save(userData)
+        }
+    }
 }
 ```
 
 ## Requirements
 
 - Java 17+
-- Jakarta Bean Validation API 3.0+
+- SLF4J 2.0+ (for logging features)
+- Jakarta Bean Validation 3.0+ (for validation features)
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-Issues, feature requests, and pull requests are always welcome!
+MIT License
 
 ## Author
 
