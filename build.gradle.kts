@@ -27,18 +27,18 @@ dependencies {
     // Kotlin
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
-    
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+
     // Validation
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     implementation("org.glassfish:jakarta.el:4.0.2")
     
-    // Logging - SLF4J API (required)
+    // Logging
     api("org.slf4j:slf4j-api:2.0.9")
     
     // Logging - Default implementation (optional, can be excluded)
     implementation("ch.qos.logback:logback-classic:1.5.13") {
-        // Users can exclude this and provide their own implementation
         isTransitive = false
     }
     
@@ -47,6 +47,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testImplementation("io.kotest:kotest-assertions-core:5.8.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
