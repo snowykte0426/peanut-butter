@@ -1,5 +1,56 @@
 # Release Notes
 
+## v1.2.2
+
+### Summary
+Minor documentation & clarity update: explicit Spring Security module version guidance and dependency clarification. No code changes, safe drop‑in upgrade from v1.2.1.
+
+### New Features
+- N/A (no new features)
+
+### Improvements
+- **Documentation Clarity**: Added explicit Spring Security module versions (6.3.5) for CORS integration.
+- **Dependency Guidance**: Clarified alternative between direct security modules vs spring-boot-starter-security.
+- **Consistency**: Aligned docs with current build script compileOnly declarations.
+
+### Bug Fixes
+- N/A (no functional defects addressed)
+
+### Breaking Changes
+- None (fully backward compatible with v1.2.1)
+
+### Deprecated
+- None
+
+### Key Highlights
+- Clearer CORS dependency instructions (security-web & security-config vs starter).
+- Purely documentation—no runtime or API impact.
+
+### Requirements
+- Java 17+
+- SLF4J 2.0+
+- (Optional) Kotlin 1.9+ for Kotlin extensions
+- (Optional) Jakarta Bean Validation 3.0+ for validation features
+- (Optional) Kotlin Coroutines 1.7.3+ for async logging
+- (Optional) Spring Boot 3.1.x + Spring Security 6.3.x for CORS auto-configuration
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.2.2")
+}
+```
+
+### Migration Guide
+1. Update dependency to `1.2.2`.
+2. No code changes required.
+3. (Optional) Adjust your CORS dependencies per clarified guidance if needed.
+
+---
+*See README.md and docs/USAGE.md for detailed examples and usage patterns.*
+
+---
+
 ## v1.2.1
 
 ### Summary
