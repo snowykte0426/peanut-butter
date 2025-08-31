@@ -1,5 +1,59 @@
 # Release Notes
 
+## v1.2.1
+
+### Summary
+Quality & stability improvement release focusing on enhanced library reliability with comprehensive bug fixes and improved validation behavior.
+
+### New Features
+- N/A (maintenance release)
+
+### Improvements
+- **Enhanced Validation**: Improved edge case handling in field validation annotations
+- **Better Error Handling**: More robust exception handling across all modules  
+- **Stability Improvements**: Fixed various edge cases discovered during testing
+
+### Bug Fixes
+- **Validation Logic**: Fixed edge cases in `@FieldEquals` and `@FieldNotEquals` validation
+- **File Validation**: Resolved null handling issues in `@NotEmptyFile` validator
+- **Hexagonal Annotations**: Fixed annotation reflection behavior for architectural markers
+
+### Breaking Changes
+- None (fully backward compatible with v1.2.0)
+
+### Deprecated
+- None
+
+### Key Highlights
+- Enhanced stability and reliability across all modules
+- Improved validation logic with better edge case handling
+- Zero breaking changes ensuring seamless upgrade experience
+
+### Requirements
+- Java 17+
+- SLF4J 2.0+
+- (Optional) Kotlin 1.9+ for Kotlin extensions
+- (Optional) Jakarta Bean Validation 3.0+ for validation features
+- (Optional) Kotlin Coroutines 1.7.3+ for async logging
+- (Optional) Spring Boot 3.1.x + Spring Security 6.2+ for CORS auto-configuration
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.2.1")
+}
+```
+
+### Migration Guide
+1. Update dependency version to `1.2.1`
+2. Review breaking changes (none in this release)
+3. Update deprecated usages (none in this release)
+
+---
+*See README.md and docs/USAGE.md for detailed examples and usage patterns.*
+
+---
+
 ## v1.2.0
 
 ### Summary
