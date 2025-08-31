@@ -10,7 +10,7 @@ class LoggerExtensionsTest : FunSpec({
         val testInstance = TestClass()
         val logger = testInstance.logger()
         
-        logger.name shouldBe "logging.com.github.snowykte0426.peanut.butter.TestClass"
+        logger.name shouldBe "com.github.snowykte0426.peanut.butter.logging.TestClass"
     }
     
     test("logger(name) should return logger with custom name") {
@@ -32,13 +32,13 @@ class LoggerExtensionsTest : FunSpec({
         val testInstance = TestClass()
         val lazyLogger by testInstance.lazyLogger()
         
-        lazyLogger.name shouldBe "logging.com.github.snowykte0426.peanut.butter.TestClass"
+        lazyLogger.name shouldBe "com.github.snowykte0426.peanut.butter.logging.TestClass"
     }
     
     test("companionLogger should return logger for enclosing class") {
         val logger = TestClassWithCompanion.logger()
         
-        logger.name shouldBe "logging.com.github.snowykte0426.peanut.butter.TestClassWithCompanion"
+        logger.name shouldBe "com.github.snowykte0426.peanut.butter.logging.TestClassWithCompanion"
     }
     
     test("convenient logging functions should work") {
