@@ -11,6 +11,50 @@ import java.lang.annotation.RetentionPolicy
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 
+@Port(direction = PortDirection.INBOUND)
+internal interface TestPort {
+    fun process(data: String): String
+}
+
+@Port(direction = PortDirection.INBOUND)
+internal interface InboundPort
+
+@Port(direction = PortDirection.OUTBOUND)
+internal interface OutboundPort
+
+@Port(direction = PortDirection.OUTBOUND)
+internal interface BasePort {
+    fun execute(): String
+}
+
+internal interface ExtendedPort : BasePort {
+    fun additionalMethod(): Int
+}
+
+@Port(direction = PortDirection.INBOUND)
+internal interface UserService {
+    fun createUser(name: String): String
+    fun findUser(id: Long): String?
+}
+
+@Port(direction = PortDirection.OUTBOUND)
+internal interface UserRepository {
+    fun save(user: String): String
+    fun findById(id: Long): String?
+}
+
+@Port(direction = PortDirection.INBOUND)
+internal interface Service1
+
+@Port(direction = PortDirection.INBOUND)  
+internal interface Service2
+
+@Port(direction = PortDirection.OUTBOUND)
+internal interface Repository1
+
+@Port(direction = PortDirection.OUTBOUND)
+internal interface Repository2
+
 class HexagonalAnnotationTest : FunSpec({
 
     test("PortDirection enum should have correct values") {
@@ -27,23 +71,12 @@ class HexagonalAnnotationTest : FunSpec({
     }
 
     test("Port annotation should be present on annotated interface") {
-        @Port(direction = PortDirection.INBOUND)
-        interface TestPort {
-            fun process(data: String): String
-        }
-
         val annotation = TestPort::class.findAnnotation<Port>()
         annotation shouldNotBe null
         annotation!!.direction shouldBe PortDirection.INBOUND
     }
 
     test("Port annotation should support different directions") {
-        @Port(direction = PortDirection.INBOUND)
-        interface InboundPort
-
-        @Port(direction = PortDirection.OUTBOUND)
-        interface OutboundPort
-
         val inboundAnnotation = InboundPort::class.findAnnotation<Port>()
         val outboundAnnotation = OutboundPort::class.findAnnotation<Port>()
 
@@ -100,13 +133,9 @@ class HexagonalAnnotationTest : FunSpec({
     }
 
     test("annotations should be discoverable through reflection") {
-        @Port(direction = PortDirection.INBOUND)
-        interface UserRepository {
-            fun findById(id: Long): String?
-        }
-
         @Adapter(direction = PortDirection.OUTBOUND)
         class DatabaseUserAdapter : UserRepository {
+            override fun save(user: String) = "saved: $user"
             override fun findById(id: Long) = "User $id"
         }
 
@@ -115,15 +144,6 @@ class HexagonalAnnotationTest : FunSpec({
     }
 
     test("annotations should work with inheritance") {
-        @Port(direction = PortDirection.OUTBOUND)
-        interface BasePort {
-            fun execute(): String
-        }
-
-        interface ExtendedPort : BasePort {
-            fun additionalMethod(): Int
-        }
-
         @Adapter(direction = PortDirection.OUTBOUND)
         abstract class BaseAdapter : BasePort
 
@@ -138,20 +158,6 @@ class HexagonalAnnotationTest : FunSpec({
     }
 
     test("annotations should be accessible in realistic hexagonal architecture scenario") {
-        // Domain Port (Inbound)
-        @Port(direction = PortDirection.INBOUND)
-        interface UserService {
-            fun createUser(name: String): String
-            fun findUser(id: Long): String?
-        }
-
-        // Infrastructure Port (Outbound) 
-        @Port(direction = PortDirection.OUTBOUND)
-        interface UserRepository {
-            fun save(user: String): String
-            fun findById(id: Long): String?
-        }
-
         // Web Adapter (Inbound)
         @Adapter(direction = PortDirection.INBOUND)
         class UserController(private val userService: UserService) {
@@ -192,18 +198,6 @@ class HexagonalAnnotationTest : FunSpec({
     }
 
     test("annotations should support multiple instances on different classes") {
-        @Port(direction = PortDirection.INBOUND)
-        interface Service1
-
-        @Port(direction = PortDirection.INBOUND)  
-        interface Service2
-
-        @Port(direction = PortDirection.OUTBOUND)
-        interface Repository1
-
-        @Port(direction = PortDirection.OUTBOUND)
-        interface Repository2
-
         val service1Ann = Service1::class.findAnnotation<Port>()!!
         val service2Ann = Service2::class.findAnnotation<Port>()!!
         val repo1Ann = Repository1::class.findAnnotation<Port>()!!
