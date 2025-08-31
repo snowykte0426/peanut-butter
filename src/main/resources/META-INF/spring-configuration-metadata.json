@@ -4,6 +4,11 @@
       "name": "peanut-butter.timezone",
       "type": "com.github.snowykte0426.peanut.butter.timezone.TimeZoneProperties",
       "description": "Configuration properties for timezone settings"
+    },
+    {
+      "name": "peanut-butter.security.cors",
+      "type": "com.github.snowykte0426.peanut.butter.security.cors.CorsProperties",
+      "description": "Configuration properties for CORS (Cross-Origin Resource Sharing) settings"
     }
   ],
   "properties": [
@@ -24,6 +29,47 @@
       "type": "java.lang.Boolean",
       "defaultValue": true,
       "description": "Enable logging when timezone is configured"
+    },
+    {
+      "name": "peanut-butter.security.cors.enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "Enable CORS configuration feature"
+    },
+    {
+      "name": "peanut-butter.security.cors.allowed-origins",
+      "type": "java.util.List<java.lang.String>",
+      "defaultValue": ["*"],
+      "description": "List of allowed origins for CORS requests. Examples: ['https://example.com', 'http://localhost:3000']"
+    },
+    {
+      "name": "peanut-butter.security.cors.allowed-headers",
+      "type": "java.util.List<java.lang.String>",
+      "defaultValue": ["*"],
+      "description": "List of allowed headers for CORS requests. Examples: ['Content-Type', 'Authorization', 'X-Requested-With']"
+    },
+    {
+      "name": "peanut-butter.security.cors.allowed-methods",
+      "type": "java.util.Map<java.lang.String,java.lang.Boolean>",
+      "description": "Map of HTTP methods and their allowed status for CORS requests. Key: HTTP method name, Value: true to allow, false to deny"
+    },
+    {
+      "name": "peanut-butter.security.cors.allow-credentials",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "Whether to allow credentials in CORS requests"
+    },
+    {
+      "name": "peanut-butter.security.cors.max-age",
+      "type": "java.lang.Long",
+      "defaultValue": 3600,
+      "description": "Maximum age (in seconds) for preflight request caching"
+    },
+    {
+      "name": "peanut-butter.security.cors.exposed-headers",
+      "type": "java.util.List<java.lang.String>",
+      "defaultValue": [],
+      "description": "List of exposed headers for CORS responses. Headers that the browser is allowed to access"
     }
   ]
 }
