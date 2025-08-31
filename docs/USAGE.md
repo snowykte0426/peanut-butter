@@ -78,9 +78,13 @@ dependencies {
 #### For CORS Configuration
 ```kotlin
 dependencies {
-    // Add CORS support (requires Spring Boot + Spring Security)
-    implementation("org.springframework.boot:spring-boot-starter:3.1.5")
-    implementation("org.springframework.boot:spring-boot-starter-security:3.1.5")
+    // Option 1: Use Spring Security modules directly (matches library compileOnly versions)
+    implementation("org.springframework.security:spring-security-web:6.3.5")
+    implementation("org.springframework.security:spring-security-config:6.3.5")
+    implementation("org.springframework.boot:spring-boot-starter:3.1.5") // if Spring Boot auto-config also needed
+    
+    // Option 2: Simpler (brings in matching security modules transitively)
+    // implementation("org.springframework.boot:spring-boot-starter-security:3.1.5")
 }
 ```
 
@@ -627,7 +631,7 @@ If upgrading from <= 1.0.2:
 
 ## CORS Configuration
 
-**Dependencies required**: Spring Boot + Spring Security
+**Dependencies required**: Spring Boot + Spring Security (web + config modules or Boot starter security)
 
 Peanut-Butter provides comprehensive CORS (Cross-Origin Resource Sharing) configuration with Spring Boot auto-configuration support. The CORS module automatically configures CORS policies based on your application properties and integrates seamlessly with Spring Security.
 

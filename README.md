@@ -16,7 +16,7 @@ Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotl
 | Logging (Sync) | Logger helpers, structured & conditional logging, performance timers | SLF4J API only |
 | Logging (Coroutines) | Async‑safe logging, execution timing for suspend functions, correlation (MDC) context | Kotlin Coroutines (optional) |
 | Time Zone Management | Spring Boot auto configuration, runtime switching, safe temporary context | Spring Boot Starter (optional) |
-| CORS Configuration | Spring Security CORS auto-configuration, flexible property-based setup | Spring Boot Starter + Spring Security (optional) |
+| CORS Configuration | Spring Security CORS auto-configuration, flexible property-based setup | Spring (Web), Spring Security (optional) |
 | Performance Helpers | Execution/method timing, memory usage snapshot logging | SLF4J API only |
 | Hexagonal Architecture | `@Port`, `@Adapter`, `PortDirection` semantic markers | (Optional) Spring (for `@Adapter`) |
 
@@ -38,6 +38,11 @@ dependencies {
     
     // For Spring Boot auto-configuration & @Adapter stereotype
     implementation("org.springframework.boot:spring-boot-starter:3.1.5")
+    
+    // For CORS configuration (optional) - match library compileOnly versions
+    compileOnly("org.springframework.security:spring-security-web:6.3.5")
+    compileOnly("org.springframework.security:spring-security-config:6.3.5")
+    // (Alternatively in an application: implementation("org.springframework.boot:spring-boot-starter-security:3.1.5"))
     
     // Choose your logging implementation
     implementation("ch.qos.logback:logback-classic:1.5.13") // or log4j2, etc.
@@ -83,6 +88,28 @@ dependencies {
   <version>3.1.5</version>
 </dependency>
 
+<!-- Optional: CORS (Spring Security modules) -->
+<dependency>
+  <groupId>org.springframework.security</groupId>
+  <artifactId>spring-security-web</artifactId>
+  <version>6.3.5</version>
+  <scope>provided</scope>
+</dependency>
+<dependency>
+  <groupId>org.springframework.security</groupId>
+  <artifactId>spring-security-config</artifactId>
+  <version>6.3.5</version>
+  <scope>provided</scope>
+</dependency>
+<!-- Or simply use Boot starter security (ensure version alignment with your Boot version) -->
+<!--
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-security</artifactId>
+  <version>3.1.5</version>
+</dependency>
+-->
+
 <!-- Logging Implementation -->
 <dependency>
   <groupId>ch.qos.logback</groupId>
@@ -111,7 +138,7 @@ This library is designed with **dependency minimization** in mind:
 - 📦 File upload constraint (`@NotEmptyFile`) → Jakarta Validation + Spring Web `MultipartFile`
 - 📦 Coroutine logging → Kotlin Coroutines
 - 📦 Spring Boot auto-configuration → Spring Boot Starter
-- 📦 CORS configuration → Spring Boot Starter + Spring Security
+- 📦 CORS configuration → Spring Web + Spring Security (web + config) modules (or Boot starter security)
 - 📦 Actual logging → Your choice of SLF4J implementation
 
 ## Documentation
@@ -127,7 +154,7 @@ This library is designed with **dependency minimization** in mind:
 - **For Kotlin features**: Kotlin 1.9+
 - **For validation**: Jakarta Bean Validation 3.0+
 - **For coroutine logging**: Kotlin Coroutines 1.7.3+
-- **For Spring Boot integration**: Spring Boot 3.1.x
+- **For Spring integration**: Spring Framework / Boot (for auto-config) + Spring Security (for CORS) versions compatible with the API levels used (tested with Spring Boot 3.1.5 + Spring Security 6.3.x APIs)
 
 ## Version Support Policy
 All released versions are supported **except `1.1.1`**, which is explicitly excluded from maintenance and security updates.
