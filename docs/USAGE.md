@@ -96,7 +96,7 @@ dependencies {
 Validates that specified fields have equal values.
 
 ```java
-import com.github.snowykte0426.validation.FieldEquals;
+import validation.com.github.snowykte0426.peanut.buttor.FieldEquals;
 
 @FieldEquals(fields = {"password", "passwordConfirm"})
 public class UserRegistrationForm {
@@ -139,7 +139,7 @@ public class UserForm {
 Validates that specified fields have different values.
 
 ```java
-import com.github.snowykte0426.validation.FieldNotEquals;
+import validation.com.github.snowykte0426.peanut.buttor.FieldNotEquals;
 
 @FieldNotEquals(fields = {"username", "password"})
 public class UserForm {
