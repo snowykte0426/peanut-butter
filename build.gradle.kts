@@ -52,6 +52,7 @@ dependencies {
     testImplementation("org.springframework.security:spring-security-config:6.2.4")
     testImplementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
     testImplementation("org.springframework:spring-test:6.2.8")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
     testImplementation("jakarta.validation:jakarta.validation-api:3.0.2")
     testImplementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     testImplementation("org.glassfish:jakarta.el:4.0.2")
