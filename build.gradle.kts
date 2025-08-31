@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.snowykte0426"
-version = "1.1.4"
+version = "1.2.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -34,6 +34,8 @@ dependencies {
     compileOnly("org.springframework.boot:spring-boot-starter:3.1.5")
     compileOnly("org.springframework.boot:spring-boot-configuration-processor:3.1.5")
     compileOnly("org.springframework:spring-web:6.2.8")
+    compileOnly("org.springframework.security:spring-security-web:6.2.4")
+    compileOnly("org.springframework.security:spring-security-config:6.2.4")
     compileOnly("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     compileOnly("org.glassfish:jakarta.el:4.0.2")
 
@@ -46,6 +48,10 @@ dependencies {
     testImplementation(kotlin("reflect"))
     testImplementation("org.springframework.boot:spring-boot-starter:3.1.5")
     testImplementation("org.springframework.boot:spring-boot-configuration-processor:3.1.5")
+    testImplementation("org.springframework.security:spring-security-web:6.2.4")
+    testImplementation("org.springframework.security:spring-security-config:6.2.4")
+    testImplementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
+    testImplementation("org.springframework:spring-test:6.2.8")
     testImplementation("jakarta.validation:jakarta.validation-api:3.0.2")
     testImplementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     testImplementation("org.glassfish:jakarta.el:4.0.2")
