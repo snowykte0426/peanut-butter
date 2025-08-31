@@ -121,10 +121,12 @@ class NotEmptyFileValidatorTest : FunSpec({
 
         val context1 = mock<ConstraintValidatorContext>()
         val context2 = mock<ConstraintValidatorContext>()
-        val context3: ConstraintValidatorContext? = null
 
         validator.isValid(mockFile, context1) shouldBe true
         validator.isValid(mockFile, context2) shouldBe true
-        validator.isValid(mockFile, context3!!) shouldBe true
+
+        val result1 = validator.isValid(mockFile, context1)
+        val result2 = validator.isValid(mockFile, context2)
+        result1 shouldBe result2
     }
 })

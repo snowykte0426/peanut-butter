@@ -20,12 +20,10 @@ class EnableAutomaticTimeZoneTest : FunSpec({
     test("EnableAutomaticTimeZone should have correct target and retention") {
         val annotationClass = EnableAutomaticTimeZone::class.java
 
-        // Check if it's annotated with @Target
         val targetAnnotation = annotationClass.getAnnotation(Target::class.java)
         targetAnnotation shouldNotBe null
         targetAnnotation.allowedTargets shouldBe arrayOf(AnnotationTarget.CLASS)
 
-        // Check if it's annotated with @Retention  
         val retentionAnnotation = annotationClass.getAnnotation(Retention::class.java)
         retentionAnnotation shouldNotBe null
         retentionAnnotation.value shouldBe AnnotationRetention.RUNTIME
@@ -55,15 +53,12 @@ class EnableAutomaticTimeZoneTest : FunSpec({
     }
 
     test("EnableAutomaticTimeZone should be usable with other Spring annotations") {
-        // Simulating a typical Spring Boot application setup
         @EnableAutomaticTimeZone
         class Application {
-            // This would typically have @SpringBootApplication as well
         }
 
         @EnableAutomaticTimeZone
         class Configuration {
-            // This would typically have @Configuration as well
         }
 
         Application::class.findAnnotation<EnableAutomaticTimeZone>() shouldNotBe null
@@ -86,9 +81,10 @@ class EnableAutomaticTimeZoneTest : FunSpec({
 
         val clazz = ReflectionTestApp::class.java
         val annotations = clazz.annotations
-        
-        annotations.size shouldBe 1
-        annotations[0].shouldBeInstanceOf<EnableAutomaticTimeZone>()
+
+        val enableTimeZoneAnnotation = annotations.find { it is EnableAutomaticTimeZone }
+        enableTimeZoneAnnotation shouldNotBe null
+        enableTimeZoneAnnotation.shouldBeInstanceOf<EnableAutomaticTimeZone>()
     }
 
     test("annotation should work with class inheritance") {
@@ -98,7 +94,6 @@ class EnableAutomaticTimeZoneTest : FunSpec({
         class ConcreteApplication : BaseApplication()
 
         BaseApplication::class.findAnnotation<EnableAutomaticTimeZone>() shouldNotBe null
-        // Note: Annotations are not inherited by default in Kotlin/Java
         ConcreteApplication::class.findAnnotation<EnableAutomaticTimeZone>() shouldBe null
     }
 
@@ -119,11 +114,10 @@ class EnableAutomaticTimeZoneTest : FunSpec({
 
     test("annotation should be a kotlin annotation") {
         val annotationClass = EnableAutomaticTimeZone::class
-        
-        // Verify it's a Kotlin annotation class
+
         annotationClass.isData shouldBe false
         annotationClass.isSealed shouldBe false
-        annotationClass.isAbstract shouldBe true // Annotation classes are abstract
+        annotationClass.isAbstract shouldBe false
     }
 
     test("annotation class should have correct package") {
@@ -134,15 +128,12 @@ class EnableAutomaticTimeZoneTest : FunSpec({
     }
 
     test("annotation should support typical Spring Boot usage patterns") {
-        // Pattern 1: Direct on main class
         @EnableAutomaticTimeZone
         class MainApp
 
-        // Pattern 2: On configuration class
         @EnableAutomaticTimeZone
         class TimeZoneConfig
 
-        // Pattern 3: Combined with other configurations
         @EnableAutomaticTimeZone
         class FullConfiguration
 

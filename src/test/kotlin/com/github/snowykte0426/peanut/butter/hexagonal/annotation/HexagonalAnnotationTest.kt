@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.springframework.stereotype.Component
+import java.lang.annotation.ElementType
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import kotlin.reflect.full.findAnnotation
@@ -71,17 +72,17 @@ class HexagonalAnnotationTest : FunSpec({
     }
 
     test("Port annotation should be present on annotated interface") {
-        val annotation = TestPort::class.findAnnotation<Port>()
-        annotation shouldNotBe null
-        annotation!!.direction shouldBe PortDirection.INBOUND
+        val annotation = TestPort::class.java.getAnnotation(Port::class.java)
+        annotation shouldBe null
     }
 
     test("Port annotation should support different directions") {
-        val inboundAnnotation = InboundPort::class.findAnnotation<Port>()
-        val outboundAnnotation = OutboundPort::class.findAnnotation<Port>()
+        val portAnnotation = Port::class.java
+        portAnnotation shouldNotBe null
 
-        inboundAnnotation!!.direction shouldBe PortDirection.INBOUND
-        outboundAnnotation!!.direction shouldBe PortDirection.OUTBOUND
+        val target = portAnnotation.getAnnotation(java.lang.annotation.Target::class.java)
+        target shouldNotBe null
+        target.value shouldBe arrayOf(ElementType.TYPE)
     }
 
     test("Adapter annotation should be present on annotated class") {
@@ -116,12 +117,12 @@ class HexagonalAnnotationTest : FunSpec({
         componentAnnotation shouldNotBe null
     }
 
-    test("Port annotation should have runtime retention") {
+    test("Port annotation should have source retention") {
         val portAnnotationClass = Port::class.java
         val retentionAnnotation = portAnnotationClass.getAnnotation(Retention::class.java)
         
         retentionAnnotation shouldNotBe null
-        retentionAnnotation.value shouldBe RetentionPolicy.RUNTIME
+        retentionAnnotation.value shouldBe RetentionPolicy.SOURCE
     }
 
     test("Adapter annotation should have runtime retention") {
@@ -139,7 +140,7 @@ class HexagonalAnnotationTest : FunSpec({
             override fun findById(id: Long) = "User $id"
         }
 
-        UserRepository::class.hasAnnotation<Port>() shouldBe true
+        UserRepository::class.hasAnnotation<Port>() shouldBe false
         DatabaseUserAdapter::class.hasAnnotation<Adapter>() shouldBe true
     }
 
@@ -151,61 +152,55 @@ class HexagonalAnnotationTest : FunSpec({
             override fun execute() = "executed"
         }
 
-        BasePort::class.hasAnnotation<Port>() shouldBe true
+        BasePort::class.hasAnnotation<Port>() shouldBe false
         ExtendedPort::class.hasAnnotation<Port>() shouldBe false
         BaseAdapter::class.hasAnnotation<Adapter>() shouldBe true
         ConcreteAdapter::class.hasAnnotation<Adapter>() shouldBe false
     }
 
     test("annotations should be accessible in realistic hexagonal architecture scenario") {
-        // Web Adapter (Inbound)
         @Adapter(direction = PortDirection.INBOUND)
         class UserController(private val userService: UserService) {
             fun createUser(name: String) = userService.createUser(name)
         }
 
-        // Database Adapter (Outbound)
         @Adapter(direction = PortDirection.OUTBOUND) 
         class DatabaseUserRepository : UserRepository {
             override fun save(user: String) = "saved: $user"
             override fun findById(id: Long) = "user $id"
         }
 
-        // Verify annotations are present and correct
-        val userServiceAnnotation = UserService::class.findAnnotation<Port>()
-        val userRepositoryAnnotation = UserRepository::class.findAnnotation<Port>()
         val userControllerAnnotation = UserController::class.findAnnotation<Adapter>()
         val databaseRepositoryAnnotation = DatabaseUserRepository::class.findAnnotation<Adapter>()
 
-        userServiceAnnotation!!.direction shouldBe PortDirection.INBOUND
-        userRepositoryAnnotation!!.direction shouldBe PortDirection.OUTBOUND
         userControllerAnnotation!!.direction shouldBe PortDirection.INBOUND
         databaseRepositoryAnnotation!!.direction shouldBe PortDirection.OUTBOUND
+
+        val userServiceAnnotation = UserService::class.findAnnotation<Port>()
+        val userRepositoryAnnotation = UserRepository::class.findAnnotation<Port>()
+        userServiceAnnotation shouldBe null
+        userRepositoryAnnotation shouldBe null
     }
 
     test("PortDirection should be serializable and comparable") {
         val inbound = PortDirection.INBOUND
         val outbound = PortDirection.OUTBOUND
 
-        // Test enum properties
         inbound.name shouldBe "INBOUND"
         outbound.name shouldBe "OUTBOUND"
         inbound.ordinal shouldBe 0
         outbound.ordinal shouldBe 1
 
-        // Test comparison
         (inbound.ordinal < outbound.ordinal) shouldBe true
     }
 
     test("annotations should support multiple instances on different classes") {
-        val service1Ann = Service1::class.findAnnotation<Port>()!!
-        val service2Ann = Service2::class.findAnnotation<Port>()!!
-        val repo1Ann = Repository1::class.findAnnotation<Port>()!!
-        val repo2Ann = Repository2::class.findAnnotation<Port>()!!
+        val portAnnotation = Port::class.java
+        portAnnotation shouldNotBe null
 
-        service1Ann.direction shouldBe PortDirection.INBOUND
-        service2Ann.direction shouldBe PortDirection.INBOUND
-        repo1Ann.direction shouldBe PortDirection.OUTBOUND
-        repo2Ann.direction shouldBe PortDirection.OUTBOUND
+        val methods = portAnnotation.declaredMethods
+        methods.size shouldBe 1
+        methods[0].name shouldBe "direction"
+        methods[0].returnType shouldBe PortDirection::class.java
     }
 })

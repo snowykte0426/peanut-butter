@@ -13,7 +13,9 @@ class ConvenientLoggingTest : FunSpec({
     lateinit var testLogger: ch.qos.logback.classic.Logger
 
     beforeEach {
-        testLogger = LoggerFactory.getLogger(ConvenientLoggingTest::class.java) as ch.qos.logback.classic.Logger
+        val rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as ch.qos.logback.classic.Logger
+        testLogger = rootLogger
+        
         listAppender = ListAppender<ILoggingEvent>()
         listAppender.start()
         testLogger.addAppender(listAppender)
