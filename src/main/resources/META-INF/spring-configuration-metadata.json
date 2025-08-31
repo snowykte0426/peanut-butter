@@ -2,7 +2,7 @@
   "groups": [
     {
       "name": "peanut-butter.timezone",
-      "type": "com.github.snowykte0426.peanut.buttor.timezone.TimeZoneProperties",
+      "type": "com.github.snowykte0426.peanut.butter.timezone.TimeZoneProperties",
       "description": "Configuration properties for timezone settings"
     }
   ],

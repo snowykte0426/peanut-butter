@@ -96,8 +96,6 @@ dependencies {
 Validates that specified fields have equal values.
 
 ```java
-import validation.com.github.snowykte0426.peanut.buttor.FieldEquals;
-
 @FieldEquals(fields = {"password", "passwordConfirm"})
 public class UserRegistrationForm {
     private String username;
@@ -139,13 +137,11 @@ public class UserForm {
 Validates that specified fields have different values.
 
 ```java
-import validation.com.github.snowykte0426.peanut.buttor.FieldNotEquals;
-
 @FieldNotEquals(fields = {"username", "password"})
 public class UserForm {
     private String username;
     private String password;
-    
+
     // constructors, getters, setters...
 }
 ```
@@ -208,8 +204,6 @@ Benefits:
 ### Basic Logger Creation
 
 ```kotlin
-import com.github.snowykte0426.logging.*
-
 class UserService {
     // Simple logger creation
     private val logger = logger()
@@ -305,8 +299,6 @@ class UserService {
 ### Basic Async Logging
 
 ```kotlin
-import com.github.snowykte0426.logging.*
-
 class AsyncUserService {
     suspend fun createUser(userData: UserData) {
         // Async-safe logging
