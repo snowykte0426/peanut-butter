@@ -6,6 +6,8 @@ This guide provides comprehensive examples and best practices for using the Pean
 
 - [Dependency Management](#dependency-management)
 - [Field Validation](#field-validation)
+- [File Upload Validation](#file-upload-validation)
+- [Hexagonal Architecture Annotations](#hexagonal-architecture-annotations)
 - [Logging Extensions](#logging-extensions)
 - [Coroutine Logging](#coroutine-logging)
 - [TimeZone Utilities](#timezone-utilities)
@@ -20,7 +22,7 @@ Peanut-Butter is designed to be **lightweight and modular**. You only need to in
 
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.1.1")
+    implementation("com.github.snowykte0426:peanut-butter:1.1.3")
     
     // Choose your logging implementation (required for any logging functionality)
     implementation("ch.qos.logback:logback-classic:1.5.13")
@@ -32,6 +34,7 @@ This gives you:
 - ✅ Basic logging extensions (`logger()`, `logInfo()`, etc.)
 - ✅ Performance timing utilities
 - ✅ Core timezone enums and utilities
+- ✅ Hexagonal annotations
 
 ### Add Features as Needed
 
@@ -42,6 +45,16 @@ dependencies {
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     implementation("org.glassfish:jakarta.el:4.0.2") // For expression evaluation
+}
+```
+
+#### For File Upload Constraint (`@NotEmptyFile`)
+```kotlin
+dependencies {
+    // Add file upload validation support
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
+    implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+    implementation("org.springframework:spring-web:6.2.8") // MultipartFile
 }
 ```
 
@@ -63,14 +76,16 @@ dependencies {
 
 ### Feature Availability Matrix
 
-| Feature | Core Only | + Validation | + Coroutines | + Spring Boot |
-|---------|-----------|--------------|--------------|---------------|
-| Basic logging | ✅ | ✅ | ✅ | ✅ |
-| Performance timing | ✅ | ✅ | ✅ | ✅ |
-| Timezone utilities | ✅ | ✅ | ✅ | ✅ |
-| `@FieldEquals` annotations | ❌ | ✅ | ✅ | ✅ |
-| Async logging (`logInfoAsync`) | ❌ | ❌ | ✅ | ✅ |
-| Auto timezone configuration | ❌ | ❌ | ❌ | ✅ |
+| Feature | Core Only | + Validation | + Multipart | + Coroutines | + Spring Boot |
+|---------|-----------|--------------|-------------|--------------|---------------|
+| Basic logging | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Performance timing | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Timezone utilities | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `@FieldEquals` / `@FieldNotEquals` | ❌ | ✅ | ✅ | ✅ | ✅ |
+| `@NotEmptyFile` | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Async logging (`logInfoAsync`) | ❌ | ❌ | ❌ | ✅ | ✅ |
+| Auto timezone configuration | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Hexagonal annotations | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## Field Validation
 
@@ -148,6 +163,45 @@ public class PasswordChangeForm {
     private String newPasswordConfirm;
 }
 ```
+
+## File Upload Validation
+
+`@NotEmptyFile` ensures a `MultipartFile` field is present and not empty.
+
+```java
+public class UploadRequest {
+    @NotEmptyFile(message = "Image file is required")
+    private MultipartFile image;
+}
+```
+
+Behavior:
+- Valid when the field is non-null and `!file.isEmpty()`
+- Invalid when null or `file.isEmpty()`
+- Works with Jakarta Bean Validation. Requires Spring Web's `MultipartFile` type.
+
+## Hexagonal Architecture Annotations
+
+Lightweight semantic markers to make boundaries explicit.
+
+```java
+@Port(direction = PortDirection.INBOUND)
+public interface UserQueryPort { UserView find(String id); }
+
+@Adapter(direction = PortDirection.INBOUND)
+public class UserQueryRestAdapter implements UserQueryPort {
+    public UserView find(String id) { /* ... */ return null; }
+}
+```
+
+Guidelines:
+- Use `INBOUND` for interfaces/adapter entry points that receive external requests (REST, Messaging) calling into the domain.
+- Use `OUTBOUND` for interfaces that the domain uses to reach external systems (DB, other services).
+- `@Port` is SOURCE retention (no runtime overhead). `@Adapter` is runtime & meta-annotated with `@Component` so Spring can discover it.
+
+Benefits:
+- Structural clarity without introducing a framework dependency for ports.
+- Enables future static analysis (annotation processors or custom build checks).
 
 ## Logging Extensions
 

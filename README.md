@@ -4,7 +4,7 @@
 [![Java Version](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.java.net/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.25-purple.svg)](https://kotlinlang.org/)
 
-Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotlin) projects. It provides production‑oriented building blocks for validation, structured logging (sync & coroutine), performance instrumentation, and application‑wide time zone management (with Spring Boot auto‑configuration).
+Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotlin) projects. It provides production‑oriented building blocks for validation, structured logging (sync & coroutine), performance instrumentation, application‑wide time zone management (with Spring Boot auto‑configuration), and architectural clarity helpers (hexagonal annotations).
 
 **🚀 Zero Forced Dependencies**: Only SLF4J API is required. All other dependencies are optional and loaded only when needed.
 
@@ -12,28 +12,30 @@ Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotl
 
 | Area | Capabilities | Required Dependencies |
 |------|--------------|----------------------|
-| Field Validation | Class‑level equality / inequality annotations (`@FieldEquals`, `@FieldNotEquals`) | Jakarta Bean Validation API (optional) |
+| Field Validation | Class‑level equality / inequality (`@FieldEquals`, `@FieldNotEquals`), multipart file non‑empty (`@NotEmptyFile`) | Jakarta Bean Validation API (optional) |
 | Logging (Sync) | Logger helpers, structured & conditional logging, performance timers | SLF4J API only |
 | Logging (Coroutines) | Async‑safe logging, execution timing for suspend functions, correlation (MDC) context | Kotlin Coroutines (optional) |
 | Time Zone Management | Spring Boot auto configuration, runtime switching, safe temporary context | Spring Boot Starter (optional) |
 | Performance Helpers | Execution/method timing, memory usage snapshot logging | SLF4J API only |
+| Hexagonal Architecture | `@Port`, `@Adapter`, `PortDirection` semantic markers | (Optional) Spring (for `@Adapter`) |
 
 ## Installation
 
 ### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.1.1")
+    implementation("com.github.snowykte0426:peanut-butter:1.1.3")
     
     // Optional: Add only what you need
-    // For validation features
+    // For validation features (constraints + file upload)
     implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
+    implementation("org.glassfish:jakarta.el:4.0.2") // EL (needed by Hibernate Validator)
     
     // For coroutine logging features
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     
-    // For Spring Boot auto-configuration
+    // For Spring Boot auto-configuration & @Adapter stereotype
     implementation("org.springframework.boot:spring-boot-starter:3.1.5")
     
     // Choose your logging implementation
@@ -46,25 +48,41 @@ dependencies {
 <dependency>
   <groupId>com.github.snowykte0426</groupId>
   <artifactId>peanut-butter</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.3</version>
 </dependency>
 
-<!-- Optional: Add only what you need -->
-<!-- For validation features -->
+<!-- Optional: Validation -->
 <dependency>
   <groupId>jakarta.validation</groupId>
   <artifactId>jakarta.validation-api</artifactId>
   <version>3.0.2</version>
 </dependency>
+<dependency>
+  <groupId>org.hibernate.validator</groupId>
+  <artifactId>hibernate-validator</artifactId>
+  <version>8.0.1.Final</version>
+</dependency>
+<dependency>
+  <groupId>org.glassfish</groupId>
+  <artifactId>jakarta.el</artifactId>
+  <version>4.0.2</version>
+</dependency>
 
-<!-- For coroutine logging features -->
+<!-- Optional: Coroutines -->
 <dependency>
   <groupId>org.jetbrains.kotlinx</groupId>
   <artifactId>kotlinx-coroutines-core</artifactId>
   <version>1.7.3</version>
 </dependency>
 
-<!-- Choose your logging implementation -->
+<!-- Optional: Spring Boot + Adapter stereotype -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter</artifactId>
+  <version>3.1.5</version>
+</dependency>
+
+<!-- Logging Implementation -->
 <dependency>
   <groupId>ch.qos.logback</groupId>
   <artifactId>logback-classic</artifactId>
@@ -85,9 +103,11 @@ This library is designed with **dependency minimization** in mind:
 - ✅ Basic logging extensions (SLF4J API only)
 - ✅ Performance timing utilities
 - ✅ Core timezone enums and extensions
+- ✅ Hexagonal port/adapter annotations (no runtime dependency except Spring for `@Adapter` component registration)
 
 ### What requires additional dependencies:
-- 📦 Validation annotations → Jakarta Validation API
+- 📦 Validation annotations → Jakarta Validation API (+ implementation)
+- 📦 File upload constraint (`@NotEmptyFile`) → Jakarta Validation + Spring Web `MultipartFile`
 - 📦 Coroutine logging → Kotlin Coroutines
 - 📦 Spring Boot auto-configuration → Spring Boot Starter
 - 📦 Actual logging → Your choice of SLF4J implementation

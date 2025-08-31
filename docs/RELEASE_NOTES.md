@@ -1,5 +1,40 @@
 # Release Notes
 
+## v1.1.3
+
+### Summary
+Architecture & Validation Enhancement Release – adds lightweight hexagonal architecture meta‑annotations (`@Port`, `@Adapter`, `PortDirection`) and a new file upload validation constraint (`@NotEmptyFile`). No breaking API changes.
+
+### New Features
+- **Hexagonal Architecture Annotations**:
+  - `@Port(direction = INBOUND|OUTBOUND)` – source‑retained marker for domain port interfaces (kept lightweight; no runtime cost)
+  - `@Adapter(direction = INBOUND|OUTBOUND)` – runtime component stereotype (meta‑annotated with `@Component`) for Spring adapters, improves clarity & scanning
+  - `PortDirection` enum (INBOUND, OUTBOUND)
+- **File Upload Validation**:
+  - `@NotEmptyFile` – Jakarta Bean Validation constraint for `MultipartFile` fields ensuring a non‑null, non‑empty upload (`NotEmptyFileValidator`)
+
+### Improvements
+- Documentation updated (README / USAGE) to include new annotations & examples
+- Project version bumped to 1.1.3; dependency guidance kept minimal (no added required deps)
+
+### Bug Fixes
+- N/A (no reported issues since 1.1.2)
+
+### Breaking Changes
+- None (fully backward compatible with 1.1.x)
+
+### Deprecated
+- None
+
+### Migration Guide (1.1.2 → 1.1.3)
+1. Update dependency version to `1.1.3`
+2. (Optional) Start annotating adapters & ports for clearer architectural boundaries
+3. (Optional) Apply `@NotEmptyFile` to multipart upload DTO fields
+
+No code changes required; all existing APIs remain stable.
+
+---
+
 ## v1.1.2
 
 ### Summary
@@ -180,7 +215,7 @@ dependencies {
 Added **coroutine-aware logging** capabilities to the peanut-butter library. This release introduces comprehensive async logging support for Kotlin coroutines, enabling thread-safe logging with advanced features like correlation ID tracking, retry mechanisms, and parallel execution monitoring.
 
 ### New Features
-- **🔥 Coroutine Logging**: Complete async logging support for Kotlin coroutines
+- **Coroutine Logging**: Complete async logging support for Kotlin coroutines
   - **Async Logging**: `logInfoAsync()`, `logDebugAsync()`, `logErrorAsync()` etc. - Thread-safe logging in coroutines
   - **Async Performance**: `logExecutionTimeAsync()`, `logMethodExecutionAsync()` - Performance tracking for suspend functions
   - **Retry Mechanism**: `retryWithLogging()` - Exponential backoff with comprehensive logging
