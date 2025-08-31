@@ -11,6 +11,7 @@ This guide provides comprehensive examples and best practices for using the Pean
 - [Logging Extensions](#logging-extensions)
 - [Coroutine Logging](#coroutine-logging)
 - [TimeZone Utilities](#timezone-utilities)
+- [CORS Configuration](#cors-configuration)
 - [Best Practices](#best-practices)
 - [Advanced Examples](#advanced-examples)
 
@@ -74,18 +75,28 @@ dependencies {
 }
 ```
 
+#### For CORS Configuration
+```kotlin
+dependencies {
+    // Add CORS support (requires Spring Boot + Spring Security)
+    implementation("org.springframework.boot:spring-boot-starter:3.1.5")
+    implementation("org.springframework.boot:spring-boot-starter-security:3.1.5")
+}
+```
+
 ### Feature Availability Matrix
 
-| Feature | Core Only | + Validation | + Multipart | + Coroutines | + Spring Boot |
-|---------|-----------|--------------|-------------|--------------|---------------|
-| Basic logging | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Performance timing | ✅ | ✅ | ✅ | ✅ | ✅ |
-| Timezone utilities | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `@FieldEquals` / `@FieldNotEquals` | ❌ | ✅ | ✅ | ✅ | ✅ |
-| `@NotEmptyFile` | ❌ | ❌ | ✅ | ✅ | ✅ |
-| Async logging (`logInfoAsync`) | ❌ | ❌ | ❌ | ✅ | ✅ |
-| Auto timezone configuration | ❌ | ❌ | ❌ | ❌ | ✅ |
-| Hexagonal annotations | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Feature | Core Only | + Validation | + Multipart | + Coroutines | + Spring Boot | + CORS |
+|---------|-----------|--------------|-------------|--------------|---------------|---------|
+| Basic logging | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Performance timing | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Timezone utilities | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `@FieldEquals` / `@FieldNotEquals` | ❌ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `@NotEmptyFile` | ❌ | ❌ | ✅ | ✅ | ✅ | ✅ |
+| Async logging (`logInfoAsync`) | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
+| Auto timezone configuration | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ |
+| CORS auto-configuration | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Hexagonal annotations | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## Field Validation
 
@@ -613,6 +624,442 @@ If upgrading from <= 1.0.2:
 2. (Optional) Add `peanut-butter.timezone` section to `application.yml`
 3. Use `@EnableAutomaticTimeZone` if you want explicit opt‑in
 4. Replace ad‑hoc `TimeZone.setDefault(...)` calls with `TimeZoneInitializer` or `withTimeZone`
+
+## CORS Configuration
+
+**Dependencies required**: Spring Boot + Spring Security
+
+Peanut-Butter provides comprehensive CORS (Cross-Origin Resource Sharing) configuration with Spring Boot auto-configuration support. The CORS module automatically configures CORS policies based on your application properties and integrates seamlessly with Spring Security.
+
+### 1. Basic Setup and Configuration
+
+CORS is automatically enabled when Spring Security is on the classpath. The module provides sensible defaults while allowing full customization.
+
+#### Auto Configuration (Spring Boot)
+
+Add CORS properties to your `application.yml`:
+
+```yaml
+peanut-butter:
+  security:
+    cors:
+      enabled: true                    # Enable/disable CORS (default: true)
+      allowed-origins: ["*"]           # Allowed origins (default: ["*"])
+      allowed-headers: ["*"]           # Allowed headers (default: ["*"])
+      allow-credentials: true          # Allow credentials (default: true)
+      max-age: 3600                    # Preflight cache duration in seconds (default: 3600)
+      exposed-headers: []              # Headers exposed to client (default: empty)
+      allowed-methods:                 # HTTP methods configuration (default: all except TRACE)
+        GET: true
+        POST: true
+        PUT: true
+        DELETE: true
+        PATCH: true
+        HEAD: true
+        OPTIONS: true
+        TRACE: false
+```
+
+### 2. Property Configuration Examples
+
+#### Development Configuration
+```yaml
+peanut-butter:
+  security:
+    cors:
+      enabled: true
+      allowed-origins: 
+        - "http://localhost:3000"
+        - "http://localhost:8080"
+        - "http://127.0.0.1:3000"
+      allowed-headers:
+        - "Content-Type"
+        - "Authorization"
+        - "X-Requested-With"
+        - "Accept"
+      allow-credentials: true
+      max-age: 1800
+```
+
+#### Production Configuration
+```yaml
+peanut-butter:
+  security:
+    cors:
+      enabled: true
+      allowed-origins:
+        - "https://myapp.com"
+        - "https://www.myapp.com"
+        - "https://api.myapp.com"
+      allowed-headers:
+        - "Content-Type"
+        - "Authorization"
+        - "X-API-Key"
+      allowed-methods:
+        GET: true
+        POST: true
+        PUT: true
+        DELETE: false          # Disable DELETE in production
+        PATCH: true
+        HEAD: true
+        OPTIONS: true
+        TRACE: false
+      allow-credentials: true
+      max-age: 86400            # 24 hours
+      exposed-headers:
+        - "X-Total-Count"
+        - "X-Page-Count"
+        - "Link"
+```
+
+#### API-Only Configuration
+```yaml
+peanut-butter:
+  security:
+    cors:
+      enabled: true
+      allowed-origins: ["https://client.example.com"]
+      allowed-headers: 
+        - "Content-Type"
+        - "Authorization"
+        - "X-API-Version"
+      allowed-methods:
+        GET: true
+        POST: true
+        PUT: true
+        DELETE: true
+        PATCH: false
+        HEAD: false
+        OPTIONS: true
+        TRACE: false
+      allow-credentials: false
+      max-age: 7200
+      exposed-headers:
+        - "X-RateLimit-Remaining"
+        - "X-RateLimit-Reset"
+```
+
+### 3. Advanced Configuration Examples
+
+#### Programmatic Configuration
+
+If you need more control, you can access the `CorsConfigurationSource` bean:
+
+```kotlin
+@Service
+class CustomCorsService(
+    private val corsConfigurationSource: CorsConfigurationSource
+) {
+    fun getCorsConfiguration(): CorsConfiguration? {
+        return corsConfigurationSource.getCorsConfiguration(null)
+    }
+    
+    fun isOriginAllowed(origin: String): Boolean {
+        val config = getCorsConfiguration()
+        return config?.allowedOrigins?.contains(origin) ?: false
+    }
+}
+```
+
+#### Custom CORS Configuration Bean
+
+You can override the default configuration by providing your own bean:
+
+```kotlin
+@Configuration
+class CustomCorsConfiguration {
+    
+    @Bean
+    @Primary
+    fun customCorsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration().apply {
+            allowedOriginPatterns = listOf("https://*.mycompany.com")
+            allowedHeaders = listOf("*")
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
+            allowCredentials = true
+            maxAge = 3600L
+        }
+        
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/api/**", configuration)
+            registerCorsConfiguration("/public/**", createPublicCorsConfiguration())
+        }
+    }
+    
+    private fun createPublicCorsConfiguration(): CorsConfiguration {
+        return CorsConfiguration().apply {
+            allowedOrigins = listOf("*")
+            allowedHeaders = listOf("Content-Type")
+            allowedMethods = listOf("GET", "HEAD", "OPTIONS")
+            allowCredentials = false
+            maxAge = 86400L
+        }
+    }
+}
+```
+
+### 4. SecurityFilterChain Integration Examples
+
+#### Using the Default Security Filter Chain
+
+The library provides a basic SecurityFilterChain with CORS enabled:
+
+```kotlin
+// No additional configuration needed - auto-configured SecurityFilterChain
+// includes CORS configuration from properties
+```
+
+#### Custom SecurityFilterChain with CORS
+
+For production applications, create your own SecurityFilterChain:
+
+```kotlin
+@Configuration
+@EnableWebSecurity
+class SecurityConfiguration(
+    private val corsConfigurationSource: CorsConfigurationSource
+) {
+    
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        return http
+            .cors { cors ->
+                cors.configurationSource(corsConfigurationSource)
+            }
+            .csrf { csrf ->
+                csrf.disable() // Disable for APIs, configure as needed
+            }
+            .authorizeHttpRequests { auth ->
+                auth
+                    .requestMatchers("/api/public/**").permitAll()
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                    .anyRequest().authenticated()
+            }
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { }
+            }
+            .build()
+    }
+}
+```
+
+#### Multiple CORS Configurations
+
+Configure different CORS policies for different endpoints:
+
+```kotlin
+@Configuration
+class MultiCorsConfiguration {
+    
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val source = UrlBasedCorsConfigurationSource()
+        
+        // API endpoints - strict CORS
+        val apiConfig = CorsConfiguration().apply {
+            allowedOrigins = listOf("https://app.mycompany.com")
+            allowedHeaders = listOf("Content-Type", "Authorization")
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
+            allowCredentials = true
+            maxAge = 3600L
+        }
+        source.registerCorsConfiguration("/api/**", apiConfig)
+        
+        // Public endpoints - relaxed CORS
+        val publicConfig = CorsConfiguration().apply {
+            allowedOrigins = listOf("*")
+            allowedHeaders = listOf("Content-Type")
+            allowedMethods = listOf("GET", "HEAD", "OPTIONS")
+            allowCredentials = false
+            maxAge = 86400L
+        }
+        source.registerCorsConfiguration("/public/**", publicConfig)
+        
+        return source
+    }
+}
+```
+
+#### WebMvc CORS Configuration
+
+For non-security CORS configuration (WebMvc only):
+
+```kotlin
+@Configuration
+class WebMvcCorsConfiguration : WebMvcConfigurer {
+    
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/api/**")
+            .allowedOrigins("https://app.mycompany.com")
+            .allowedMethods("GET", "POST", "PUT", "DELETE")
+            .allowedHeaders("*")
+            .allowCredentials(true)
+            .maxAge(3600)
+    }
+}
+```
+
+### 5. Best Practices
+
+#### Security Best Practices
+
+```yaml
+# ✅ Good: Specific origins in production
+peanut-butter:
+  security:
+    cors:
+      allowed-origins: 
+        - "https://myapp.com"
+        - "https://www.myapp.com"
+
+# ❌ Avoid: Wildcard origins in production with credentials
+peanut-butter:
+  security:
+    cors:
+      allowed-origins: ["*"]
+      allow-credentials: true  # Security risk!
+```
+
+#### Method Configuration
+
+```yaml
+# ✅ Good: Explicitly configure needed methods
+peanut-butter:
+  security:
+    cors:
+      allowed-methods:
+        GET: true
+        POST: true
+        PUT: true
+        DELETE: false        # Disable if not needed
+        PATCH: true
+        HEAD: true
+        OPTIONS: true
+        TRACE: false         # Always disable TRACE
+
+# ❌ Avoid: Allowing all methods without consideration
+```
+
+#### Header Configuration
+
+```yaml
+# ✅ Good: Specific headers for security
+peanut-butter:
+  security:
+    cors:
+      allowed-headers:
+        - "Content-Type"
+        - "Authorization"
+        - "X-Requested-With"
+        - "Accept"
+      exposed-headers:
+        - "X-Total-Count"
+        - "X-Page-Size"
+
+# ❌ Avoid: Wildcard headers in sensitive applications
+peanut-butter:
+  security:
+    cors:
+      allowed-headers: ["*"]   # Too permissive
+```
+
+#### Environment-Specific Configuration
+
+```kotlin
+// Development profile
+@Configuration
+@Profile("dev")
+class DevCorsConfiguration {
+    
+    @Bean
+    @Primary
+    fun devCorsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration().apply {
+            allowedOriginPatterns = listOf("*")  // Allow all in dev
+            allowedHeaders = listOf("*")
+            allowedMethods = listOf("*")
+            allowCredentials = true
+            maxAge = 3600L
+        }
+        
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/**", configuration)
+        }
+    }
+}
+
+// Production profile  
+@Configuration
+@Profile("prod")
+class ProdCorsConfiguration {
+    
+    @Bean
+    @Primary
+    fun prodCorsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration().apply {
+            allowedOrigins = listOf("https://myapp.com")
+            allowedHeaders = listOf("Content-Type", "Authorization")
+            allowedMethods = listOf("GET", "POST", "PUT", "PATCH")
+            allowCredentials = true
+            maxAge = 86400L
+        }
+        
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/**", configuration)
+        }
+    }
+}
+```
+
+#### Testing CORS Configuration
+
+```kotlin
+@SpringBootTest
+@TestPropertySource(properties = [
+    "peanut-butter.security.cors.enabled=true",
+    "peanut-butter.security.cors.allowed-origins=https://test.example.com"
+])
+class CorsIntegrationTest {
+    
+    @Autowired
+    private lateinit var corsConfigurationSource: CorsConfigurationSource
+    
+    @Test
+    fun `should configure CORS correctly`() {
+        val config = corsConfigurationSource.getCorsConfiguration(null)
+        
+        assertThat(config?.allowedOrigins).contains("https://test.example.com")
+        assertThat(config?.allowCredentials).isTrue()
+    }
+}
+```
+
+#### Common Configuration Patterns
+
+| Use Case | Configuration | Notes |
+|----------|---------------|-------|
+| **Development** | `allowed-origins: ["*"]`, `allow-credentials: true` | Permissive for local development |
+| **Single Page App** | Specific origins, `allow-credentials: true` | For authenticated SPAs |
+| **Public API** | Specific origins, `allow-credentials: false` | For public APIs without auth |
+| **Microservices** | Pattern-based origins, specific methods | For service-to-service communication |
+| **CDN Integration** | Multiple origins, specific headers | For assets served via CDN |
+
+#### Debugging CORS Issues
+
+Enable debug logging to troubleshoot CORS problems:
+
+```yaml
+logging:
+  level:
+    org.springframework.web.cors: DEBUG
+    com.github.snowykte0426.peanut.butter.security.cors: DEBUG
+```
+
+Common CORS error scenarios:
+- **"Access to fetch at '...' has been blocked"**: Check `allowed-origins`
+- **"Method not allowed"**: Verify HTTP method in `allowed-methods`
+- **"Request header field X is not allowed"**: Add header to `allowed-headers`
+- **"Credentials flag is 'true', but origin is '*'"**: Use specific origins with credentials
 
 ---
 

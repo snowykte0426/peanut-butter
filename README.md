@@ -16,6 +16,7 @@ Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotl
 | Logging (Sync) | Logger helpers, structured & conditional logging, performance timers | SLF4J API only |
 | Logging (Coroutines) | Async‑safe logging, execution timing for suspend functions, correlation (MDC) context | Kotlin Coroutines (optional) |
 | Time Zone Management | Spring Boot auto configuration, runtime switching, safe temporary context | Spring Boot Starter (optional) |
+| CORS Configuration | Spring Security CORS auto-configuration, flexible property-based setup | Spring Boot Starter + Spring Security (optional) |
 | Performance Helpers | Execution/method timing, memory usage snapshot logging | SLF4J API only |
 | Hexagonal Architecture | `@Port`, `@Adapter`, `PortDirection` semantic markers | (Optional) Spring (for `@Adapter`) |
 
@@ -110,6 +111,7 @@ This library is designed with **dependency minimization** in mind:
 - 📦 File upload constraint (`@NotEmptyFile`) → Jakarta Validation + Spring Web `MultipartFile`
 - 📦 Coroutine logging → Kotlin Coroutines
 - 📦 Spring Boot auto-configuration → Spring Boot Starter
+- 📦 CORS configuration → Spring Boot Starter + Spring Security
 - 📦 Actual logging → Your choice of SLF4J implementation
 
 ## Documentation

@@ -1,5 +1,80 @@
 # Release Notes
 
+## v1.2.0
+
+### Summary
+**CORS Configuration Feature Release** – Adds comprehensive Cross-Origin Resource Sharing (CORS) auto-configuration capabilities to Peanut-Butter, providing seamless Spring Security integration with flexible property-based configuration for modern web applications and APIs.
+
+### New Features
+- **CORS Auto-Configuration**: Complete CORS setup with Spring Security integration (`CorsConfiguration`, `CorsProperties`)
+- **Flexible Property Configuration**: Map-based HTTP method configuration with enable/disable granularity
+  - `peanut-butter.security.cors.allowed-methods.GET: true|false`
+  - Support for all standard HTTP methods with individual control
+- **Security Integration**: Auto-configured `SecurityFilterChain` with CORS support (`CorsSecurityFilterChain`)
+- **Production-Ready Defaults**: Secure defaults with comprehensive customization options
+- **Multiple Configuration Patterns**: Support for development, production, and API-specific CORS policies
+
+### Improvements
+- **Property-Driven Configuration**: All CORS settings configurable via `application.yml` under `peanut-butter.security.cors.*`
+- **Conditional Auto-Configuration**: CORS features only activate when Spring Security is present on classpath
+- **Multiple Beans Support**: Provides both `CorsConfigurationSource` and `SpringCorsConfiguration` beans for flexibility
+- **Comprehensive Documentation**: Complete usage guide with development, production, and API examples
+- **Enhanced Feature Matrix**: Updated documentation to include CORS capability across all feature combinations
+
+### Bug Fixes
+- None (feature-focused release)
+
+### Breaking Changes
+- None (fully backward compatible with v1.1.x)
+
+### Deprecated
+- None
+
+### Key Highlights
+- Zero-configuration CORS for Spring Security applications
+- Granular HTTP method control via property maps
+- Multiple pre-configured security patterns (development, production, API-only)
+- Seamless integration with existing Spring Security configurations
+- Comprehensive test coverage with Kotest framework
+
+### Requirements
+- Java 17+
+- SLF4J 2.0+
+- (Optional) Kotlin 1.9+ for Kotlin extensions
+- (Optional) Jakarta Bean Validation 3.0+ for validation features
+- (Optional) Kotlin Coroutines 1.7.3+ for async logging
+- (Optional) Spring Boot 3.1.x + Spring Security 6.2+ for CORS auto-configuration
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.2.0")
+    
+    // For CORS features
+    implementation("org.springframework.boot:spring-boot-starter-security:3.1.5")
+}
+```
+
+### Migration Guide
+**From v1.1.4 to v1.2.0**: Fully backward compatible. Simply update the version number.
+
+1. **Update Version**: Change dependency to `1.2.0`
+2. **Optional CORS Setup**: Add Spring Security dependency to enable CORS auto-configuration
+3. **Configure CORS** (optional): Add CORS properties to `application.yml`:
+   ```yaml
+   peanut-butter:
+     security:
+       cors:
+         enabled: true
+         allowed-origins: ["https://yourapp.com"]
+         allowed-methods:
+           GET: true
+           POST: true
+           PUT: false
+   ```
+
+---
+
 ## v1.1.4
 
 ### Summary
