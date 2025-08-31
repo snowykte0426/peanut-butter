@@ -1,5 +1,60 @@
 # Release Notes
 
+## v1.1.4
+
+### Summary
+Namespace & build quality update consolidating all public APIs under a single package root and adding minor build/reporting enhancements. One small breaking change (import path update) – no behavioral or API surface changes.
+
+### New Features
+- **Utility Gradle Task**: `printVersion` task to output the current project version.
+
+### Improvements
+- **Unified Namespace**: All modules relocated to `com.github.snowykte0426.peanut.butter.*` for consistent import structure.
+- **Jar Manifest Metadata**: Adds `Implementation-Title`, `Implementation-Version`, vendor info for provenance & tooling.
+- **Enhanced Test Logging**: JUnit test task now reports passed / skipped / failed with full stack traces.
+- **Explicit JitPack Repository**: Added to build script for clarity when mirroring configuration.
+
+### Bug Fixes
+- None (no functional defects addressed in this release).
+
+### Breaking Changes
+- **Package Rename**: Previous roots (e.g. `com.github.snowykte0426.logging`, `.timezone`, `.validation`, `.hexagonal.annotation`) replaced by `com.github.snowykte0426.peanut.butter.*`. Update imports accordingly. (See Migration Guide.)
+
+### Deprecated
+- None.
+
+### Key Highlights
+- Single, predictable package hierarchy.
+- Zero behavioral change – pure structural & build transparency improvements.
+- Faster diagnosis via enriched test logging.
+
+### Requirements
+- Java 17+
+- SLF4J 2.0+
+- (Optional) Kotlin 1.9+ for Kotlin extensions
+- (Optional) Jakarta Bean Validation 3.0+ for validation features
+- (Optional) Kotlin Coroutines 1.7.3+ for async logging
+- (Optional) Spring Boot 3.1.x for auto-configuration / `@Adapter`
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.1.4")
+}
+```
+
+### Migration Guide
+1. **Update Version**: Change dependency to `1.1.4`.
+2. **Update Imports**: Perform find & replace:
+   - `com.github.snowykte0426.logging` → `com.github.snowykte0426.peanut.butter.logging`
+   - `com.github.snowykte0426.timezone` → `com.github.snowykte0426.peanut.butter.timezone`
+   - `com.github.snowykte0426.validation` → `com.github.snowykte0426.peanut.butter.validation`
+   - `com.github.snowykte0426.hexagonal.annotation` → `com.github.snowykte0426.peanut.butter.hexagonal.annotation`
+3. **Rebuild & Run Tests**: No code changes expected beyond imports.
+4. (Optional) Leverage `./gradlew printVersion` in CI for verification.
+
+---
+
 ## v1.1.3
 
 ### Summary
