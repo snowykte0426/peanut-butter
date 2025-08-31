@@ -21,23 +21,19 @@ kotlin {
 
 repositories {
     mavenCentral()
+    maven("https://jitpack.io")
 }
 
 dependencies {
     implementation(kotlin("stdlib"))
-
     api("org.slf4j:slf4j-api:2.0.9")
-    
 
     compileOnly("jakarta.validation:jakarta.validation-api:3.0.2")
-
     compileOnly("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     compileOnly(kotlin("reflect"))
-
     compileOnly("org.springframework.boot:spring-boot-starter:3.1.5")
     compileOnly("org.springframework.boot:spring-boot-configuration-processor:3.1.5")
     compileOnly("org.springframework:spring-web:6.2.8")
-
     compileOnly("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     compileOnly("org.glassfish:jakarta.el:4.0.2")
 
@@ -45,7 +41,6 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")
     testImplementation("io.kotest:kotest-assertions-core:5.8.0")
-
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
     testImplementation(kotlin("reflect"))
@@ -61,12 +56,30 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
+
+tasks.jar {
+    manifest {
+        attributes(
+            "Implementation-Title" to project.name,
+            "Implementation-Version" to project.version,
+            "Implementation-Vendor" to "snowykte0426"
+        )
+    }
 }
 
 publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
+
+            groupId = project.group.toString()
+            artifactId = project.name
+            version = project.version.toString()
 
             pom {
                 name.set("peanut-butter")
@@ -101,4 +114,10 @@ publishing {
 tasks.wrapper {
     gradleVersion = "8.10"
     distributionType = Wrapper.DistributionType.ALL
+}
+
+tasks.register("printVersion") {
+    doLast {
+        println("Project version: ${project.version}")
+    }
 }

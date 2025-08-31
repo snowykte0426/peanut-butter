@@ -13,7 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - name: Set up JDK
+
+      - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
           java-version: '17'
@@ -26,12 +27,14 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
       - name: Run tests
-        run: ./gradlew test
+        run: ./gradlew test --no-daemon
 
       - name: Generate test report
         uses: dorny/test-reporter@v2
@@ -50,7 +53,8 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Set up JDK
+
+      - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
           java-version: '17'
@@ -63,17 +67,19 @@ jobs:
             ~/.gradle/caches
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
       - name: Build project
-        run: ./gradlew build
+        run: ./gradlew build --no-daemon
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
+          name: build-artifacts-${{ github.run_number }}
           path: |
-            build/libs/
-            build/distributions/
+            build/libs/*.jar
+            build/distributions/*
