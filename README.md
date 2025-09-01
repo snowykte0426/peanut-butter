@@ -6,8 +6,6 @@
 
 Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotlin) projects. It provides production‑oriented building blocks for validation, structured logging (sync & coroutine), performance instrumentation, application‑wide time zone management (with Spring Boot auto‑configuration), CORS configuration, JWT authentication, and architectural clarity helpers (hexagonal annotations).
 
-**🚀 Zero Forced Dependencies**: Only SLF4J API is required. All other dependencies are optional and loaded only when needed.
-
 ## Feature Overview
 
 | Area | Capabilities | Required Dependencies |
@@ -173,19 +171,19 @@ This library is designed with **dependency minimization** in mind:
 - **Modular design** - use only the features you need
 
 ### What's included by default:
-- ✅ Basic logging extensions (SLF4J API only)
-- ✅ Performance timing utilities
-- ✅ Core timezone enums and extensions
-- ✅ Hexagonal port/adapter annotations (no runtime dependency except Spring for `@Adapter` component registration)
+- Basic logging extensions (SLF4J API only)
+- Performance timing utilities
+- Core timezone enums and extensions
+- Hexagonal port/adapter annotations (no runtime dependency except Spring for `@Adapter` component registration)
 
 ### What requires additional dependencies:
-- 📦 Validation annotations → Jakarta Validation API (+ implementation)
-- 📦 File upload constraint (`@NotEmptyFile`) → Jakarta Validation + Spring Web `MultipartFile`
-- 📦 Coroutine logging → Kotlin Coroutines
-- 📦 Spring Boot auto-configuration → Spring Boot Starter
-- 📦 CORS configuration → Spring Web + Spring Security (web + config) modules (or Boot starter security)
-- 📦 JWT authentication → JJWT + Jakarta Servlet (for current user provider) + optional storage backends
-- 📦 Actual logging → Your choice of SLF4J implementation
+- Validation annotations → Jakarta Validation API (+ implementation)
+- File upload constraint (`@NotEmptyFile`) → Jakarta Validation + Spring Web `MultipartFile`
+- Coroutine logging → Kotlin Coroutines
+- Spring Boot auto-configuration → Spring Boot Starter
+- CORS configuration → Spring Web + Spring Security (web + config) modules (or Boot starter security)
+- JWT authentication → JJWT + Jakarta Servlet (for current user provider) + optional storage backends
+- Actual logging → Your choice of SLF4J implementation
 
 ## Documentation
 
