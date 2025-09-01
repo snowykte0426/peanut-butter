@@ -115,7 +115,7 @@ When adding public functions or classes:
 
 ## 10. Commit & Branch Strategy
 ### Branching
-- `main`: Stable, releasable.
+- `master`: Stable, releasable.
 - Feature branches: `feature/<short-name>`
 - Fix branches: `fix/<issue-id-or-context>`
 
