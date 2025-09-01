@@ -1,6 +1,6 @@
 package com.github.snowykte0426.peanut.butter.security.jwt
 
-import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import jakarta.servlet.http.HttpServletRequest
 import org.mockito.kotlin.mock
@@ -8,7 +8,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
 
-class JwtCurrentUserProviderTest : StringSpec({
+class JwtCurrentUserProviderTest : FunSpec({
 
     data class TestUser(val id: String, val name: String)
 
@@ -28,7 +28,7 @@ class JwtCurrentUserProviderTest : StringSpec({
         RequestContextHolder.resetRequestAttributes()
     }
 
-    "should extract user ID from valid JWT token" {
+    test("should extract user ID from valid JWT token") {
         val token = "valid.jwt.token"
         val expectedSubject = "user-123"
         
@@ -41,7 +41,7 @@ class JwtCurrentUserProviderTest : StringSpec({
         userId shouldBe expectedSubject
     }
 
-    "should return null when no authorization header" {
+    test("should return null when no authorization header") {
         whenever(mockRequest.getHeader("Authorization")).thenReturn(null)
         
         val userId = currentUserProvider.getCurrentUserId()
@@ -49,7 +49,7 @@ class JwtCurrentUserProviderTest : StringSpec({
         userId shouldBe null
     }
 
-    "should return null when authorization header doesn't start with Bearer" {
+    test("should return null when authorization header doesn't start with Bearer") {
         whenever(mockRequest.getHeader("Authorization")).thenReturn("Basic credentials")
         
         val userId = currentUserProvider.getCurrentUserId()
@@ -57,7 +57,7 @@ class JwtCurrentUserProviderTest : StringSpec({
         userId shouldBe null
     }
 
-    "should return null when token is invalid" {
+    test("should return null when token is invalid") {
         val token = "invalid.jwt.token"
         
         whenever(mockRequest.getHeader("Authorization")).thenReturn("Bearer $token")
@@ -68,7 +68,7 @@ class JwtCurrentUserProviderTest : StringSpec({
         userId shouldBe null
     }
 
-    "should extract claims from valid JWT token" {
+    test("should extract claims from valid JWT token") {
         val token = "valid.jwt.token"
         val expectedClaims = mapOf("role" to "USER", "department" to "IT")
         
@@ -81,7 +81,7 @@ class JwtCurrentUserProviderTest : StringSpec({
         claims shouldBe expectedClaims
     }
 
-    "should resolve current user using user resolver" {
+    test("should resolve current user using user resolver") {
         val token = "valid.jwt.token"
         val subject = "user-123"
         val claims = mapOf("name" to "John Doe")
@@ -98,7 +98,7 @@ class JwtCurrentUserProviderTest : StringSpec({
         currentUser shouldBe expectedUser
     }
 
-    "should return null when user resolver returns null" {
+    test("should return null when user resolver returns null") {
         val token = "valid.jwt.token"
         val subject = "user-123"
         val claims = mapOf<String, Any>()
@@ -114,7 +114,7 @@ class JwtCurrentUserProviderTest : StringSpec({
         currentUser shouldBe null
     }
 
-    "should return null when no request context" {
+    test("should return null when no request context") {
         RequestContextHolder.resetRequestAttributes()
         
         val userId = currentUserProvider.getCurrentUserId()
@@ -126,7 +126,7 @@ class JwtCurrentUserProviderTest : StringSpec({
         user shouldBe null
     }
 
-    "should handle malformed authorization header gracefully" {
+    test("should handle malformed authorization header gracefully") {
         whenever(mockRequest.getHeader("Authorization")).thenReturn("Bearer")
         
         val userId = currentUserProvider.getCurrentUserId()
@@ -134,7 +134,7 @@ class JwtCurrentUserProviderTest : StringSpec({
         userId shouldBe null
     }
 
-    "should handle JWT service exceptions gracefully" {
+    test("should handle JWT service exceptions gracefully") {
         val token = "problematic.jwt.token"
         
         whenever(mockRequest.getHeader("Authorization")).thenReturn("Bearer $token")

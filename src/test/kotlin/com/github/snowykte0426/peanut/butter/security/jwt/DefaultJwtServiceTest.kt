@@ -1,6 +1,6 @@
 package com.github.snowykte0426.peanut.butter.security.jwt
 
-import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -9,9 +9,8 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.time.Duration
-import java.time.Instant
 
-class DefaultJwtServiceTest : StringSpec({
+class DefaultJwtServiceTest : FunSpec({
 
     val properties = JwtProperties(
         secret = "test-secret-key-that-is-at-least-256-bits-long-for-hmac-sha256-algorithm",
@@ -24,7 +23,7 @@ class DefaultJwtServiceTest : StringSpec({
     val mockRefreshTokenStore = mock<RefreshTokenStore>()
     val jwtService = DefaultJwtService(properties, mockRefreshTokenStore)
 
-    "should generate valid access token" {
+    test("should generate valid access token") {
         val subject = "test-user"
         val claims = mapOf("role" to "USER", "department" to "IT")
         
@@ -39,7 +38,7 @@ class DefaultJwtServiceTest : StringSpec({
         extractedClaims?.get("department") shouldBe "IT"
     }
 
-    "should generate valid refresh token when enabled" {
+    test("should generate valid refresh token when enabled") {
         val subject = "test-user"
         
         val refreshToken = jwtService.generateRefreshToken(subject)
@@ -49,7 +48,7 @@ class DefaultJwtServiceTest : StringSpec({
         jwtService.extractSubject(refreshToken) shouldBe subject
     }
 
-    "should throw exception when generating refresh token when disabled" {
+    test("should throw exception when generating refresh token when disabled") {
         val disabledProperties = properties.copy(refreshTokenEnabled = false)
         val disabledService = DefaultJwtService(disabledProperties, mockRefreshTokenStore)
         
@@ -58,7 +57,7 @@ class DefaultJwtServiceTest : StringSpec({
         }.isFailure shouldBe true
     }
 
-    "should validate tokens correctly" {
+    test("should validate tokens correctly") {
         val token = jwtService.generateAccessToken("test-user")
         
         jwtService.validateToken(token) shouldBe true
@@ -66,7 +65,7 @@ class DefaultJwtServiceTest : StringSpec({
         jwtService.validateToken("") shouldBe false
     }
 
-    "should extract token information correctly" {
+    test("should extract token information correctly") {
         val subject = "test-user"
         val claims = mapOf("role" to "ADMIN")
         val token = jwtService.generateAccessToken(subject, claims)
@@ -77,7 +76,7 @@ class DefaultJwtServiceTest : StringSpec({
         jwtService.isTokenExpired(token) shouldBe false
     }
 
-    "should handle token expiration correctly" {
+    test("should handle token expiration correctly") {
         val shortProperties = properties.copy(accessTokenExpiry = Duration.ofMillis(1))
         val shortService = DefaultJwtService(shortProperties, mockRefreshTokenStore)
         val token = shortService.generateAccessToken("test-user")
@@ -88,7 +87,7 @@ class DefaultJwtServiceTest : StringSpec({
         shortService.validateToken(token) shouldBe false
     }
 
-    "should refresh tokens when refresh token is valid" {
+    test("should refresh tokens when refresh token is valid") {
         whenever(mockRefreshTokenStore.isRefreshTokenValid(any())).thenReturn(true)
         
         val storeProperties = properties.copy(refreshTokenMode = RefreshTokenMode.STORE_AND_VALIDATE)
@@ -102,7 +101,7 @@ class DefaultJwtServiceTest : StringSpec({
         tokenPair.refreshToken shouldBe refreshToken
     }
 
-    "should return null when refresh token is invalid" {
+    test("should return null when refresh token is invalid") {
         whenever(mockRefreshTokenStore.isRefreshTokenValid(any())).thenReturn(false)
         
         val storeProperties = properties.copy(refreshTokenMode = RefreshTokenMode.STORE_AND_VALIDATE)
@@ -114,7 +113,7 @@ class DefaultJwtServiceTest : StringSpec({
         tokenPair shouldBe null
     }
 
-    "should generate new refresh token when rotation is enabled" {
+    test("should generate new refresh token when rotation is enabled") {
         whenever(mockRefreshTokenStore.isRefreshTokenValid(any())).thenReturn(true)
         
         val rotationProperties = properties.copy(
@@ -131,7 +130,7 @@ class DefaultJwtServiceTest : StringSpec({
         tokenPair.refreshToken.shouldNotBeEmpty()
     }
 
-    "should handle invalid tokens gracefully" {
+    test("should handle invalid tokens gracefully") {
         jwtService.extractSubject("invalid-token") shouldBe null
         jwtService.extractClaims("invalid-token") shouldBe null
         jwtService.extractExpiration("invalid-token") shouldBe null

@@ -1,12 +1,12 @@
 package com.github.snowykte0426.peanut.butter.security.jwt
 
-import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.time.Duration
 
-class JwtPropertiesTest : StringSpec({
+class JwtPropertiesTest : FunSpec({
 
-    "should have correct default values" {
+    test("should have correct default values") {
         val properties = JwtProperties()
         
         properties.secret shouldBe "default-peanut-butter-jwt-secret-key-for-development-only-please-change-in-production"
@@ -19,7 +19,7 @@ class JwtPropertiesTest : StringSpec({
         properties.usedRefreshTokenHandling shouldBe UsedRefreshTokenHandling.REMOVE
     }
     
-    "should support custom configuration" {
+    test("should support custom configuration") {
         val properties = JwtProperties(
             secret = "custom-secret",
             accessTokenExpiry = Duration.ofMinutes(30),
@@ -41,14 +41,14 @@ class JwtPropertiesTest : StringSpec({
         properties.usedRefreshTokenHandling shouldBe UsedRefreshTokenHandling.BLACKLIST
     }
     
-    "RefreshTokenMode enum should have correct values" {
+    test("RefreshTokenMode enum should have correct values") {
         RefreshTokenMode.values() shouldBe arrayOf(
             RefreshTokenMode.SIMPLE_VALIDATION,
             RefreshTokenMode.STORE_AND_VALIDATE
         )
     }
     
-    "RefreshTokenStoreType enum should have correct values" {
+    test("RefreshTokenStoreType enum should have correct values") {
         RefreshTokenStoreType.values() shouldBe arrayOf(
             RefreshTokenStoreType.REDIS,
             RefreshTokenStoreType.IN_MEMORY,
@@ -56,7 +56,7 @@ class JwtPropertiesTest : StringSpec({
         )
     }
     
-    "UsedRefreshTokenHandling enum should have correct values" {
+    test("UsedRefreshTokenHandling enum should have correct values") {
         UsedRefreshTokenHandling.values() shouldBe arrayOf(
             UsedRefreshTokenHandling.REMOVE,
             UsedRefreshTokenHandling.BLACKLIST

@@ -1,14 +1,14 @@
 package com.github.snowykte0426.peanut.butter.security.jwt
 
-import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import java.time.Instant
 
-class InMemoryRefreshTokenStoreTest : StringSpec({
+class InMemoryRefreshTokenStoreTest : FunSpec({
 
     val store = InMemoryRefreshTokenStore()
 
-    "should store and validate refresh tokens" {
+    test("should store and validate refresh tokens") {
         val tokenId = "token-123"
         val subject = "user-123"
         val expiration = Instant.now().plusSeconds(3600)
@@ -17,11 +17,11 @@ class InMemoryRefreshTokenStoreTest : StringSpec({
         store.isRefreshTokenValid(tokenId) shouldBe true
     }
 
-    "should return false for non-existent tokens" {
+    test("should return false for non-existent tokens") {
         store.isRefreshTokenValid("non-existent-token") shouldBe false
     }
 
-    "should return false for expired tokens" {
+    test("should return false for expired tokens") {
         val tokenId = "expired-token"
         val subject = "user-123"
         val expiration = Instant.now().minusSeconds(1)
@@ -30,7 +30,7 @@ class InMemoryRefreshTokenStoreTest : StringSpec({
         store.isRefreshTokenValid(tokenId) shouldBe false
     }
 
-    "should remove tokens correctly" {
+    test("should remove tokens correctly") {
         val tokenId = "removable-token"
         val subject = "user-123"
         val expiration = Instant.now().plusSeconds(3600)
@@ -42,7 +42,7 @@ class InMemoryRefreshTokenStoreTest : StringSpec({
         store.isRefreshTokenValid(tokenId) shouldBe false
     }
 
-    "should blacklist tokens correctly" {
+    test("should blacklist tokens correctly") {
         val tokenId = "blacklist-token"
         val subject = "user-123"
         val expiration = Instant.now().plusSeconds(3600)
@@ -54,7 +54,7 @@ class InMemoryRefreshTokenStoreTest : StringSpec({
         store.isRefreshTokenValid(tokenId) shouldBe false
     }
 
-    "should cleanup expired tokens" {
+    test("should cleanup expired tokens") {
         val validTokenId = "valid-token"
         val expiredTokenId = "expired-token"
         val subject = "user-123"
@@ -73,7 +73,7 @@ class InMemoryRefreshTokenStoreTest : StringSpec({
         store.isRefreshTokenValid(expiredTokenId) shouldBe false
     }
 
-    "should handle concurrent access" {
+    test("should handle concurrent access") {
         val tokens = (1..100).map { "token-$it" }
         val subject = "user-123"
         val expiration = Instant.now().plusSeconds(3600)
@@ -91,7 +91,7 @@ class InMemoryRefreshTokenStoreTest : StringSpec({
         results.all { it } shouldBe true
     }
 
-    "should handle edge cases" {
+    test("should handle edge cases") {
         val tokenId = "edge-case-token"
         val subject = "user-123"
         val expiration = Instant.now().plusSeconds(3600)
