@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.snowykte0426"
-version = "1.2.1"
+version = "1.3.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -38,6 +38,14 @@ dependencies {
     compileOnly("org.springframework.security:spring-security-config:6.3.5")
     compileOnly("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     compileOnly("org.glassfish:jakarta.el:4.0.2")
+    
+    compileOnly("io.jsonwebtoken:jjwt-api:0.12.3")
+    compileOnly("io.jsonwebtoken:jjwt-impl:0.12.3")
+    compileOnly("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    compileOnly("org.springframework.data:spring-data-redis:3.1.5")
+    compileOnly("org.springframework.data:spring-data-jpa:3.1.5")
+    compileOnly("jakarta.persistence:jakarta.persistence-api:3.1.0")
+    compileOnly("jakarta.servlet:jakarta.servlet-api:6.0.0")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -57,6 +65,12 @@ dependencies {
     testImplementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     testImplementation("org.glassfish:jakarta.el:4.0.2")
     testImplementation("ch.qos.logback:logback-classic:1.5.13")
+    testImplementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    testImplementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
+    testImplementation("org.springframework.boot:spring-boot-test:3.1.5")
+    testImplementation("org.springframework.boot:spring-boot-test-autoconfigure:3.1.5")
 
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

@@ -4,7 +4,7 @@
 [![Java Version](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.java.net/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.25-purple.svg)](https://kotlinlang.org/)
 
-Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotlin) projects. It provides production‑oriented building blocks for validation, structured logging (sync & coroutine), performance instrumentation, application‑wide time zone management (with Spring Boot auto‑configuration), and architectural clarity helpers (hexagonal annotations).
+Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotlin) projects. It provides production‑oriented building blocks for validation, structured logging (sync & coroutine), performance instrumentation, application‑wide time zone management (with Spring Boot auto‑configuration), CORS configuration, JWT authentication, and architectural clarity helpers (hexagonal annotations).
 
 **🚀 Zero Forced Dependencies**: Only SLF4J API is required. All other dependencies are optional and loaded only when needed.
 
@@ -17,6 +17,7 @@ Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotl
 | Logging (Coroutines) | Async‑safe logging, execution timing for suspend functions, correlation (MDC) context | Kotlin Coroutines (optional) |
 | Time Zone Management | Spring Boot auto configuration, runtime switching, safe temporary context | Spring Boot Starter (optional) |
 | CORS Configuration | Spring Security CORS auto-configuration, flexible property-based setup | Spring (Web), Spring Security (optional) |
+| JWT Authentication | Token generation/validation, refresh token management, current user context | JJWT, Spring Boot (optional) |
 | Performance Helpers | Execution/method timing, memory usage snapshot logging | SLF4J API only |
 | Hexagonal Architecture | `@Port`, `@Adapter`, `PortDirection` semantic markers | (Optional) Spring (for `@Adapter`) |
 
@@ -25,7 +26,7 @@ Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotl
 ### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.2.1")
+    implementation("com.github.snowykte0426:peanut-butter:1.3.0")
     
     // Optional: Add only what you need
     // For validation features (constraints + file upload)
@@ -44,6 +45,15 @@ dependencies {
     compileOnly("org.springframework.security:spring-security-config:6.3.5")
     // (Alternatively in an application: implementation("org.springframework.boot:spring-boot-starter-security:3.1.5"))
     
+    // For JWT authentication (optional)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    implementation("jakarta.servlet:jakarta.servlet-api:6.0.0") // For current user provider
+    // Optional: For refresh token storage backends
+    // implementation("org.springframework.boot:spring-boot-starter-data-redis") // Redis storage
+    // implementation("org.springframework.boot:spring-boot-starter-data-jpa") // Database storage
+    
     // Choose your logging implementation
     implementation("ch.qos.logback:logback-classic:1.5.13") // or log4j2, etc.
 }
@@ -54,7 +64,7 @@ dependencies {
 <dependency>
   <groupId>com.github.snowykte0426</groupId>
   <artifactId>peanut-butter</artifactId>
-  <version>1.2.1</version>
+  <version>1.3.0</version>
 </dependency>
 
 <!-- Optional: Validation -->
@@ -110,6 +120,41 @@ dependencies {
 </dependency>
 -->
 
+<!-- Optional: JWT Authentication -->
+<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt-api</artifactId>
+  <version>0.12.3</version>
+</dependency>
+<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt-impl</artifactId>
+  <version>0.12.3</version>
+</dependency>
+<dependency>
+  <groupId>io.jsonwebtoken</groupId>
+  <artifactId>jjwt-jackson</artifactId>
+  <version>0.12.3</version>
+</dependency>
+<dependency>
+  <groupId>jakarta.servlet</groupId>
+  <artifactId>jakarta.servlet-api</artifactId>
+  <version>6.0.0</version>
+</dependency>
+<!-- Optional: For refresh token storage backends -->
+<!-- 
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-redis</artifactId>
+  <version>3.1.5</version>
+</dependency>
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-jpa</artifactId>
+  <version>3.1.5</version>
+</dependency>
+-->
+
 <!-- Logging Implementation -->
 <dependency>
   <groupId>ch.qos.logback</groupId>
@@ -139,6 +184,7 @@ This library is designed with **dependency minimization** in mind:
 - 📦 Coroutine logging → Kotlin Coroutines
 - 📦 Spring Boot auto-configuration → Spring Boot Starter
 - 📦 CORS configuration → Spring Web + Spring Security (web + config) modules (or Boot starter security)
+- 📦 JWT authentication → JJWT + Jakarta Servlet (for current user provider) + optional storage backends
 - 📦 Actual logging → Your choice of SLF4J implementation
 
 ## Documentation

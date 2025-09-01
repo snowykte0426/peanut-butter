@@ -1,5 +1,195 @@
 # Release Notes
 
+## v1.3.0
+
+### Summary
+**JWT Authentication Feature Release** – Adds comprehensive JSON Web Token (JWT) support with flexible refresh token management, multiple storage options, and configurable security policies. This major feature addition provides production-ready JWT authentication capabilities for Spring Boot applications.
+
+### New Features
+- **JWT Token Management**: Complete JWT token generation and validation (`JwtService`, `DefaultJwtService`)
+  - Access token generation with custom claims support
+  - Optional refresh token functionality with configurable expiration
+  - Token validation and information extraction (subject, claims, expiration)
+  - Secure HMAC-SHA256 signing with configurable secret keys
+- **Flexible Refresh Token Storage**: Multiple storage backends for scalable refresh token management
+  - **In-Memory Store** (`InMemoryRefreshTokenStore`): Default, zero-configuration option
+  - **Redis Store** (`RedisRefreshTokenStore`): Distributed storage with automatic TTL management
+  - **Database Store** (`JpaRefreshTokenStore`): Persistent storage with JPA entity support
+- **Advanced Security Features**: Production-ready security policies
+  - **Token Rotation**: Optional refresh token rotation with configurable used token handling
+  - **Blacklisting Support**: Used refresh tokens can be removed or moved to blacklist
+  - **Automatic Cleanup**: Scheduled cleanup of expired tokens across all storage types
+- **Current User Context**: Seamless user information extraction from JWT tokens
+  - **Current User Provider** (`CurrentUserProvider`, `JwtCurrentUserProvider`): Extract user info from request context
+  - **User Resolver Interface** (`JwtUserResolver`): Custom user object transformation support
+  - **Request Context Integration**: Automatic token extraction from Authorization headers
+- **Comprehensive Configuration**: Property-driven configuration with secure defaults
+  - **Application Properties**: Full configuration via `application.yml` under `peanut-butter.jwt.*`
+  - **Programmatic Configuration**: `JwtConfiguration` for code-based setup
+  - **Auto-Configuration**: Spring Boot auto-configuration with conditional bean creation
+
+### Improvements
+- **Zero-Configuration Setup**: Works out-of-the-box with secure defaults for development
+- **Production-Ready Security**: Configurable secret keys, expiration times, and security policies
+- **Modular Architecture**: Optional dependencies allow selective feature usage
+- **Comprehensive Testing**: Full test coverage with unit and integration tests
+- **Spring Boot Integration**: Seamless integration with Spring Security and Spring Boot ecosystem
+- **Performance Optimized**: Efficient token operations with minimal overhead
+- **Thread-Safe Operations**: Concurrent access support across all components
+
+### Bug Fixes
+- None (feature-focused release)
+
+### Breaking Changes
+- None (fully backward compatible with v1.2.x)
+
+### Deprecated
+- None
+
+### Key Highlights
+- **Production-grade JWT implementation** with JJWT library integration
+- **Multiple storage backends** (In-Memory, Redis, Database) for different deployment scenarios
+- **Advanced refresh token management** with rotation and blacklisting capabilities
+- **Flexible user context resolution** with customizable user object mapping
+- **Zero-configuration development** with production-ready security defaults
+- **Comprehensive property configuration** for all JWT-related settings
+
+### Requirements
+- Java 17+
+- SLF4J 2.0+
+- (Optional) Kotlin 1.9+ for Kotlin extensions
+- (Optional) Jakarta Bean Validation 3.0+ for validation features
+- (Optional) Kotlin Coroutines 1.7.3+ for async logging
+- (Optional) Spring Boot 3.1.x + Spring Security 6.3.x for CORS auto-configuration
+- **New: JJWT 0.12.3+ for JWT features**
+- **New: Spring Data JPA 3.1.x for database refresh token storage**
+- **New: Spring Data Redis 3.1.x for Redis refresh token storage**
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.3.0")
+    
+    // For JWT features (required)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    
+    // For Redis refresh token storage (optional)
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    
+    // For database refresh token storage (optional)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+}
+```
+
+### Configuration Examples
+
+#### Basic JWT Setup
+```yaml
+peanut-butter:
+  jwt:
+    secret: "your-production-secret-key-minimum-256-bits"
+    access-token-expiry: "PT15M"  # 15 minutes
+    refresh-token-expiry: "PT24H" # 24 hours
+    refresh-token-enabled: true
+```
+
+#### Advanced Configuration with Redis
+```yaml
+peanut-butter:
+  jwt:
+    refresh-token-mode: "STORE_AND_VALIDATE"
+    refresh-token-store-type: "REDIS"
+    refresh-token-rotation-enabled: true
+    used-refresh-token-handling: "BLACKLIST"
+```
+
+#### Database Storage Configuration
+```yaml
+peanut-butter:
+  jwt:
+    refresh-token-store-type: "RDB"
+    refresh-token-mode: "STORE_AND_VALIDATE"
+```
+
+### Usage Examples
+
+#### Basic JWT Service Usage
+```kotlin
+@Service
+class AuthenticationService(
+    private val jwtService: JwtService
+) {
+    fun login(user: User): TokenResponse {
+        val claims = mapOf("role" to user.role, "department" to user.department)
+        val accessToken = jwtService.generateAccessToken(user.id, claims)
+        val refreshToken = jwtService.generateRefreshToken(user.id)
+        
+        return TokenResponse(accessToken, refreshToken)
+    }
+    
+    fun refresh(refreshToken: String): TokenResponse? {
+        return jwtService.refreshTokens(refreshToken)?.let { tokenPair ->
+            TokenResponse(tokenPair.accessToken, tokenPair.refreshToken)
+        }
+    }
+}
+```
+
+#### Current User Context
+```kotlin
+@RestController
+class UserController(
+    private val currentUserProvider: CurrentUserProvider<User>
+) {
+    @GetMapping("/me")
+    fun getCurrentUser(): User? {
+        return currentUserProvider.getCurrentUser()
+    }
+    
+    @GetMapping("/profile")
+    fun getProfile(): UserProfile {
+        val userId = currentUserProvider.getCurrentUserId()
+        val claims = currentUserProvider.getCurrentUserClaims()
+        // Use user information from JWT context
+    }
+}
+```
+
+#### Custom User Resolver
+```kotlin
+@Component
+class CustomUserResolver(
+    private val userService: UserService
+) : JwtUserResolver<User> {
+    override fun resolveUser(subject: String, claims: Map<String, Any>): User? {
+        return userService.findById(subject)
+    }
+}
+```
+
+### Migration Guide
+**From v1.2.x to v1.3.0**: Fully backward compatible. Simply update the version number.
+
+1. **Update Version**: Change dependency to `1.3.0`
+2. **Add JWT Dependencies**: Include JJWT dependencies for JWT functionality
+3. **Configure JWT** (optional): Add JWT properties to `application.yml`:
+   ```yaml
+   peanut-butter:
+     jwt:
+       secret: "your-production-secret-key"
+       access-token-expiry: "PT15M"
+       refresh-token-enabled: true
+   ```
+4. **Choose Storage Backend**: Select appropriate refresh token storage (in-memory, Redis, or database)
+5. **Implement User Resolver**: Create `JwtUserResolver` implementation for custom user object resolution
+
+---
+*See README.md and docs/USAGE.md for detailed examples and usage patterns.*
+
+---
+
 ## v1.2.2
 
 ### Summary
