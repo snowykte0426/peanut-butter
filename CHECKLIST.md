@@ -4,3 +4,4 @@
 - [ ] CONTRIBUTING.md
 - [ ] SECURITY.md
 - [ ] Test Code
+- [ ] Translated Docs(ko)
