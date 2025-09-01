@@ -1,4 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.github.snowykte0426.peanut.butter.timezone.TimeZoneAutoConfiguration,\
-com.github.snowykte0426.peanut.butter.security.cors.CorsConfiguration
+com.github.snowykte0426.peanut.butter.security.cors.CorsConfiguration,\
+com.github.snowykte0426.peanut.butter.security.jwt.JwtAutoConfiguration
 

@@ -9,6 +9,11 @@
       "name": "peanut-butter.security.cors",
       "type": "com.github.snowykte0426.peanut.butter.security.cors.CorsProperties",
       "description": "Configuration properties for CORS (Cross-Origin Resource Sharing) settings"
+    },
+    {
+      "name": "peanut-butter.jwt",
+      "type": "com.github.snowykte0426.peanut.butter.security.jwt.JwtProperties",
+      "description": "Configuration properties for JWT (JSON Web Token) settings"
     }
   ],
   "properties": [
@@ -70,6 +75,54 @@
       "type": "java.util.List<java.lang.String>",
       "defaultValue": [],
       "description": "List of exposed headers for CORS responses. Headers that the browser is allowed to access"
+    },
+    {
+      "name": "peanut-butter.jwt.secret",
+      "type": "java.lang.String",
+      "defaultValue": "default-peanut-butter-jwt-secret-key-for-development-only-please-change-in-production",
+      "description": "Secret key for JWT token signing and verification"
+    },
+    {
+      "name": "peanut-butter.jwt.access-token-expiry",
+      "type": "java.time.Duration",
+      "defaultValue": "PT1H",
+      "description": "Access token expiration duration (ISO-8601 format)"
+    },
+    {
+      "name": "peanut-butter.jwt.refresh-token-expiry",
+      "type": "java.time.Duration",
+      "defaultValue": "PT24H",
+      "description": "Refresh token expiration duration (ISO-8601 format)"
+    },
+    {
+      "name": "peanut-butter.jwt.refresh-token-enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "Enable refresh token functionality"
+    },
+    {
+      "name": "peanut-butter.jwt.refresh-token-rotation-enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "Enable refresh token rotation (new refresh token generated on each use)"
+    },
+    {
+      "name": "peanut-butter.jwt.refresh-token-mode",
+      "type": "com.github.snowykte0426.peanut.butter.security.jwt.RefreshTokenMode",
+      "defaultValue": "SIMPLE_VALIDATION",
+      "description": "Refresh token validation mode: SIMPLE_VALIDATION or STORE_AND_VALIDATE"
+    },
+    {
+      "name": "peanut-butter.jwt.refresh-token-store-type",
+      "type": "com.github.snowykte0426.peanut.butter.security.jwt.RefreshTokenStoreType",
+      "defaultValue": "IN_MEMORY",
+      "description": "Storage type for refresh tokens: REDIS, IN_MEMORY, or RDB"
+    },
+    {
+      "name": "peanut-butter.jwt.used-refresh-token-handling",
+      "type": "com.github.snowykte0426.peanut.butter.security.jwt.UsedRefreshTokenHandling",
+      "defaultValue": "REMOVE",
+      "description": "How to handle used refresh tokens when rotation is enabled: REMOVE or BLACKLIST"
     }
   ]
 }
