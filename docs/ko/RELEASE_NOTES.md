@@ -1,5 +1,7 @@
 # 릴리즈 노트
 
+**Language**: [English](../RELEASE_NOTES.md)
+
 ## v1.3.0
 
 ### 요약

@@ -1,5 +1,7 @@
 # Peanut-Butter에 기여하기
 
+**Language**: [English](../../CONTRIBUTING.md)
+
 Peanut-Butter 개선에 관심을 가져주셔서 감사합니다. 이 문서는 기여를 위한 권장 워크플로, 코딩 표준 및 품질 기준을 설명합니다.
 
 ---

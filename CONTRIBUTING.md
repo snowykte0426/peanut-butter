@@ -1,5 +1,7 @@
 # Contributing to Peanut-Butter
 
+**Language**: [한국어](docs/ko/CONTRIBUTING.md)
+
 Thank you for your interest in improving Peanut-Butter. This document describes the recommended workflow, coding standards, and quality gates for contributions.
 
 ---

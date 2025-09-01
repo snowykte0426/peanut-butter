@@ -1,5 +1,7 @@
 # Peanut-Butter Usage Guide 🥜🧈
 
+**Language**: [한국어](ko/USAGE.md)
+
 This guide provides comprehensive examples and best practices for using the Peanut-Butter library.
 
 ## Table of Contents

@@ -1,5 +1,7 @@
 # Peanut-Butter
 
+**Language**: [English](../../README.md)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Java Version](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.java.net/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.25-purple.svg)](https://kotlinlang.org/)

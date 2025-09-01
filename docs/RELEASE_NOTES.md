@@ -1,5 +1,7 @@
 # Release Notes
 
+**Language**: [한국어](ko/RELEASE_NOTES.md)
+
 ## v1.3.0
 
 ### Summary
