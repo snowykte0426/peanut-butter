@@ -17,7 +17,7 @@ Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotl
 | Logging (Coroutines) | Async‑safe logging, execution timing for suspend functions, correlation (MDC) context | Kotlin Coroutines (optional) |
 | Time Zone Management | Spring Boot auto configuration, runtime switching, safe temporary context | Spring Boot Starter (optional) |
 | CORS Configuration | Spring Security CORS auto-configuration, flexible property-based setup | Spring (Web), Spring Security (optional) |
-| JWT Authentication | Token generation/validation, refresh token management, current user context | JJWT, Spring Boot (optional) |
+| JWT Authentication | Token generation/validation, refresh token management, current user context, JWT authentication filter | JJWT, Spring Boot + Spring Security (optional) |
 | Performance Helpers | Execution/method timing, memory usage snapshot logging | SLF4J API only |
 | Hexagonal Architecture | `@Port`, `@Adapter`, `PortDirection` semantic markers | (Optional) Spring (for `@Adapter`) |
 
@@ -26,7 +26,7 @@ Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotl
 ### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.3.0")
+    implementation("com.github.snowykte0426:peanut-butter:1.3.1")
     
     // Optional: Add only what you need
     // For validation features (constraints + file upload)
@@ -50,6 +50,8 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
     implementation("jakarta.servlet:jakarta.servlet-api:6.0.0") // For current user provider
+    // For JWT authentication filter (optional)
+    implementation("org.springframework.boot:spring-boot-starter-security") // Spring Security integration
     // Optional: For refresh token storage backends
     // implementation("org.springframework.boot:spring-boot-starter-data-redis") // Redis storage
     // implementation("org.springframework.boot:spring-boot-starter-data-jpa") // Database storage
@@ -64,7 +66,7 @@ dependencies {
 <dependency>
   <groupId>com.github.snowykte0426</groupId>
   <artifactId>peanut-butter</artifactId>
-  <version>1.3.0</version>
+  <version>1.3.1</version>
 </dependency>
 
 <!-- Optional: Validation -->
@@ -141,6 +143,12 @@ dependencies {
   <artifactId>jakarta.servlet-api</artifactId>
   <version>6.0.0</version>
 </dependency>
+<!-- Optional: JWT Authentication Filter -->
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-security</artifactId>
+  <version>3.1.5</version>
+</dependency>
 <!-- Optional: For refresh token storage backends -->
 <!-- 
 <dependency>
@@ -185,6 +193,7 @@ This library is designed with **dependency minimization** in mind:
 - Spring Boot auto-configuration → Spring Boot Starter
 - CORS configuration → Spring Web + Spring Security (web + config) modules (or Boot starter security)
 - JWT authentication → JJWT + Jakarta Servlet (for current user provider) + optional storage backends
+- JWT authentication filter → JJWT + Spring Security (for SecurityFilterChain integration)
 - Actual logging → Your choice of SLF4J implementation
 
 ## Documentation

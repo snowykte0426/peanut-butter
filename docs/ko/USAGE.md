@@ -15,6 +15,7 @@
 - [타임존 유틸리티](#타임존-유틸리티)
 - [CORS 구성](#cors-구성)
 - [JWT 인증](#jwt-인증)
+- [JWT 인증 필터](#jwt-인증-필터)
 - [모범 사례](#모범-사례)
 - [고급 예제](#고급-예제)
 
@@ -26,7 +27,7 @@ Peanut-Butter는 **경량화 및 모듈형**으로 설계되었습니다. 실제
 
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.3.0")
+    implementation("com.github.snowykte0426:peanut-butter:1.3.1")
     
     // 로깅 구현체 선택 (모든 로깅 기능에 필요)
     implementation("ch.qos.logback:logback-classic:1.5.13")
@@ -128,6 +129,7 @@ dependencies {
 | JWT 토큰 관리 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | 리프레시 토큰 스토리지 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | 현재 사용자 프로바이더 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| JWT 인증 필터 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | 헥사고날 어노테이션 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## 필드 검증
@@ -1024,6 +1026,275 @@ peanut-butter:
     refresh-token-store-type: "RDB"  # 영구 스토리지
     used-refresh-token-handling: "BLACKLIST"
 ```
+
+## JWT 인증 필터
+
+**필요한 의존성**: JJWT + Spring Boot + Spring Security
+
+Peanut-Butter 1.3.1부터 자동 permitAll() 경로 탐지와 유연한 구성 옵션을 갖춘 포괄적인 JWT 인증 필터를 제공합니다. 이 필터는 기존 Spring Security 설정과 원활하게 통합되어 요청 수준에서 JWT 인증을 처리합니다.
+
+### 1. 기본 설정과 구성
+
+Spring Security가 클래스패스에 있고 JWT 필터가 활성화되어 있을 때 JWT 인증 필터가 자동으로 활성화됩니다.
+
+#### 자동 구성 (Spring Boot)
+
+`application.yml`에 JWT 필터 속성을 추가하세요:
+
+```yaml
+peanut-butter:
+  security:
+    jwt:
+      filter:
+        enabled: true                       # JWT 필터 활성화/비활성화
+        auto-detect-permit-all-paths: true  # permitAll() 경로 자동 탐지
+        excluded-paths:                     # 수동 제외 경로 (선택사항)
+          - "/api/public/**"
+          - "/health/**"
+          - "/actuator/**"
+          - "/swagger-ui/**"
+          - "/v3/api-docs/**"
+```
+
+### 2. 스마트 경로 탐지 기능
+
+JWT 인증 필터의 주요 특징 중 하나는 기존 Spring Security 구성을 분석하여 `permitAll()` 경로를 자동으로 탐지하고 JWT 필터링에서 제외하는 능력입니다.
+
+#### 자동 탐지 작동 방식
+
+```kotlin
+@Configuration
+@EnableWebSecurity
+class SecurityConfig {
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        return http
+            .authorizeHttpRequests { auth ->
+                // 이 경로들은 자동으로 탐지되어 JWT 필터링에서 제외됩니다
+                auth.requestMatchers("/api/public/**").permitAll()
+                auth.requestMatchers("/health", "/metrics").permitAll() 
+                auth.requestMatchers("/login", "/register").permitAll()
+                auth.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                auth.anyRequest().authenticated()
+            }
+            .build()
+    }
+}
+```
+
+자동 탐지가 활성화되면 (기본값), 필터는:
+- Spring Security 구성을 스캔하여 `permitAll()` 매처를 찾음
+- 해당 경로 패턴을 추출하여 JWT 필터링에서 자동 제외
+- 수동 `excluded-paths`와 병합하여 완전한 제외 목록 생성
+
+### 3. 구성 옵션
+
+#### 개발 구성
+
+```yaml
+peanut-butter:
+  security:
+    jwt:
+      filter:
+        enabled: true
+        auto-detect-permit-all-paths: true
+        excluded-paths:
+          - "/h2-console/**"     # 개발 DB 콘솔
+          - "/debug/**"          # 개발 디버그 엔드포인트
+```
+
+#### 프로덕션 구성
+
+```yaml
+peanut-butter:
+  security:
+    jwt:
+      filter:
+        enabled: true
+        auto-detect-permit-all-paths: true
+        excluded-paths:
+          - "/actuator/health"   # 헬스체크만 허용
+          - "/actuator/info"     # 정보 엔드포인트만 허용
+          # 다른 actuator 엔드포인트는 JWT 보호
+```
+
+#### 수동 경로 제어
+
+```yaml
+peanut-butter:
+  security:
+    jwt:
+      filter:
+        enabled: true
+        auto-detect-permit-all-paths: false  # 자동 탐지 비활성화
+        excluded-paths:                      # 수동으로만 제외 경로 설정
+          - "/api/auth/login"
+          - "/api/auth/register"
+          - "/api/public/**"
+          - "/health"
+```
+
+### 4. 필터 동작 방식
+
+JWT 인증 필터는 다음 단계로 작동합니다:
+
+1. **경로 확인**: 요청 경로가 제외 목록에 있는지 확인
+2. **토큰 추출**: Authorization 헤더에서 Bearer 토큰 추출
+3. **토큰 검증**: JWT 서비스를 통해 토큰 유효성 검증
+4. **컨텍스트 설정**: 유효한 토큰의 경우 Spring Security 컨텍스트에 인증 설정
+5. **권한 부여**: 토큰 클레임에서 역할과 권한 추출하여 설정
+
+#### 토큰 클레임 처리
+
+```kotlin
+// JWT 토큰에 다음과 같은 클레임이 있다면:
+val claims = mapOf(
+    "roles" to listOf("USER", "ADMIN"),
+    "authorities" to listOf("READ", "WRITE", "DELETE")
+)
+
+// 필터는 다음과 같이 Spring Security 권한을 설정합니다:
+// - ROLE_USER, ROLE_ADMIN (역할에 ROLE_ 접두사 자동 추가)
+// - READ, WRITE, DELETE (권한은 그대로 사용)
+```
+
+### 5. Spring Security와의 통합
+
+#### SecurityFilterChain과의 통합
+
+JWT 필터는 자동으로 기존 SecurityFilterChain에 통합되어 `UsernamePasswordAuthenticationFilter` 앞에 배치됩니다:
+
+```kotlin
+@Configuration
+class SecurityConfig {
+    
+    // JWT 필터가 자동으로 이 설정과 통합됩니다
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        return http
+            .authorizeHttpRequests { auth ->
+                auth.requestMatchers("/api/public/**").permitAll()
+                auth.requestMatchers("/api/admin/**").hasRole("ADMIN")
+                auth.requestMatchers("/api/user/**").hasRole("USER")
+                auth.anyRequest().authenticated()
+            }
+            .sessionManagement { session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            }
+            .csrf { it.disable() }
+            .build()
+    }
+}
+```
+
+#### 커스텀 보안 설정과의 호환성
+
+```kotlin
+@Configuration
+@EnableWebSecurity
+class CustomSecurityConfig {
+    
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        return http
+            .authorizeHttpRequests { auth ->
+                // JWT 필터가 자동으로 이 허용 경로들을 탐지
+                auth.requestMatchers("/api/auth/**").permitAll()
+                auth.requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                auth.requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                auth.anyRequest().authenticated()
+            }
+            .oauth2ResourceServer { oauth2 ->
+                oauth2.jwt { jwt ->
+                    // JWT 필터와 OAuth2 JWT가 함께 작동 가능
+                }
+            }
+            .build()
+    }
+}
+```
+
+### 6. 고급 구성 시나리오
+
+#### 마이크로서비스 환경
+
+```yaml
+peanut-butter:
+  security:
+    jwt:
+      filter:
+        enabled: true
+        auto-detect-permit-all-paths: true
+        excluded-paths:
+          - "/actuator/health"      # 서비스 메시
+          - "/actuator/prometheus"   # 모니터링
+          - "/api/internal/**"       # 내부 서비스 통신
+```
+
+#### API 게이트웨이 환경
+
+```yaml
+peanut-butter:
+  security:
+    jwt:
+      filter:
+        enabled: true
+        auto-detect-permit-all-paths: false  # 게이트웨이에서 경로 제어
+        excluded-paths: []                   # 모든 요청을 JWT로 보호
+```
+
+#### 하이브리드 인증 환경
+
+```yaml
+peanut-butter:
+  security:
+    jwt:
+      filter:
+        enabled: true
+        auto-detect-permit-all-paths: true
+        excluded-paths:
+          - "/api/oauth/**"      # OAuth2 인증 경로
+          - "/api/saml/**"       # SAML 인증 경로
+          - "/api/basic/**"      # Basic 인증 경로
+```
+
+### 7. 모니터링과 디버깅
+
+JWT 필터는 포괄적한 로깅을 제공합니다:
+
+```yaml
+# application.yml에서 로깅 활성화
+logging:
+  level:
+    com.github.snowykte0426.peanut.butter.security.jwt: DEBUG
+```
+
+로그 예제:
+```
+DEBUG - JWT Filter: Processing request to /api/secure
+DEBUG - JWT Filter: Token extracted from Authorization header
+DEBUG - JWT Filter: Token validation successful for user: user123
+DEBUG - JWT Filter: Authentication set in SecurityContext
+DEBUG - JWT Filter: Request to /api/public/info excluded from JWT filtering
+```
+
+### 8. 오류 처리
+
+JWT 필터는 우아한 오류 처리를 제공합니다:
+
+- **토큰 없음**: 필터 체인 계속 (다른 인증 메커니즘에서 처리 가능)
+- **잘못된 토큰**: 로그 기록 후 필터 체인 계속
+- **만료된 토큰**: 경고 로그 후 필터 체인 계속
+- **서버 오류**: 오류 로그 후 필터 체인 계속 (안전한 폴백)
+
+### 9. 성능 최적화
+
+JWT 필터는 성능을 위해 최적화되었습니다:
+
+- **조기 제외**: 경로 매칭을 먼저 수행하여 불필요한 JWT 처리 방지
+- **효율적인 패턴 매칭**: Ant 스타일 패턴 매치를 최적화
+- **최소한의 오버헤드**: 제외된 경로는 거의 즉시 처리
+- **캐시된 클레임**: 동일 요청 내에서 클레임 재사용
 
 ---
 

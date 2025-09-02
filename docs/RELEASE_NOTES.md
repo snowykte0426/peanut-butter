@@ -2,6 +2,116 @@
 
 **Language**: [한국어](ko/RELEASE_NOTES.md)
 
+## v1.3.1
+
+### Summary
+**JWT Security Filter Enhancement** – Adds comprehensive JWT authentication filter with automatic permitAll() path detection, configurable exclusion patterns, and seamless SecurityFilterChain integration. This enhancement provides production-ready request-level JWT filtering capabilities that automatically integrates with existing Spring Security configurations.
+
+### New Features
+- **JWT Authentication Filter**: Comprehensive request-level JWT authentication (`JwtAuthenticationFilter`)
+  - Automatic Bearer token extraction and validation from Authorization headers
+  - Spring Security context authentication setup with roles and authorities
+  - Exception handling with graceful fallback to filter chain continuation
+  - Ant-style path pattern matching for flexible path exclusions
+- **Smart Path Detection**: Automatic permitAll() path detection from existing SecurityFilterChain configurations
+  - **Auto-Detection** (`JwtFilterProperties.autoDetectPermitAllPaths`): Analyzes Spring Security configurations and automatically excludes permitAll() paths
+  - **Manual Exclusions** (`JwtFilterProperties.excludedPaths`): Additional custom path patterns for exclusion
+  - **Combined Approach**: Supports both automatic detection and manual configuration simultaneously
+- **Filter Configuration**: Flexible property-driven filter setup (`JwtFilterProperties`)
+  - **Enable/Disable Control** (`enabled`): Toggle JWT filtering without code changes
+  - **Path Exclusion Lists** (`excludedPaths`): Ant-style patterns (e.g., "/api/public/**", "/health/*")
+  - **Auto-Detection Toggle** (`autoDetectPermitAllPaths`): Control automatic permitAll() path detection
+- **Security Integration**: Seamless Spring Security FilterChain integration (`JwtSecurityFilterChain`)
+  - **Automatic Registration**: Self-configuring SecurityFilterChain with JWT filter insertion
+  - **Security Matcher**: Intelligent request matching for JWT-protected endpoints
+  - **Filter Positioning**: Correctly positioned before UsernamePasswordAuthenticationFilter
+- **Configuration Properties**: Complete Spring Boot configuration support
+  - **Property Metadata**: Full IDE autocompletion support via spring-configuration-metadata.json
+  - **Auto-Configuration**: Automatic bean wiring through spring.factories registration
+  - **Conditional Loading**: Only activates when JWT and Security dependencies are present
+
+### Improvements
+- **Zero-Configuration JWT Filtering**: Works out-of-the-box with existing JWT service implementations
+- **Automatic Security Integration**: Seamlessly integrates with existing Spring Security configurations without conflicts
+- **Performance Optimized**: Efficient path matching with early exclusion checks to minimize processing overhead
+- **Production-Ready Security**: Comprehensive error handling with security-first design principles
+- **Flexible Configuration**: Multiple configuration approaches (auto-detection, manual exclusion, or hybrid)
+- **Comprehensive Testing**: Full test coverage with unit tests using FunSpec style testing framework
+
+### Bug Fixes
+- None (feature-focused release)
+
+### Breaking Changes
+- None (fully backward compatible with v1.3.0)
+
+### Deprecated
+- None
+
+### Key Highlights
+- **Request-level JWT authentication** with automatic Security context population
+- **Smart permitAll() detection** that automatically excludes public endpoints
+- **Flexible path exclusion patterns** supporting Ant-style matching with wildcards
+- **Zero-configuration integration** with existing Spring Security setups
+- **Production-ready error handling** with graceful fallback mechanisms
+- **Comprehensive property configuration** for all filtering behaviors
+
+### Requirements
+- Java 17+
+- SLF4J 2.0+
+- (Optional) Kotlin 1.9+ for Kotlin extensions
+- (Optional) Jakarta Bean Validation 3.0+ for validation features
+- (Optional) Kotlin Coroutines 1.7.3+ for async logging
+- **Spring Boot 3.1.x + Spring Security 6.3.x for JWT filter features**
+- **JJWT 0.12.3+ for JWT features** (existing requirement)
+- **Spring Data JPA 3.1.x for database refresh token storage** (existing requirement)
+- **Spring Data Redis 3.1.x for Redis refresh token storage** (existing requirement)
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.3.1")
+    
+    // For JWT features (required)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    
+    // For Spring Security JWT filter features (required for filter)
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    
+    // For Redis refresh token storage (optional)
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    
+    // For database refresh token storage (optional)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+}
+```
+
+### Migration Guide
+**From v1.3.0 to v1.3.1**: Fully backward compatible. Simply update the version number.
+
+1. **Update Version**: Change dependency to `1.3.1`
+2. **Enable JWT Filter** (optional): Add JWT filter properties to `application.yml`:
+   ```yaml
+   peanut-butter:
+     security:
+       jwt:
+         filter:
+           enabled: true
+           auto-detect-permit-all-paths: true
+           excluded-paths:
+             - "/api/public/**"
+             - "/health/**"
+             - "/actuator/**"
+   ```
+3. **Existing JWT Setup**: All existing JWT configurations remain unchanged
+4. **Security Configuration**: Filter automatically integrates with existing SecurityFilterChain configurations
+
+---
+*See README.md and docs/USAGE.md for detailed examples and usage patterns.*
+
+---
+
 ## v1.3.0
 
 ### Summary

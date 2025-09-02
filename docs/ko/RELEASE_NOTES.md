@@ -2,6 +2,116 @@
 
 **Language**: [English](../RELEASE_NOTES.md)
 
+## v1.3.1
+
+### 요약
+**JWT 보안 필터 향상** – 자동 permitAll() 경로 탐지, 구성 가능한 제외 패턴, 원활한 SecurityFilterChain 통합을 갖춘 포괄적인 JWT 인증 필터를 추가합니다. 이 향상은 기존 Spring Security 구성과 자동으로 통합되는 프로덕션 준비 요청 수준 JWT 필터링 기능을 제공합니다.
+
+### 새로운 기능
+- **JWT 인증 필터**: 포괄적인 요청 수준 JWT 인증 (`JwtAuthenticationFilter`)
+  - 자동 Bearer 토큰 추출 및 Authorization 헤더로부터 검증
+  - 역할 및 권한을 갖는 Spring Security 컨텍스트 인증 설정
+  - 필터 체인 연속으로 우아한 폴백을 갖는 예외 처리
+  - 유연한 경로 제외를 위한 Ant 스타일 경로 패턴 매칭
+- **스마트 경로 탐지**: 기존 SecurityFilterChain 구성에서 자동 permitAll() 경로 탐지
+  - **자동 탐지** (`JwtFilterProperties.autoDetectPermitAllPaths`): Spring Security 구성을 분석하고 자동으로 permitAll() 경로 제외
+  - **수동 제외** (`JwtFilterProperties.excludedPaths`): 제외를 위한 추가 사용자 정의 경로 패턴
+  - **통합 접근법**: 자동 탐지와 수동 구성을 동시에 지원
+- **필터 구성**: 유연한 속성 기반 필터 설정 (`JwtFilterProperties`)
+  - **활성화/비활성화 제어** (`enabled`): 코드 변경 없이 JWT 필터링 토글
+  - **경로 제외 목록** (`excludedPaths`): Ant 스타일 패턴 (예: "/api/public/**", "/health/*")
+  - **자동 탐지 토글** (`autoDetectPermitAllPaths`): 자동 permitAll() 경로 탐지 제어
+- **보안 통합**: 원활한 Spring Security FilterChain 통합 (`JwtSecurityFilterChain`)
+  - **자동 등록**: JWT 필터 삽입을 갖는 자체 구성 SecurityFilterChain
+  - **보안 매처**: JWT 보호 엔드포인트를 위한 지능적인 요청 매칭
+  - **필터 포지셔닝**: UsernamePasswordAuthenticationFilter 앞에 올바르게 위치
+- **구성 속성**: 완전한 Spring Boot 구성 지원
+  - **속성 메타데이터**: spring-configuration-metadata.json을 통한 전체 IDE 자동완성 지원
+  - **자동 구성**: spring.factories 등록을 통한 자동 빈 와이어링
+  - **조건부 로딩**: JWT 및 Security 의존성이 있을 때만 활성화
+
+### 개선사항
+- **무설정 JWT 필터링**: 기존 JWT 서비스 구현과 즉시 작동
+- **자동 보안 통합**: 충돌 없이 기존 Spring Security 구성과 원활하게 통합
+- **성능 최적화**: 처리 오버헤드를 최소화하는 조기 제외 확인을 갖는 효율적인 경로 매칭
+- **프로덕션 준비 보안**: 보안 우선 설계 원칙을 갖는 포괄적인 오류 처리
+- **유연한 구성**: 다중 구성 접근법 (자동 탐지, 수동 제외, 또는 하이브리드)
+- **포괄적인 테스트**: FunSpec 스타일 테스트 프레임워크를 사용한 전체 테스트 커버리지
+
+### 버그 수정
+- 없음 (기능 중심 릴리즈)
+
+### 브레이킹 체인지
+- 없음 (v1.3.0과 완전한 하위 호환성)
+
+### 폐지됨
+- 없음
+
+### 주요 특징
+- **요청 수준 JWT 인증**과 자동 Security 컨텍스트 채우기
+- **스마트 permitAll() 탐지**로 공개 엔드포인트 자동 제외
+- **유연한 경로 제외 패턴**으로 와일드카드를 갖는 Ant 스타일 매칭 지원
+- **무설정 통합**으로 기존 Spring Security 설정과 통합
+- **프로덕션 준비 오류 처리**와 우아한 폴백 메커니즘
+- **포괄적인 속성 구성**으로 모든 필터링 동작 설정
+
+### 요구사항
+- Java 17+
+- SLF4J 2.0+
+- (선택사항) Kotlin 1.9+ for Kotlin 확장
+- (선택사항) Jakarta Bean Validation 3.0+ for 검증 기능
+- (선택사항) Kotlin Coroutines 1.7.3+ for 비동기 로깅
+- **JWT 필터 기능을 위한 Spring Boot 3.1.x + Spring Security 6.3.x**
+- **JWT 기능을 위한 JJWT 0.12.3+** (기존 요구사항)
+- **데이터베이스 리프레시 토큰 스토리지를 위한 Spring Data JPA 3.1.x** (기존 요구사항)
+- **Redis 리프레시 토큰 스토리지를 위한 Spring Data Redis 3.1.x** (기존 요구사항)
+
+### 설치
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.3.1")
+    
+    // JWT 기능용 (필수)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    
+    // Spring Security JWT 필터 기능용 (필터에 필수)
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    
+    // Redis 리프레시 토큰 스토리지용 (선택사항)
+    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    
+    // 데이터베이스 리프레시 토큰 스토리지용 (선택사항)
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+}
+```
+
+### 마이그레이션 가이드
+**v1.3.0에서 v1.3.1로**: 완전한 하위 호환성. 단순히 버전 번호를 업데이트하세요.
+
+1. **버전 업데이트**: 의존성을 `1.3.1`로 변경
+2. **JWT 필터 활성화** (선택사항): `application.yml`에 JWT 필터 속성 추가:
+   ```yaml
+   peanut-butter:
+     security:
+       jwt:
+         filter:
+           enabled: true
+           auto-detect-permit-all-paths: true
+           excluded-paths:
+             - "/api/public/**"
+             - "/health/**"
+             - "/actuator/**"
+   ```
+3. **기존 JWT 설정**: 모든 기존 JWT 구성은 변경되지 않음
+4. **보안 구성**: 필터는 기존 SecurityFilterChain 구성과 자동으로 통합
+
+---
+*자세한 예제와 사용 패턴은 README.md와 docs/USAGE.md를 참조하세요.*
+
+---
+
 ## v1.3.0
 
 ### 요약

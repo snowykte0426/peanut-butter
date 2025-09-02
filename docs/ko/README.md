@@ -17,7 +17,7 @@ Peanut-Butter는 JVM (Java & Kotlin) 프로젝트를 위한 **경량화, 모듈�
 | 로깅 (코루틴) | 비동기 안전 로깅, suspend 함수를 위한 실행 타이밍, 상관관계 (MDC) 컨텍스트 | Kotlin Coroutines (선택사항) |
 | 타임존 관리 | Spring Boot 자동 구성, 런타임 스위칭, 안전한 임시 컨텍스트 | Spring Boot Starter (선택사항) |
 | CORS 구성 | Spring Security CORS 자동 구성, 유연한 속성 기반 설정 | Spring (Web), Spring Security (선택사항) |
-| JWT 인증 | 토큰 생성/검증, 리프레시 토큰 관리, 현재 사용자 컨텍스트 | JJWT, Spring Boot (선택사항) |
+| JWT 인증 | 토큰 생성/검증, 리프레시 토큰 관리, 현재 사용자 컨텍스트, JWT 인증 필터 | JJWT, Spring Boot + Spring Security (선택사항) |
 | 성능 헬퍼 | 실행/메서드 타이밍, 메모리 사용량 스냅샷 로깅 | SLF4J API만 |
 | 헥사고날 아키텍처 | `@Port`, `@Adapter`, `PortDirection` 의미적 마커 | (선택사항) Spring (`@Adapter`용) |
 
@@ -26,7 +26,7 @@ Peanut-Butter는 JVM (Java & Kotlin) 프로젝트를 위한 **경량화, 모듈�
 ### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.3.0")
+    implementation("com.github.snowykte0426:peanut-butter:1.3.1")
     
     // 선택사항: 필요한 것만 추가
     // 검증 기능 (제약 조건 + 파일 업로드)
@@ -64,7 +64,7 @@ dependencies {
 <dependency>
   <groupId>com.github.snowykte0426</groupId>
   <artifactId>peanut-butter</artifactId>
-  <version>1.3.0</version>
+  <version>1.3.1</version>
 </dependency>
 
 <!-- 선택사항: 검증 -->

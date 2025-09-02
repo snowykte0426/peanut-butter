@@ -26,7 +26,7 @@ Peanut-Butter is designed to be **lightweight and modular**. You only need to in
 
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.2.1")
+    implementation("com.github.snowykte0426:peanut-butter:1.3.1")
     
     // Choose your logging implementation (required for any logging functionality)
     implementation("ch.qos.logback:logback-classic:1.5.13")
@@ -128,6 +128,7 @@ dependencies {
 | JWT token management | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Refresh token storage | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Current user provider | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| JWT authentication filter | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Hexagonal annotations | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## Field Validation
@@ -1680,6 +1681,161 @@ peanut-butter:
   jwt:
     refresh-token-mode: "STORE_AND_VALIDATE"
     refresh-token-store-type: "REDIS"  # Ensure Redis is configured
+```
+
+### 8. JWT Authentication Filter
+
+**Dependencies required**: Spring Security + JJWT (for JWT filtering capabilities)
+
+The JWT Authentication Filter provides automatic request-level JWT authentication with intelligent path exclusion and seamless Spring Security integration.
+
+#### Enable JWT Filter
+
+Add JWT filter configuration to your `application.yml`:
+
+```yaml
+peanut-butter:
+  security:
+    jwt:
+      filter:
+        enabled: true                          # Enable JWT filtering
+        auto-detect-permit-all-paths: true     # Automatically exclude permitAll() paths
+        excluded-paths:                        # Additional manual exclusions
+          - "/api/public/**"
+          - "/health/**" 
+          - "/actuator/**"
+          - "/swagger-ui/**"
+          - "/v3/api-docs/**"
+```
+
+#### Automatic permitAll() Detection
+
+The filter automatically analyzes your existing Spring Security configuration and excludes any paths configured with `permitAll()`:
+
+```kotlin
+@Configuration
+@EnableWebSecurity
+class SecurityConfig {
+    
+    @Bean
+    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+        return http
+            .authorizeHttpRequests { auth ->
+                // These paths will be automatically detected and excluded from JWT filtering
+                auth.requestMatchers("/api/public/**").permitAll()
+                auth.requestMatchers("/health", "/metrics").permitAll() 
+                auth.requestMatchers("/login", "/register").permitAll()
+                auth.anyRequest().authenticated()
+            }
+            .build()
+    }
+}
+```
+
+#### Manual Path Exclusion
+
+Configure additional paths that should bypass JWT authentication:
+
+```yaml
+peanut-butter:
+  security:
+    jwt:
+      filter:
+        enabled: true
+        excluded-paths:
+          # Ant-style patterns supported
+          - "/api/public/**"           # Exclude all public API endpoints
+          - "/health/*"                # Exclude health check endpoints
+          - "/admin/*/status"          # Exclude admin status endpoints
+          - "/static/**"               # Exclude static resources
+          - "/docs"                    # Exclude exact path
+```
+
+#### Combined Configuration Example
+
+```yaml
+peanut-butter:
+  jwt:
+    # JWT Service Configuration
+    secret: "your-production-secret-key"
+    access-token-expiry: "PT15M"
+    refresh-token-enabled: true
+    refresh-token-expiry: "PT24H"
+    refresh-token-store-type: "REDIS"
+    
+  security:
+    jwt:
+      filter:
+        # JWT Filter Configuration  
+        enabled: true
+        auto-detect-permit-all-paths: true  # Use both auto-detection
+        excluded-paths:                     # AND manual exclusions
+          - "/api/docs/**"
+          - "/metrics/**"
+```
+
+#### Filter Behavior
+
+The JWT filter operates as follows:
+
+1. **Path Exclusion Check**: Requests matching excluded patterns bypass JWT authentication
+2. **Token Extraction**: Extracts Bearer token from Authorization header (`Authorization: Bearer <token>`)
+3. **Token Validation**: Validates token using the configured JWT service
+4. **Authentication Setup**: Creates Spring Security authentication context with:
+   - **Principal**: Token subject (usually user ID)
+   - **Authorities**: Roles and permissions from token claims
+5. **Error Handling**: Gracefully handles invalid tokens by continuing filter chain without authentication
+
+#### Security Context Population
+
+When a valid JWT token is found, the filter automatically populates the Spring Security context:
+
+```kotlin
+@RestController
+class SecuredController {
+    
+    @GetMapping("/profile")
+    fun getUserProfile(authentication: Authentication): UserProfile {
+        val userId = authentication.principal as String
+        val authorities = authentication.authorities.map { it.authority }
+        
+        // Token claims are available through JWT service
+        return userService.getProfile(userId)
+    }
+    
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    fun getAdminData(): AdminData {
+        // Role-based security works automatically
+        return adminService.getData()
+    }
+}
+```
+
+#### Production Configuration
+
+```yaml
+peanut-butter:
+  jwt:
+    secret: "${JWT_SECRET_KEY}"
+    access-token-expiry: "PT15M"
+    refresh-token-enabled: true
+    refresh-token-store-type: "REDIS"
+    
+  security:
+    jwt:
+      filter:
+        enabled: true
+        auto-detect-permit-all-paths: true
+        excluded-paths:
+          - "/actuator/health"
+          - "/api/public/**"
+          - "/metrics/**"
+
+logging:
+  level:
+    # Enable debug logging for JWT filter
+    com.github.snowykte0426.peanut.butter.security.jwt: DEBUG
 ```
 
 #### Debug Logging
