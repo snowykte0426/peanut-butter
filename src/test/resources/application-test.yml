@@ -1,0 +1,14 @@
+# Test configuration for JWT filter functionality
+peanut-butter:
+  security:
+    jwt:
+      filter:
+        enabled: true
+        excluded-paths:
+          - "/api/public/**"
+          - "/health/**"
+          - "/actuator/**"
+  jwt:
+    secret: "test-jwt-secret-key-for-testing-purposes-only"
+    access-token-expiry: PT15M
+    refresh-token-expiry: PT30M
