@@ -14,6 +14,11 @@
       "name": "peanut-butter.jwt",
       "type": "com.github.snowykte0426.peanut.butter.security.jwt.JwtProperties",
       "description": "Configuration properties for JWT (JSON Web Token) settings"
+    },
+    {
+      "name": "peanut-butter.security.jwt.filter",
+      "type": "com.github.snowykte0426.peanut.butter.security.jwt.JwtFilterProperties",
+      "description": "Configuration properties for JWT authentication filter settings"
     }
   ],
   "properties": [
@@ -123,6 +128,24 @@
       "type": "com.github.snowykte0426.peanut.butter.security.jwt.UsedRefreshTokenHandling",
       "defaultValue": "REMOVE",
       "description": "How to handle used refresh tokens when rotation is enabled: REMOVE or BLACKLIST"
+    },
+    {
+      "name": "peanut-butter.security.jwt.filter.enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "Enable JWT authentication filter functionality"
+    },
+    {
+      "name": "peanut-butter.security.jwt.filter.excluded-paths",
+      "type": "java.util.List<java.lang.String>",
+      "defaultValue": [],
+      "description": "List of URL patterns to exclude from JWT authentication. Supports Ant-style patterns like '/api/public/**', '/health/*'. These patterns will be combined with automatically detected permitAll() paths from SecurityFilterChain."
+    },
+    {
+      "name": "peanut-butter.security.jwt.filter.auto-detect-permit-all-paths",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "Whether to automatically detect and exclude permitAll() paths from existing SecurityFilterChain configurations. When enabled, the filter will analyze Spring Security configurations and automatically exclude paths that are configured with permitAll() along with common endpoints like actuator health checks."
     }
   ]
 }
