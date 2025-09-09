@@ -2,6 +2,127 @@
 
 **Language**: [한국어](ko/RELEASE_NOTES.md)
 
+## v1.4.0
+
+### Summary
+**Discord Webhook Notifications Feature** – Adds comprehensive Discord webhook notification capabilities for server lifecycle events and exception monitoring. This major feature provides real-time server status notifications with embedded messages, multi-language support, and flexible configuration options for modern DevOps and monitoring workflows.
+
+### New Features
+- **Discord Webhook Integration**: Complete Discord notification system (`DiscordWebhookService`, `DiscordProperties`)
+  - Server startup and shutdown notifications with rich embed formatting
+  - Exception notifications with full stack trace inclusion (auto-truncated for Discord limits)
+  - Configurable webhook URL, timeout, and retry mechanisms
+  - Application context information (name, profile, hostname) in all notifications
+- **Multi-Language Support**: Comprehensive internationalization (`DiscordMessageLocalizer`)
+  - **English** (default): Production-ready English messages for all notification types
+  - **Korean**: Complete Korean translation support for localized deployments
+  - **Configurable Locale**: Runtime language selection via `peanut-butter.notification.discord.locale`
+- **Automatic Event Listening**: Zero-configuration lifecycle monitoring (`DiscordApplicationEventListener`)
+  - **ApplicationReadyEvent**: Automatic startup notifications when server becomes ready
+  - **ContextClosedEvent**: Graceful shutdown notifications on application termination
+  - **Spring Boot Integration**: Seamless integration with Spring Boot lifecycle events
+- **Exception Handling Integration**: Production-ready error monitoring (`DiscordExceptionHandler`)
+  - **Manual Exception Reporting**: `handleException()` method for custom exception notifications
+  - **Request Context Integration**: Automatic HTTP request information inclusion for web exceptions
+  - **Global Exception Listener**: `UncaughtExceptionEvent` support for system-wide error monitoring
+- **Rich Embed Formatting**: Customizable Discord embed appearance
+  - **Configurable Colors**: Hex color support for different notification types (success, warning, error)
+  - **Timestamp Integration**: Automatic ISO timestamp inclusion with timezone support
+  - **Field Customization**: Application name, profile, hostname display controls
+  - **Footer Branding**: Configurable footer text with library attribution
+
+### Improvements
+- **Zero-Configuration Setup**: Works out-of-the-box with minimal configuration requirements
+- **Production-Ready Defaults**: Secure and sensible defaults for immediate deployment
+- **Flexible Configuration**: Complete property-driven configuration via `application.yml`
+- **Performance Optimized**: Asynchronous webhook calls with configurable timeouts
+- **Error Resilience**: Graceful handling of Discord API failures without affecting application functionality
+- **Spring Boot Auto-Configuration**: Automatic bean wiring and conditional activation
+- **Comprehensive Testing**: Full test coverage with unit tests for all components
+
+### Bug Fixes
+- None (feature-focused release)
+
+### Breaking Changes
+- None (fully backward compatible with v1.3.1)
+
+### Deprecated
+- None
+
+### Key Highlights
+- **Real-time server monitoring** with Discord webhook notifications for DevOps teams
+- **Multi-language notification support** for international deployment environments
+- **Rich embedded messaging** with contextual information and proper formatting
+- **Exception monitoring integration** with full stack trace reporting and request context
+- **Zero-configuration lifecycle tracking** for immediate deployment readiness
+- **Flexible customization options** for colors, content, and formatting preferences
+
+### Requirements
+- Java 17+
+- SLF4J 2.0+
+- (Optional) Kotlin 1.9+ for Kotlin extensions
+- (Optional) Jakarta Bean Validation 3.0+ for validation features
+- (Optional) Kotlin Coroutines 1.7.3+ for async logging
+- (Optional) Spring Boot 3.1.x + Spring Security 6.3.x for JWT and CORS features
+- **New: Spring Web 6.2.8+ for Discord webhook HTTP client functionality**
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.4.0")
+    
+    // For Discord webhook features (required)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    
+    // For JWT features (optional)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    
+    // For Spring Security features (optional)
+    implementation("org.springframework.boot:spring-boot-starter-security")
+}
+```
+
+### Migration Guide
+**From v1.3.1 to v1.4.0**: Fully backward compatible. Simply update the version number.
+
+1. **Update Version**: Change dependency to `1.4.0`
+2. **Enable Discord Notifications** (optional): Add Discord webhook properties to `application.yml`:
+   ```yaml
+   peanut-butter:
+     notification:
+       discord:
+         webhook:
+           enabled: true
+           url: "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN"
+           timeout: 5000
+         embed:
+           color: 0x00ff00
+           include-timestamp: true
+           include-hostname: true
+         locale: "en"  # or "ko" for Korean
+   ```
+3. **Custom Exception Handling** (optional): Inject `DiscordExceptionHandler` for manual exception reporting:
+   ```kotlin
+   @Service
+   class MyService(private val discordExceptionHandler: DiscordExceptionHandler) {
+       fun riskyOperation() {
+           try {
+               // your code
+           } catch (e: Exception) {
+               discordExceptionHandler.handleException(e, "Custom operation failed")
+           }
+       }
+   }
+   ```
+4. **Existing Configurations**: All JWT, CORS, timezone, and validation configurations remain unchanged
+
+---
+*See README.md and docs/USAGE.md for detailed examples and Discord webhook setup guide.*
+
+---
+
 ## v1.3.1
 
 ### Summary

@@ -6,7 +6,7 @@
 [![Java Version](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.java.net/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.25-purple.svg)](https://kotlinlang.org/)
 
-Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotlin) projects. It provides production‑oriented building blocks for validation, structured logging (sync & coroutine), performance instrumentation, application‑wide time zone management (with Spring Boot auto‑configuration), CORS configuration, JWT authentication, and architectural clarity helpers (hexagonal annotations).
+Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotlin) projects. It provides production‑oriented building blocks for validation, structured logging (sync & coroutine), performance instrumentation, application‑wide time zone management (with Spring Boot auto‑configuration), CORS configuration, JWT authentication, Discord webhook notifications, and architectural clarity helpers (hexagonal annotations).
 
 ## Feature Overview
 
@@ -18,6 +18,7 @@ Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotl
 | Time Zone Management | Spring Boot auto configuration, runtime switching, safe temporary context | Spring Boot Starter (optional) |
 | CORS Configuration | Spring Security CORS auto-configuration, flexible property-based setup | Spring (Web), Spring Security (optional) |
 | JWT Authentication | Token generation/validation, refresh token management, current user context, JWT authentication filter | JJWT, Spring Boot + Spring Security (optional) |
+| Discord Notifications | Server lifecycle & exception notifications, multi-language support, rich embed formatting | Spring Web (for RestTemplate), Spring Boot (optional) |
 | Performance Helpers | Execution/method timing, memory usage snapshot logging | SLF4J API only |
 | Hexagonal Architecture | `@Port`, `@Adapter`, `PortDirection` semantic markers | (Optional) Spring (for `@Adapter`) |
 
@@ -26,7 +27,7 @@ Peanut-Butter is a **lightweight, modular** utility library for JVM (Java & Kotl
 ### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.3.1")
+    implementation("com.github.snowykte0426:peanut-butter:1.4.0")
     
     // Optional: Add only what you need
     // For validation features (constraints + file upload)
@@ -66,7 +67,7 @@ dependencies {
 <dependency>
   <groupId>com.github.snowykte0426</groupId>
   <artifactId>peanut-butter</artifactId>
-  <version>1.3.1</version>
+  <version>1.4.0</version>
 </dependency>
 
 <!-- Optional: Validation -->
@@ -194,6 +195,7 @@ This library is designed with **dependency minimization** in mind:
 - CORS configuration → Spring Web + Spring Security (web + config) modules (or Boot starter security)
 - JWT authentication → JJWT + Jakarta Servlet (for current user provider) + optional storage backends
 - JWT authentication filter → JJWT + Spring Security (for SecurityFilterChain integration)
+- Discord notifications → Spring Web (for RestTemplate HTTP client)
 - Actual logging → Your choice of SLF4J implementation
 
 ## Documentation
