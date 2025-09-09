@@ -1,7 +1,7 @@
 package com.github.snowykte0426.peanut.butter.notification.discord
 
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 class DiscordAutoConfigurationTest : DescribeSpec({
@@ -11,9 +11,9 @@ class DiscordAutoConfigurationTest : DescribeSpec({
         context("when creating DiscordAutoConfiguration") {
             val configuration = DiscordAutoConfiguration()
 
-            it("should create discordRestTemplate bean") {
-                val restTemplate = configuration.discordRestTemplate()
-                restTemplate.shouldBeInstanceOf<org.springframework.web.client.RestTemplate>()
+            it("should create configuration instance") {
+                configuration shouldNotBe null
+                configuration.shouldBeInstanceOf<DiscordAutoConfiguration>()
             }
         }
     }

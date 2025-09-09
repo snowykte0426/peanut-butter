@@ -61,6 +61,18 @@ dependencies {
     testImplementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
     testImplementation("org.springframework:spring-test:6.2.8")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
+
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("io.mockk:mockk-jvm:1.13.8")
+
+    testImplementation("org.springframework.data:spring-data-redis:3.1.5")
+    testImplementation("org.springframework.data:spring-data-jpa:3.1.5")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa:3.1.5")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-redis:3.1.5")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
+    testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
+    testImplementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2")
+
     testImplementation("jakarta.validation:jakarta.validation-api:3.0.2")
     testImplementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
     testImplementation("org.glassfish:jakarta.el:4.0.2")
