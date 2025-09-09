@@ -16,6 +16,7 @@
 - [CORS 구성](#cors-구성)
 - [JWT 인증](#jwt-인증)
 - [JWT 인증 필터](#jwt-인증-필터)
+- [Discord 웹훅 알림](#discord-웹훅-알림)
 - [모범 사례](#모범-사례)
 - [고급 예제](#고급-예제)
 
@@ -27,7 +28,7 @@ Peanut-Butter는 **경량화 및 모듈형**으로 설계되었습니다. 실제
 
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.3.1")
+    implementation("com.github.snowykte0426:peanut-butter:1.4.0")
     
     // 로깅 구현체 선택 (모든 로깅 기능에 필요)
     implementation("ch.qos.logback:logback-classic:1.5.13")
@@ -114,6 +115,17 @@ dependencies {
 }
 ```
 
+#### Discord 웹훅 알림용
+```kotlin
+dependencies {
+    // Discord 웹훅 지원 (필수)
+    implementation("org.springframework.boot:spring-boot-starter-web") // RestTemplate용
+    
+    // Spring Boot 통합용
+    implementation("org.springframework.boot:spring-boot-starter:3.1.5")
+}
+```
+
 ### 기능 가용성 매트릭스
 
 | 기능 | 핵심만 | + 검증 | + 멀티파트 | + 코루틴 | + Spring Boot | + CORS | + JWT |
@@ -130,6 +142,7 @@ dependencies {
 | 리프레시 토큰 스토리지 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | 현재 사용자 프로바이더 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | JWT 인증 필터 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Discord 웹훅 알림 | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
 | 헥사고날 어노테이션 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## 필드 검증
@@ -773,529 +786,324 @@ peanut-butter:
         - "X-RateLimit-Reset"
 ```
 
-## JWT 인증
+### 3. 고급 구성 예제
 
-**필요한 의존성**: JJWT + Spring Boot (현재 사용자 프로바이더를 위한 선택적 서블릿 컨텍스트)
+#### 프로그래매틱 구성
 
-Peanut-Butter는 유연한 리프레시 토큰 관리, 다중 스토리지 백엔드, 프로덕션 준비 보안 기능과 함께 포괄적인 JWT (JSON Web Token) 인증을 제공합니다.
-
-### 1. 기본 설정과 구성
-
-JJWT 의존성이 클래스패스에 있을 때 JWT 기능이 자동으로 활성화됩니다. 모듈은 프로덕션 준비 커스터마이징 옵션과 함께 개발을 위한 합리적인 기본값을 제공합니다.
-
-#### 자동 구성 (Spring Boot)
-
-`application.yml`에 JWT 속성을 추가하세요:
-
-```yaml
-peanut-butter:
-  jwt:
-    secret: "your-production-secret-key-minimum-256-bits-long"
-    access-token-expiry: "PT15M"      # 15분
-    refresh-token-expiry: "PT24H"     # 24시간
-    refresh-token-enabled: true       # 리프레시 토큰 활성화
-    refresh-token-rotation-enabled: false  # 기본적으로 로테이션 비활성화
-    refresh-token-mode: "SIMPLE_VALIDATION"  # 간단한 검증 모드
-    refresh-token-store-type: "IN_MEMORY"   # 인메모리 스토리지
-    used-refresh-token-handling: "REMOVE"   # 사용된 토큰 제거
-```
-
-### 2. JWT 서비스 사용법
-
-#### 기본 토큰 작업
+더 많은 제어가 필요한 경우 `CorsConfigurationSource` 빈에 접근할 수 있습니다:
 
 ```kotlin
 @Service
-class AuthenticationService(
-    private val jwtService: JwtService
+class CustomCorsService(
+    private val corsConfigurationSource: CorsConfigurationSource
 ) {
-    fun login(user: User): LoginResponse {
-        // 커스텀 클레임으로 액세스 토큰 생성
-        val claims = mapOf(
-            "role" to user.role,
-            "department" to user.department,
-            "permissions" to user.permissions
-        )
-        val accessToken = jwtService.generateAccessToken(user.id, claims)
-        
-        // 활성화된 경우 리프레시 토큰 생성
-        val refreshToken = if (jwtService.refreshTokenEnabled) {
-            jwtService.generateRefreshToken(user.id)
-        } else null
-        
-        return LoginResponse(accessToken, refreshToken)
+    fun getCorsConfiguration(): CorsConfiguration? {
+        return corsConfigurationSource.getCorsConfiguration(null)
     }
     
-    fun validateToken(token: String): Boolean {
-        return jwtService.validateToken(token)
-    }
-    
-    fun extractUserInfo(token: String): UserInfo? {
-        val subject = jwtService.extractSubject(token) ?: return null
-        val claims = jwtService.extractClaims(token) ?: return null
-        
-        return UserInfo(
-            userId = subject,
-            role = claims["role"] as? String,
-            department = claims["department"] as? String,
-            permissions = claims["permissions"] as? List<String> ?: emptyList()
-        )
-    }
-    
-    fun refreshTokens(refreshToken: String): TokenPair? {
-        return jwtService.refreshTokens(refreshToken)
+    fun isOriginAllowed(origin: String): Boolean {
+        val config = getCorsConfiguration()
+        return config?.allowedOrigins?.contains(origin) ?: false
     }
 }
 ```
 
-### 3. 현재 사용자 컨텍스트
+#### 커스텀 CORS 구성 빈
 
-#### 현재 사용자 프로바이더 사용
+자신만의 빈을 제공하여 기본 구성을 재정의할 수 있습니다:
 
 ```kotlin
-@RestController
-class UserController(
-    private val currentUserProvider: CurrentUserProvider<User>
-) {
-    @GetMapping("/me")
-    fun getCurrentUser(): User? {
-        return currentUserProvider.getCurrentUser()
-    }
+@Configuration
+class CustomCorsConfiguration {
     
-    @GetMapping("/profile")  
-    fun getUserProfile(): UserProfile {
-        val userId = currentUserProvider.getCurrentUserId()
-            ?: throw SecurityException("인증된 사용자가 없습니다")
-            
-        val claims = currentUserProvider.getCurrentUserClaims()
-        val role = claims?.get("role") as? String
+    @Bean
+    @Primary
+    fun customCorsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration().apply {
+            allowedOriginPatterns = listOf("https://*.mycompany.com")
+            allowedHeaders = listOf("*")
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
+            allowCredentials = true
+            maxAge = 3600L
+        }
         
-        return userService.getProfile(userId, role)
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/api/**", configuration)
+            registerCorsConfiguration("/public/**", createPublicCorsConfiguration())
+        }
     }
     
-    @PostMapping("/update-profile")
-    fun updateProfile(@RequestBody request: UpdateProfileRequest): ResponseEntity<*> {
-        val userId = currentUserProvider.getCurrentUserId()
-            ?: return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build()
-            
-        userService.updateProfile(userId, request)
-        return ResponseEntity.ok().build()
-    }
-}
-```
-
-#### 커스텀 사용자 리졸버
-
-```kotlin
-@Component
-class CustomUserResolver(
-    private val userService: UserService,
-    private val roleService: RoleService
-) : JwtUserResolver<User> {
-    
-    override fun resolveUser(subject: String, claims: Map<String, Any>): User? {
-        return try {
-            val user = userService.findById(subject) ?: return null
-            
-            // 클레임의 추가 정보로 사용자 강화
-            val role = claims["role"] as? String
-            val department = claims["department"] as? String
-            
-            user.copy(
-                currentRole = role?.let { roleService.findByName(it) },
-                currentDepartment = department
-            )
-        } catch (e: Exception) {
-            logError("사용자 리졸브 실패", e)
-            null
+    private fun createPublicCorsConfiguration(): CorsConfiguration {
+        return CorsConfiguration().apply {
+            allowedOrigins = listOf("*")
+            allowedHeaders = listOf("Content-Type")
+            allowedMethods = listOf("GET", "HEAD", "OPTIONS")
+            allowCredentials = false
+            maxAge = 86400L
         }
     }
 }
 ```
 
-### 4. 리프레시 토큰 스토리지 구성
+### 4. SecurityFilterChain 통합 예제
 
-#### 인메모리 스토리지 (기본값)
+#### 기본 Security Filter Chain 사용
 
-```yaml
-peanut-butter:
-  jwt:
-    refresh-token-store-type: "IN_MEMORY"
-    refresh-token-mode: "STORE_AND_VALIDATE"
+라이브러리는 CORS가 활성화된 기본 SecurityFilterChain을 제공합니다:
+
+```kotlin
+// 추가 구성 필요 없음 - 자동 구성된 SecurityFilterChain이
+// 속성에서 CORS 구성을 포함합니다
 ```
 
-#### Redis 스토리지
+#### CORS를 포함한 커스텀 SecurityFilterChain
 
-```yaml
-peanut-butter:
-  jwt:
-    refresh-token-store-type: "REDIS"
-    refresh-token-mode: "STORE_AND_VALIDATE"
-    
-spring:
-  redis:
-    host: localhost
-    port: 6379
-    database: 0
-```
-
-#### 데이터베이스 스토리지
-
-```yaml
-peanut-butter:
-  jwt:
-    refresh-token-store-type: "RDB"
-    refresh-token-mode: "STORE_AND_VALIDATE"
-    
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/myapp
-    username: myuser
-    password: mypassword
-  jpa:
-    hibernate:
-      ddl-auto: update
-```
-
-### 5. 고급 보안 구성
-
-#### 토큰 로테이션 구성
-
-```yaml
-peanut-butter:
-  jwt:
-    refresh-token-rotation-enabled: true
-    used-refresh-token-handling: "BLACKLIST"  # 또는 "REMOVE"
-```
-
-#### 프로덕션 보안 구성
-
-```yaml
-peanut-butter:
-  jwt:
-    secret: "${JWT_SECRET}"  # 환경변수에서 로드
-    access-token-expiry: "PT5M"        # 높은 보안을 위해 5분
-    refresh-token-expiry: "PT7D"       # 7일
-    refresh-token-rotation-enabled: true
-    refresh-token-mode: "STORE_AND_VALIDATE"
-    refresh-token-store-type: "REDIS"
-    used-refresh-token-handling: "BLACKLIST"
-```
-
-### 6. 환경별 구성 예제
-
-#### 개발 구성
-
-```yaml
-peanut-butter:
-  jwt:
-    secret: "dev-secret-key-at-least-256-bits-long-for-development"
-    access-token-expiry: "PT1H"
-    refresh-token-expiry: "PT24H"  
-    refresh-token-enabled: true
-    refresh-token-rotation-enabled: false
-    refresh-token-store-type: "IN_MEMORY"
-```
-
-#### 프로덕션 구성
-
-```yaml
-peanut-butter:
-  jwt:
-    secret: "${JWT_SECRET_KEY}"  # 필수 환경변수
-    access-token-expiry: "PT15M"
-    refresh-token-expiry: "PT7D"
-    refresh-token-enabled: true
-    refresh-token-rotation-enabled: true
-    refresh-token-mode: "STORE_AND_VALIDATE"
-    refresh-token-store-type: "REDIS"
-    used-refresh-token-handling: "BLACKLIST"
-```
-
-#### 높은 보안 구성
-
-```yaml
-peanut-butter:
-  jwt:
-    secret: "${JWT_SECRET_KEY}"
-    access-token-expiry: "PT5M"   # 매우 짧은 수명
-    refresh-token-expiry: "PT1H"  # 짧은 수명 리프레시 토큰
-    refresh-token-enabled: true
-    refresh-token-rotation-enabled: true
-    refresh-token-mode: "STORE_AND_VALIDATE"
-    refresh-token-store-type: "RDB"  # 영구 스토리지
-    used-refresh-token-handling: "BLACKLIST"
-```
-
-## JWT 인증 필터
-
-**필요한 의존성**: JJWT + Spring Boot + Spring Security
-
-Peanut-Butter 1.3.1부터 자동 permitAll() 경로 탐지와 유연한 구성 옵션을 갖춘 포괄적인 JWT 인증 필터를 제공합니다. 이 필터는 기존 Spring Security 설정과 원활하게 통합되어 요청 수준에서 JWT 인증을 처리합니다.
-
-### 1. 기본 설정과 구성
-
-Spring Security가 클래스패스에 있고 JWT 필터가 활성화되어 있을 때 JWT 인증 필터가 자동으로 활성화됩니다.
-
-#### 자동 구성 (Spring Boot)
-
-`application.yml`에 JWT 필터 속성을 추가하세요:
-
-```yaml
-peanut-butter:
-  security:
-    jwt:
-      filter:
-        enabled: true                       # JWT 필터 활성화/비활성화
-        auto-detect-permit-all-paths: true  # permitAll() 경로 자동 탐지
-        excluded-paths:                     # 수동 제외 경로 (선택사항)
-          - "/api/public/**"
-          - "/health/**"
-          - "/actuator/**"
-          - "/swagger-ui/**"
-          - "/v3/api-docs/**"
-```
-
-### 2. 스마트 경로 탐지 기능
-
-JWT 인증 필터의 주요 특징 중 하나는 기존 Spring Security 구성을 분석하여 `permitAll()` 경로를 자동으로 탐지하고 JWT 필터링에서 제외하는 능력입니다.
-
-#### 자동 탐지 작동 방식
+프로덕션 애플리케이션의 경우 자신만의 SecurityFilterChain을 생성하세요:
 
 ```kotlin
 @Configuration
 @EnableWebSecurity
-class SecurityConfig {
-    @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        return http
-            .authorizeHttpRequests { auth ->
-                // 이 경로들은 자동으로 탐지되어 JWT 필터링에서 제외됩니다
-                auth.requestMatchers("/api/public/**").permitAll()
-                auth.requestMatchers("/health", "/metrics").permitAll() 
-                auth.requestMatchers("/login", "/register").permitAll()
-                auth.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
-                auth.anyRequest().authenticated()
-            }
-            .build()
-    }
-}
-```
-
-자동 탐지가 활성화되면 (기본값), 필터는:
-- Spring Security 구성을 스캔하여 `permitAll()` 매처를 찾음
-- 해당 경로 패턴을 추출하여 JWT 필터링에서 자동 제외
-- 수동 `excluded-paths`와 병합하여 완전한 제외 목록 생성
-
-### 3. 구성 옵션
-
-#### 개발 구성
-
-```yaml
-peanut-butter:
-  security:
-    jwt:
-      filter:
-        enabled: true
-        auto-detect-permit-all-paths: true
-        excluded-paths:
-          - "/h2-console/**"     # 개발 DB 콘솔
-          - "/debug/**"          # 개발 디버그 엔드포인트
-```
-
-#### 프로덕션 구성
-
-```yaml
-peanut-butter:
-  security:
-    jwt:
-      filter:
-        enabled: true
-        auto-detect-permit-all-paths: true
-        excluded-paths:
-          - "/actuator/health"   # 헬스체크만 허용
-          - "/actuator/info"     # 정보 엔드포인트만 허용
-          # 다른 actuator 엔드포인트는 JWT 보호
-```
-
-#### 수동 경로 제어
-
-```yaml
-peanut-butter:
-  security:
-    jwt:
-      filter:
-        enabled: true
-        auto-detect-permit-all-paths: false  # 자동 탐지 비활성화
-        excluded-paths:                      # 수동으로만 제외 경로 설정
-          - "/api/auth/login"
-          - "/api/auth/register"
-          - "/api/public/**"
-          - "/health"
-```
-
-### 4. 필터 동작 방식
-
-JWT 인증 필터는 다음 단계로 작동합니다:
-
-1. **경로 확인**: 요청 경로가 제외 목록에 있는지 확인
-2. **토큰 추출**: Authorization 헤더에서 Bearer 토큰 추출
-3. **토큰 검증**: JWT 서비스를 통해 토큰 유효성 검증
-4. **컨텍스트 설정**: 유효한 토큰의 경우 Spring Security 컨텍스트에 인증 설정
-5. **권한 부여**: 토큰 클레임에서 역할과 권한 추출하여 설정
-
-#### 토큰 클레임 처리
-
-```kotlin
-// JWT 토큰에 다음과 같은 클레임이 있다면:
-val claims = mapOf(
-    "roles" to listOf("USER", "ADMIN"),
-    "authorities" to listOf("READ", "WRITE", "DELETE")
-)
-
-// 필터는 다음과 같이 Spring Security 권한을 설정합니다:
-// - ROLE_USER, ROLE_ADMIN (역할에 ROLE_ 접두사 자동 추가)
-// - READ, WRITE, DELETE (권한은 그대로 사용)
-```
-
-### 5. Spring Security와의 통합
-
-#### SecurityFilterChain과의 통합
-
-JWT 필터는 자동으로 기존 SecurityFilterChain에 통합되어 `UsernamePasswordAuthenticationFilter` 앞에 배치됩니다:
-
-```kotlin
-@Configuration
-class SecurityConfig {
-    
-    // JWT 필터가 자동으로 이 설정과 통합됩니다
-    @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-        return http
-            .authorizeHttpRequests { auth ->
-                auth.requestMatchers("/api/public/**").permitAll()
-                auth.requestMatchers("/api/admin/**").hasRole("ADMIN")
-                auth.requestMatchers("/api/user/**").hasRole("USER")
-                auth.anyRequest().authenticated()
-            }
-            .sessionManagement { session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            }
-            .csrf { it.disable() }
-            .build()
-    }
-}
-```
-
-#### 커스텀 보안 설정과의 호환성
-
-```kotlin
-@Configuration
-@EnableWebSecurity
-class CustomSecurityConfig {
+class SecurityConfiguration(
+    private val corsConfigurationSource: CorsConfigurationSource
+) {
     
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
         return http
+            .cors { cors ->
+                cors.configurationSource(corsConfigurationSource)
+            }
+            .csrf { csrf ->
+                csrf.disable() // API용으로 비활성화, 필요에 따라 구성
+            }
             .authorizeHttpRequests { auth ->
-                // JWT 필터가 자동으로 이 허용 경로들을 탐지
-                auth.requestMatchers("/api/auth/**").permitAll()
-                auth.requestMatchers(HttpMethod.GET, "/api/products").permitAll()
-                auth.requestMatchers("/api/admin/**").hasAuthority("ADMIN")
-                auth.anyRequest().authenticated()
+                auth
+                    .requestMatchers("/api/public/**").permitAll()
+                    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                    .anyRequest().authenticated()
             }
             .oauth2ResourceServer { oauth2 ->
-                oauth2.jwt { jwt ->
-                    // JWT 필터와 OAuth2 JWT가 함께 작동 가능
-                }
+                oauth2.jwt { }
             }
             .build()
     }
 }
 ```
 
-### 6. 고급 구성 시나리오
+#### 다중 CORS 구성
 
-#### 마이크로서비스 환경
+다른 엔드포인트에 대해 다른 CORS 정책을 구성하세요:
 
-```yaml
-peanut-butter:
-  security:
-    jwt:
-      filter:
-        enabled: true
-        auto-detect-permit-all-paths: true
-        excluded-paths:
-          - "/actuator/health"      # 서비스 메시
-          - "/actuator/prometheus"   # 모니터링
-          - "/api/internal/**"       # 내부 서비스 통신
+```kotlin
+@Configuration
+class MultiCorsConfiguration {
+    
+    @Bean
+    fun corsConfigurationSource(): CorsConfigurationSource {
+        val source = UrlBasedCorsConfigurationSource()
+        
+        // API 엔드포인트 - 엄격한 CORS
+        val apiConfig = CorsConfiguration().apply {
+            allowedOrigins = listOf("https://app.mycompany.com")
+            allowedHeaders = listOf("Content-Type", "Authorization")
+            allowedMethods = listOf("GET", "POST", "PUT", "DELETE")
+            allowCredentials = true
+            maxAge = 3600L
+        }
+        source.registerCorsConfiguration("/api/**", apiConfig)
+        
+        // 공개 엔드포인트 - 완화된 CORS
+        val publicConfig = CorsConfiguration().apply {
+            allowedOrigins = listOf("*")
+            allowedHeaders = listOf("Content-Type")
+            allowedMethods = listOf("GET", "HEAD", "OPTIONS")
+            allowCredentials = false
+            maxAge = 86400L
+        }
+        source.registerCorsConfiguration("/public/**", publicConfig)
+        
+        return source
+    }
+}
 ```
 
-#### API 게이트웨이 환경
+#### WebMvc CORS 구성
 
-```yaml
-peanut-butter:
-  security:
-    jwt:
-      filter:
-        enabled: true
-        auto-detect-permit-all-paths: false  # 게이트웨이에서 경로 제어
-        excluded-paths: []                   # 모든 요청을 JWT로 보호
+비보안 CORS 구성 (WebMvc만 해당):
+
+```kotlin
+@Configuration
+class WebMvcCorsConfiguration : WebMvcConfigurer {
+    
+    override fun addCorsMappings(registry: CorsRegistry) {
+        registry.addMapping("/api/**")
+            .allowedOrigins("https://app.mycompany.com")
+            .allowedMethods("GET", "POST", "PUT", "DELETE")
+            .allowedHeaders("*")
+            .allowCredentials(true)
+            .maxAge(3600)
+    }
+}
 ```
 
-#### 하이브리드 인증 환경
+### 5. 모범 사례
+
+#### 보안 모범 사례
 
 ```yaml
+# ✅ 좋음: 프로덕션에서 특정 출처 사용
 peanut-butter:
   security:
-    jwt:
-      filter:
-        enabled: true
-        auto-detect-permit-all-paths: true
-        excluded-paths:
-          - "/api/oauth/**"      # OAuth2 인증 경로
-          - "/api/saml/**"       # SAML 인증 경로
-          - "/api/basic/**"      # Basic 인증 경로
+    cors:
+      allowed-origins: 
+        - "https://myapp.com"
+        - "https://www.myapp.com"
+
+# ❌ 피하기: 자격 증명과 함께 프로덕션에서 와일드카드 출처
+peanut-butter:
+  security:
+    cors:
+      allowed-origins: ["*"]
+      allow-credentials: true  # 보안 위험!
 ```
 
-### 7. 모니터링과 디버깅
-
-JWT 필터는 포괄적한 로깅을 제공합니다:
+#### 메서드 구성
 
 ```yaml
-# application.yml에서 로깅 활성화
+# ✅ 좋음: 필요한 메서드만 명시적으로 구성
+peanut-butter:
+  security:
+    cors:
+      allowed-methods:
+        GET: true
+        POST: true
+        PUT: true
+        DELETE: false        # 필요하지 않으면 비활성화
+        PATCH: true
+        HEAD: true
+        OPTIONS: true
+        TRACE: false         # 항상 TRACE 비활성화
+
+# ❌ 피하기: 고려 없이 모든 메서드 허용
+```
+
+#### 헤더 구성
+
+```yaml
+# ✅ 좋음: 보안을 위한 특정 헤더
+peanut-butter:
+  security:
+    cors:
+      allowed-headers:
+        - "Content-Type"
+        - "Authorization"
+        - "X-Requested-With"
+        - "Accept"
+      exposed-headers:
+        - "X-Total-Count"
+        - "X-Page-Size"
+
+# ❌ 피하기: 민감한 애플리케이션에서 와일드카드 헤더
+peanut-butter:
+  security:
+    cors:
+      allowed-headers: ["*"]   # 너무 허용적
+```
+
+#### 환경별 구성
+
+```kotlin
+// 개발 프로파일
+@Configuration
+@Profile("dev")
+class DevCorsConfiguration {
+    
+    @Bean
+    @Primary
+    fun devCorsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration().apply {
+            allowedOriginPatterns = listOf("*")  // 개발에서 모두 허용
+            allowedHeaders = listOf("*")
+            allowedMethods = listOf("*")
+            allowCredentials = true
+            maxAge = 3600L
+        }
+        
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/**", configuration)
+        }
+    }
+}
+
+// 프로덕션 프로파일  
+@Configuration
+@Profile("prod")
+class ProdCorsConfiguration {
+    
+    @Bean
+    @Primary
+    fun prodCorsConfigurationSource(): CorsConfigurationSource {
+        val configuration = CorsConfiguration().apply {
+            allowedOrigins = listOf("https://myapp.com")
+            allowedHeaders = listOf("Content-Type", "Authorization")
+            allowedMethods = listOf("GET", "POST", "PUT", "PATCH")
+            allowCredentials = true
+            maxAge = 86400L
+        }
+        
+        return UrlBasedCorsConfigurationSource().apply {
+            registerCorsConfiguration("/**", configuration)
+        }
+    }
+}
+```
+
+#### CORS 구성 테스팅
+
+```kotlin
+@SpringBootTest
+@TestPropertySource(properties = [
+    "peanut-butter.security.cors.enabled=true",
+    "peanut-butter.security.cors.allowed-origins=https://test.example.com"
+])
+class CorsIntegrationTest {
+    
+    @Autowired
+    private lateinit var corsConfigurationSource: CorsConfigurationSource
+    
+    @Test
+    fun `should configure CORS correctly`() {
+        val config = corsConfigurationSource.getCorsConfiguration(null)
+        
+        assertThat(config?.allowedOrigins).contains("https://test.example.com")
+        assertThat(config?.allowCredentials).isTrue()
+    }
+}
+```
+
+#### 일반적인 구성 패턴
+
+| 사용 사례 | 구성 | 비고 |
+|----------|------|------|
+| **개발** | `allowed-origins: ["*"]`, `allow-credentials: true` | 로컬 개발을 위한 허용적 설정 |
+| **단일 페이지 앱** | 특정 출처, `allow-credentials: true` | 인증된 SPA용 |
+| **공개 API** | 특정 출처, `allow-credentials: false` | 인증 없는 공개 API용 |
+| **마이크로서비스** | 패턴 기반 출처, 특정 메서드 | 서비스 간 통신용 |
+| **CDN 통합** | 다중 출처, 특정 헤더 | CDN을 통해 제공되는 자산용 |
+
+#### CORS 문제 디버깅
+
+CORS 문제를 해결하기 위해 디버그 로깅을 활성화하세요:
+
+```yaml
 logging:
   level:
-    com.github.snowykte0426.peanut.butter.security.jwt: DEBUG
+    org.springframework.web.cors: DEBUG
+    com.github.snowykte0426.peanut.butter.security.cors: DEBUG
 ```
 
-로그 예제:
-```
-DEBUG - JWT Filter: Processing request to /api/secure
-DEBUG - JWT Filter: Token extracted from Authorization header
-DEBUG - JWT Filter: Token validation successful for user: user123
-DEBUG - JWT Filter: Authentication set in SecurityContext
-DEBUG - JWT Filter: Request to /api/public/info excluded from JWT filtering
-```
-
-### 8. 오류 처리
-
-JWT 필터는 우아한 오류 처리를 제공합니다:
-
-- **토큰 없음**: 필터 체인 계속 (다른 인증 메커니즘에서 처리 가능)
-- **잘못된 토큰**: 로그 기록 후 필터 체인 계속
-- **만료된 토큰**: 경고 로그 후 필터 체인 계속
-- **서버 오류**: 오류 로그 후 필터 체인 계속 (안전한 폴백)
-
-### 9. 성능 최적화
-
-JWT 필터는 성능을 위해 최적화되었습니다:
-
-- **조기 제외**: 경로 매칭을 먼저 수행하여 불필요한 JWT 처리 방지
-- **효율적인 패턴 매칭**: Ant 스타일 패턴 매치를 최적화
-- **최소한의 오버헤드**: 제외된 경로는 거의 즉시 처리
-- **캐시된 클레임**: 동일 요청 내에서 클레임 재사용
-
----
-
-더 많은 정보는 [메인 README](../README.md)를 참조하거나 [GitHub 저장소](https://github.com/snowykte0426/peanut-butter)를 방문하세요.
+일반적인 CORS 오류 시나리오:
+- **"Access to fetch at '...' has been blocked"**: `allowed-origins` 확인
+- **"Method not allowed"**: `allowed-methods`에서 HTTP 메서드 확인
+- **"Request header field X is not allowed"**: `allowed-headers`에 헤더 추가
+- **"Credentials flag is 'true', but origin is '*'"**: 자격 증명과 함께 특정 출처 사용
