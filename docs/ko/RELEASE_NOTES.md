@@ -2,6 +2,127 @@
 
 **Language**: [English](../RELEASE_NOTES.md)
 
+## v1.4.0
+
+### 요약
+**Discord 웹훅 알림 기능** – 서버 생명주기 이벤트와 예외 모니터링을 위한 포괄적인 Discord 웹훅 알림 기능을 추가합니다. 이 주요 기능은 임베드 메시지, 다국어 지원, 현대적인 DevOps와 모니터링 워크플로우를 위한 유연한 구성 옵션을 갖춘 실시간 서버 상태 알림을 제공합니다.
+
+### 새로운 기능
+- **Discord 웹훅 통합**: 완전한 Discord 알림 시스템 (`DiscordWebhookService`, `DiscordProperties`)
+  - 풍부한 임베드 형식을 갖춘 서버 시작 및 종료 알림
+  - 전체 스택 트레이스 포함을 갖춘 예외 알림 (Discord 제한에 맞게 자동 절단)
+  - 구성 가능한 웹훅 URL, 타임아웃, 재시도 메커니즘
+  - 모든 알림에서 애플리케이션 컨텍스트 정보 (이름, 프로파일, 호스트명)
+- **다국어 지원**: 포괄적인 국제화 (`DiscordMessageLocalizer`)
+  - **영어** (기본값): 모든 알림 유형을 위한 프로덕션 준비 영어 메시지
+  - **한국어**: 로컬라이즈된 배포를 위한 완전한 한국어 번역 지원
+  - **구성 가능한 로케일**: `peanut-butter.notification.discord.locale`을 통한 런타임 언어 선택
+- **자동 이벤트 리스닝**: 무설정 생명주기 모니터링 (`DiscordApplicationEventListener`)
+  - **ApplicationReadyEvent**: 서버가 준비되었을 때 자동 시작 알림
+  - **ContextClosedEvent**: 애플리케이션 종료 시 우아한 종료 알림
+  - **Spring Boot 통합**: Spring Boot 생명주기 이벤트와의 원활한 통합
+- **예외 처리 통합**: 프로덕션 준비 오류 모니터링 (`DiscordExceptionHandler`)
+  - **수동 예외 보고**: 사용자 정의 예외 알림을 위한 `handleException()` 메서드
+  - **요청 컨텍스트 통합**: 웹 예외를 위한 HTTP 요청 정보 자동 포함
+  - **글로벌 예외 리스너**: 시스템 전체 오류 모니터링을 위한 `UncaughtExceptionEvent` 지원
+- **풍부한 임베드 형식**: 사용자 정의 가능한 Discord 임베드 모양
+  - **구성 가능한 색상**: 다양한 알림 유형 (성공, 경고, 오류)을 위한 16진수 색상 지원
+  - **타임스탬프 통합**: 타임존 지원을 갖춘 자동 ISO 타임스탬프 포함
+  - **필드 사용자 정의**: 애플리케이션 이름, 프로파일, 호스트명 표시 제어
+  - **푸터 브랜딩**: 라이브러리 귀속을 갖춘 구성 가능한 푸터 텍스트
+
+### 개선사항
+- **무설정 설정**: 최소한의 구성 요구사항으로 즉시 작동
+- **프로덕션 준비 기본값**: 즉시 배포를 위한 안전하고 합리적인 기본값
+- **유연한 구성**: `application.yml`을 통한 완전한 속성 기반 구성
+- **성능 최적화**: 구성 가능한 타임아웃을 갖춘 비동기 웹훅 호출
+- **오류 복원력**: 애플리케이션 기능에 영향을 주지 않는 Discord API 실패의 우아한 처리
+- **Spring Boot 자동 구성**: 자동 빈 와이어링과 조건부 활성화
+- **포괄적인 테스트**: 모든 컴포넌트를 위한 단위 테스트를 통한 전체 테스트 커버리지
+
+### 버그 수정
+- 없음 (기능 중심 릴리즈)
+
+### 브레이킹 체인지
+- 없음 (v1.3.1과 완전한 하위 호환성)
+
+### 폐지됨
+- 없음
+
+### 주요 하이라이트
+- DevOps 팀을 위한 Discord 웹훅 알림을 통한 **실시간 서버 모니터링**
+- 국제 배포 환경을 위한 **다국어 알림 지원**
+- 컨텍스트 정보와 적절한 형식을 갖춘 **풍부한 임베드 메시징**
+- 전체 스택 트레이스 보고와 요청 컨텍스트를 갖춘 **예외 모니터링 통합**
+- 즉시 배포 준비를 위한 **무설정 생명주기 추적**
+- 색상, 내용, 형식 기본 설정을 위한 **유연한 사용자 정의 옵션**
+
+### 요구사항
+- Java 17+
+- SLF4J 2.0+
+- (선택적) Kotlin 확장을 위한 Kotlin 1.9+
+- (선택적) 검증 기능을 위한 Jakarta Bean Validation 3.0+
+- (선택적) 비동기 로깅을 위한 Kotlin Coroutines 1.7.3+
+- (선택적) JWT 및 CORS 기능을 위한 Spring Boot 3.1.x + Spring Security 6.3.x
+- **새로움: Discord 웹훅 HTTP 클라이언트 기능을 위한 Spring Web 6.2.8+**
+
+### 설치
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.4.0")
+    
+    // Discord 웹훅 기능용 (필수)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    
+    // JWT 기능용 (선택적)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    
+    // Spring Security 기능용 (선택적)
+    implementation("org.springframework.boot:spring-boot-starter-security")
+}
+```
+
+### 마이그레이션 가이드
+**v1.3.1에서 v1.4.0으로**: 완전한 하위 호환성. 단순히 버전 번호를 업데이트하세요.
+
+1. **버전 업데이트**: 의존성을 `1.4.0`으로 변경
+2. **Discord 알림 활성화** (선택적): `application.yml`에 Discord 웹훅 속성 추가:
+   ```yaml
+   peanut-butter:
+     notification:
+       discord:
+         webhook:
+           enabled: true
+           url: "https://discord.com/api/webhooks/YOUR_WEBHOOK_ID/YOUR_WEBHOOK_TOKEN"
+           timeout: 5000
+         embed:
+           color: 0x00ff00
+           include-timestamp: true
+           include-hostname: true
+         locale: "ko"  # 한국어의 경우 "ko", 영어의 경우 "en"
+   ```
+3. **사용자 정의 예외 처리** (선택적): 수동 예외 보고를 위해 `DiscordExceptionHandler` 주입:
+   ```kotlin
+   @Service
+   class MyService(private val discordExceptionHandler: DiscordExceptionHandler) {
+       fun riskyOperation() {
+           try {
+               // 여러분의 코드
+           } catch (e: Exception) {
+               discordExceptionHandler.handleException(e, "사용자 정의 작업 실패")
+           }
+       }
+   }
+   ```
+4. **기존 구성**: 모든 JWT, CORS, 타임존, 검증 구성은 변경되지 않음
+
+---
+*자세한 예제와 Discord 웹훅 설정 가이드는 README.md와 docs/USAGE.md를 참조하세요.*
+
+---
+
 ## v1.3.1
 
 ### 요약
