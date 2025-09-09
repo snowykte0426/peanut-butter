@@ -6,7 +6,7 @@
 [![Java Version](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.java.net/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.25-purple.svg)](https://kotlinlang.org/)
 
-Peanut-Butter는 JVM (Java & Kotlin) 프로젝트를 위한 **경량화, 모듈형** 유틸리티 라이브러리입니다. 검증, 구조화된 로깅 (동기 & 코루틴), 성능 계측, 애플리케이션 차원의 타임존 관리 (Spring Boot 자동 구성 포함), CORS 구성, JWT 인증, 그리고 아키텍처 명확성 도우미 (헥사고날 어노테이션)를 위한 프로덕션 지향적 빌딩 블록을 제공합니다.
+Peanut-Butter는 JVM (Java & Kotlin) 프로젝트를 위한 **경량화, 모듈형** 유틸리티 라이브러리입니다. 검증, 구조화된 로깅 (동기 & 코루틴), 성능 계측, 애플리케이션 차원의 타임존 관리 (Spring Boot 자동 구성 포함), CORS 구성, JWT 인증, Discord 웹훅 알림, 그리고 아키텍처 명확성 도우미 (헥사고날 어노테이션)를 위한 프로덕션 지향적 빌딩 블록을 제공합니다.
 
 ## 기능 개요
 
@@ -18,6 +18,7 @@ Peanut-Butter는 JVM (Java & Kotlin) 프로젝트를 위한 **경량화, 모듈�
 | 타임존 관리 | Spring Boot 자동 구성, 런타임 스위칭, 안전한 임시 컨텍스트 | Spring Boot Starter (선택사항) |
 | CORS 구성 | Spring Security CORS 자동 구성, 유연한 속성 기반 설정 | Spring (Web), Spring Security (선택사항) |
 | JWT 인증 | 토큰 생성/검증, 리프레시 토큰 관리, 현재 사용자 컨텍스트, JWT 인증 필터 | JJWT, Spring Boot + Spring Security (선택사항) |
+| Discord 알림 | 서버 생명주기 및 예외 알림, 다국어 지원, 풍부한 임베드 포맷팅 | Spring Web (RestTemplate용), Spring Boot (선택사항) |
 | 성능 헬퍼 | 실행/메서드 타이밍, 메모리 사용량 스냅샷 로깅 | SLF4J API만 |
 | 헥사고날 아키텍처 | `@Port`, `@Adapter`, `PortDirection` 의미적 마커 | (선택사항) Spring (`@Adapter`용) |
 
@@ -26,7 +27,7 @@ Peanut-Butter는 JVM (Java & Kotlin) 프로젝트를 위한 **경량화, 모듈�
 ### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.3.1")
+    implementation("com.github.snowykte0426:peanut-butter:1.4.0")
     
     // 선택사항: 필요한 것만 추가
     // 검증 기능 (제약 조건 + 파일 업로드)
@@ -64,7 +65,7 @@ dependencies {
 <dependency>
   <groupId>com.github.snowykte0426</groupId>
   <artifactId>peanut-butter</artifactId>
-  <version>1.3.1</version>
+  <version>1.4.0</version>
 </dependency>
 
 <!-- 선택사항: 검증 -->
@@ -185,6 +186,7 @@ dependencies {
 - Spring Boot 자동 구성 → Spring Boot Starter
 - CORS 구성 → Spring Web + Spring Security (web + config) 모듈 (또는 Boot starter security)
 - JWT 인증 → JJWT + Jakarta Servlet (현재 사용자 프로바이더용) + 선택적 스토리지 백엔드
+- Discord 알림 → Spring Web (RestTemplate HTTP 클라이언트용)
 - 실제 로깅 → 선택한 SLF4J 구현체
 
 ## 문서

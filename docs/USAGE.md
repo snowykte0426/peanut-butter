@@ -15,6 +15,7 @@ This guide provides comprehensive examples and best practices for using the Pean
 - [TimeZone Utilities](#timezone-utilities)
 - [CORS Configuration](#cors-configuration)
 - [JWT Authentication](#jwt-authentication)
+- [Discord Webhook Notifications](#discord-webhook-notifications)
 - [Best Practices](#best-practices)
 - [Advanced Examples](#advanced-examples)
 
@@ -26,7 +27,7 @@ Peanut-Butter is designed to be **lightweight and modular**. You only need to in
 
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.3.1")
+    implementation("com.github.snowykte0426:peanut-butter:1.4.0")
     
     // Choose your logging implementation (required for any logging functionality)
     implementation("ch.qos.logback:logback-classic:1.5.13")
@@ -113,6 +114,17 @@ dependencies {
 }
 ```
 
+#### For Discord Webhook Notifications
+```kotlin
+dependencies {
+    // Discord webhook support (required)
+    implementation("org.springframework.boot:spring-boot-starter-web") // For RestTemplate
+    
+    // For Spring Boot integration
+    implementation("org.springframework.boot:spring-boot-starter:3.1.5")
+}
+```
+
 ### Feature Availability Matrix
 
 | Feature | Core Only | + Validation | + Multipart | + Coroutines | + Spring Boot | + CORS | + JWT |
@@ -129,6 +141,7 @@ dependencies {
 | Refresh token storage | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | Current user provider | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
 | JWT authentication filter | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Discord webhook notifications | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ✅ |
 | Hexagonal annotations | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ## Field Validation
@@ -1845,6 +1858,823 @@ logging:
   level:
     com.github.snowykte0426.peanut.butter.security.jwt: DEBUG
     io.jsonwebtoken: DEBUG
+```
+
+## Discord Webhook Notifications
+
+**Dependencies required**: Spring Web (for RestTemplate HTTP client) + Spring Boot (optional for auto-configuration)
+
+Peanut-Butter provides comprehensive Discord webhook notifications with multi-language support, server lifecycle monitoring, exception handling, and rich embed formatting. The Discord module automatically sends notifications for application events and provides extensive customization options.
+
+### 1. Basic Setup and Configuration
+
+Discord webhook notifications are automatically enabled when Spring Web is on the classpath and webhook configuration is provided. The module supports both server lifecycle events and custom exception notifications.
+
+#### Auto Configuration (Spring Boot)
+
+Add Discord webhook properties to your `application.yml`:
+
+```yaml
+peanut-butter:
+  notification:
+    discord:
+      webhook:
+        enabled: true                                    # Enable Discord notifications
+        url: "https://discord.com/api/webhooks/your-id/your-token"  # Discord webhook URL
+        timeout: 5000                                   # Request timeout in milliseconds
+      embed:
+        color: "#3498db"                                # Embed color (hex)
+        thumbnail-url: ""                               # Optional thumbnail URL
+        footer-text: "Peanut-Butter Notifications"     # Footer text
+        footer-icon-url: ""                             # Optional footer icon URL
+        timestamp-enabled: true                         # Include timestamp in embeds
+      locale: "en"                                      # Language: "en" or "ko"
+```
+
+### 2. Getting Discord Webhook URL
+
+To set up Discord webhook notifications:
+
+1. **Go to your Discord server** where you want to receive notifications
+2. **Right-click on the channel** → "Edit Channel" 
+3. **Go to "Integrations" tab** → "Webhooks"
+4. **Click "New Webhook"** or "Create Webhook"
+5. **Configure the webhook**:
+   - Name: e.g., "Server Notifications"
+   - Channel: Select the target channel
+   - Avatar: Optional custom avatar
+6. **Copy the webhook URL** and add it to your configuration
+
+Example webhook URL format:
+```
+https://discord.com/api/webhooks/1234567890123456789/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456
+```
+
+### 3. Automatic Server Lifecycle Notifications
+
+The Discord module automatically sends notifications for server startup and shutdown events:
+
+#### Application Startup Notification
+
+When your Spring Boot application starts successfully, an embed message is sent containing:
+- **Application name** (from `spring.application.name`)
+- **Active profiles** (from `spring.profiles.active`) 
+- **Startup timestamp**
+- **Server environment information**
+
+```yaml
+# Configure application name for better notifications
+spring:
+  application:
+    name: "My Awesome API"
+  profiles:
+    active: "production"
+```
+
+#### Application Shutdown Notification
+
+When the application shuts down gracefully, a notification is sent with:
+- **Application name**
+- **Shutdown timestamp** 
+- **Uptime duration**
+- **Shutdown reason** (if available)
+
+### 4. Exception Handling and Notifications
+
+Use the `DiscordExceptionHandler` service to send exception notifications with stack traces:
+
+#### Basic Exception Handling
+
+```kotlin
+@Service
+class UserService(
+    private val discordExceptionHandler: DiscordExceptionHandler
+) {
+    
+    fun createUser(userData: UserData): User {
+        return try {
+            userRepository.save(userData)
+        } catch (ex: Exception) {
+            // Send Discord notification with full stack trace
+            discordExceptionHandler.handleException(
+                exception = ex,
+                context = "User creation failed for: ${userData.username}"
+            )
+            throw ex // Re-throw or handle as needed
+        }
+    }
+}
+```
+
+#### Controller Exception Handling
+
+```kotlin
+@RestController
+class UserController(
+    private val userService: UserService,
+    private val discordExceptionHandler: DiscordExceptionHandler
+) {
+    
+    @PostMapping("/users")
+    fun createUser(@RequestBody request: CreateUserRequest): ResponseEntity<User> {
+        return try {
+            val user = userService.createUser(request.toUserData())
+            ResponseEntity.ok(user)
+        } catch (ex: ValidationException) {
+            discordExceptionHandler.handleException(
+                exception = ex,
+                context = "Invalid user data received",
+                includeRequestInfo = true  // Include HTTP request details
+            )
+            ResponseEntity.badRequest().build()
+        } catch (ex: Exception) {
+            discordExceptionHandler.handleException(
+                exception = ex,
+                context = "Unexpected error during user creation"
+            )
+            ResponseEntity.internalServerError().build()
+        }
+    }
+}
+```
+
+#### Global Exception Handler
+
+```kotlin
+@RestControllerAdvice
+class GlobalExceptionHandler(
+    private val discordExceptionHandler: DiscordExceptionHandler
+) {
+    
+    @ExceptionHandler(RuntimeException::class)
+    fun handleRuntimeException(ex: RuntimeException): ResponseEntity<ErrorResponse> {
+        discordExceptionHandler.handleException(
+            exception = ex,
+            context = "Unhandled runtime exception occurred",
+            includeRequestInfo = true
+        )
+        
+        return ResponseEntity
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(ErrorResponse("Internal server error"))
+    }
+    
+    @ExceptionHandler(SecurityException::class)
+    fun handleSecurityException(ex: SecurityException): ResponseEntity<ErrorResponse> {
+        discordExceptionHandler.handleException(
+            exception = ex,
+            context = "Security violation detected",
+            includeRequestInfo = true
+        )
+        
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(ErrorResponse("Unauthorized"))
+    }
+}
+```
+
+### 5. Custom Notifications
+
+Send custom Discord notifications using the `DiscordWebhookService`:
+
+#### Manual Notifications
+
+```kotlin
+@Service
+class OrderService(
+    private val discordWebhookService: DiscordWebhookService
+) {
+    
+    fun processLargeOrder(order: Order) {
+        if (order.amount > 10000) {
+            // Send custom notification for large orders
+            discordWebhookService.sendCustomNotification(
+                title = "Large Order Alert",
+                description = "Order #${order.id} for $${order.amount} received",
+                color = "#f39c12", // Orange color
+                fields = mapOf(
+                    "Customer" to order.customerName,
+                    "Amount" to "$${order.amount}",
+                    "Items" to order.items.size.toString()
+                )
+            )
+        }
+        
+        processOrder(order)
+    }
+}
+```
+
+#### Business Event Notifications
+
+```kotlin
+@EventListener
+class BusinessEventHandler(
+    private val discordWebhookService: DiscordWebhookService
+) {
+    
+    @EventListener
+    fun handleUserRegistration(event: UserRegistrationEvent) {
+        discordWebhookService.sendCustomNotification(
+            title = "New User Registration",
+            description = "Welcome ${event.username}!",
+            color = "#2ecc71", // Green color
+            fields = mapOf(
+                "Username" to event.username,
+                "Email" to event.email,
+                "Registration Date" to event.registrationDate.toString()
+            )
+        )
+    }
+    
+    @EventListener
+    fun handlePaymentSuccess(event: PaymentSuccessEvent) {
+        discordWebhookService.sendCustomNotification(
+            title = "Payment Processed",
+            description = "Payment #${event.paymentId} completed successfully",
+            color = "#27ae60", // Green color
+            fields = mapOf(
+                "Amount" to "$${event.amount}",
+                "Customer" to event.customerName,
+                "Payment Method" to event.paymentMethod
+            )
+        )
+    }
+}
+```
+
+### 6. Configuration Examples by Environment
+
+#### Development Configuration
+
+```yaml
+peanut-butter:
+  notification:
+    discord:
+      webhook:
+        enabled: true
+        url: "https://discord.com/api/webhooks/dev-webhook-id/dev-token"
+        timeout: 10000  # Longer timeout for dev
+      embed:
+        color: "#e74c3c"  # Red for dev environment
+        footer-text: "Development Environment"
+        timestamp-enabled: true
+      locale: "en"
+
+spring:
+  application:
+    name: "MyApp (Dev)"
+  profiles:
+    active: "development"
+```
+
+#### Production Configuration
+
+```yaml
+peanut-butter:
+  notification:
+    discord:
+      webhook:
+        enabled: true
+        url: "${DISCORD_WEBHOOK_URL}"  # Load from environment variable
+        timeout: 5000
+      embed:
+        color: "#2ecc71"  # Green for production
+        footer-text: "Production Environment"
+        thumbnail-url: "https://mycompany.com/logo.png"
+        footer-icon-url: "https://mycompany.com/favicon.ico"
+        timestamp-enabled: true
+      locale: "en"
+
+spring:
+  application:
+    name: "MyApp Production"
+  profiles:
+    active: "production"
+```
+
+#### Staging Configuration
+
+```yaml
+peanut-butter:
+  notification:
+    discord:
+      webhook:
+        enabled: true
+        url: "${DISCORD_WEBHOOK_URL}"
+        timeout: 7000
+      embed:
+        color: "#f39c12"  # Orange for staging
+        footer-text: "Staging Environment"
+        timestamp-enabled: true
+      locale: "en"
+
+spring:
+  application:
+    name: "MyApp Staging" 
+  profiles:
+    active: "staging"
+```
+
+### 7. Multi-Language Support
+
+The Discord module supports both English and Korean with automatic message localization:
+
+#### English Messages (Default)
+
+```yaml
+peanut-butter:
+  notification:
+    discord:
+      locale: "en"  # English messages
+```
+
+Example English notification:
+- **Title**: "🚀 Server Started"
+- **Description**: "MyApp is now running"
+- **Fields**: "Environment: production", "Startup Time: 2.3s"
+
+#### Korean Messages
+
+```yaml
+peanut-butter:
+  notification:
+    discord:
+      locale: "ko"  # Korean messages  
+```
+
+Example Korean notification:
+- **Title**: "🚀 서버 시작됨"
+- **Description**: "MyApp이 현재 실행 중입니다"
+- **Fields**: "환경: production", "시작 시간: 2.3초"
+
+#### Runtime Language Switching
+
+```kotlin
+@Service
+class NotificationService(
+    private val discordProperties: DiscordProperties
+) {
+    
+    fun switchToKorean() {
+        // Language is configured at startup, but you can create
+        // different DiscordWebhookService instances for different languages
+        val koreanService = DiscordWebhookService(
+            discordProperties.copy(locale = "ko")
+        )
+        
+        koreanService.sendCustomNotification(
+            title = "언어 변경됨",
+            description = "알림 언어가 한국어로 변경되었습니다"
+        )
+    }
+}
+```
+
+### 8. Advanced Configuration Examples
+
+#### Multiple Webhook Channels
+
+Configure different webhooks for different types of notifications:
+
+```yaml
+# application.yml - Main webhook
+peanut-butter:
+  notification:
+    discord:
+      webhook:
+        enabled: true
+        url: "${DISCORD_GENERAL_WEBHOOK_URL}"
+      locale: "en"
+
+# Custom configuration for specific notifications
+discord:
+  webhooks:
+    errors: "${DISCORD_ERROR_WEBHOOK_URL}"
+    alerts: "${DISCORD_ALERT_WEBHOOK_URL}"
+    business: "${DISCORD_BUSINESS_WEBHOOK_URL}"
+```
+
+```kotlin
+@Configuration
+class CustomDiscordConfiguration {
+    
+    @Bean("errorDiscordService")
+    fun errorDiscordService(): DiscordWebhookService {
+        val properties = DiscordProperties(
+            webhook = DiscordProperties.WebhookProperties(
+                enabled = true,
+                url = System.getenv("DISCORD_ERROR_WEBHOOK_URL") ?: "",
+                timeout = 5000
+            ),
+            embed = DiscordProperties.EmbedProperties(
+                color = "#e74c3c", // Red for errors
+                footerText = "Error Notifications"
+            ),
+            locale = "en"
+        )
+        return DiscordWebhookService(properties)
+    }
+    
+    @Bean("businessDiscordService") 
+    fun businessDiscordService(): DiscordWebhookService {
+        val properties = DiscordProperties(
+            webhook = DiscordProperties.WebhookProperties(
+                enabled = true,
+                url = System.getenv("DISCORD_BUSINESS_WEBHOOK_URL") ?: "",
+                timeout = 5000
+            ),
+            embed = DiscordProperties.EmbedProperties(
+                color = "#3498db", // Blue for business events
+                footerText = "Business Events"
+            ),
+            locale = "en"
+        )
+        return DiscordWebhookService(properties)
+    }
+}
+```
+
+#### Conditional Notifications
+
+```kotlin
+@Service
+class ConditionalNotificationService(
+    private val discordWebhookService: DiscordWebhookService,
+    @Value("\${spring.profiles.active:default}") private val activeProfile: String
+) {
+    
+    fun notifyIfProduction(message: String) {
+        if (activeProfile == "production") {
+            discordWebhookService.sendCustomNotification(
+                title = "Production Alert",
+                description = message,
+                color = "#e74c3c"
+            )
+        }
+    }
+    
+    fun notifyBasedOnSeverity(level: String, message: String) {
+        val color = when (level.lowercase()) {
+            "error" -> "#e74c3c"    // Red
+            "warn" -> "#f39c12"     // Orange  
+            "info" -> "#3498db"     // Blue
+            else -> "#95a5a6"       // Gray
+        }
+        
+        discordWebhookService.sendCustomNotification(
+            title = "${level.uppercase()} Alert",
+            description = message,
+            color = color
+        )
+    }
+}
+```
+
+### 9. Integration Examples
+
+#### Database Event Notifications
+
+```kotlin
+@Entity
+@EntityListeners(AuditingEntityListener::class)
+class ImportantRecord(
+    @Id
+    @GeneratedValue
+    val id: Long = 0,
+    
+    val data: String,
+    
+    @CreatedDate
+    var createdAt: LocalDateTime = LocalDateTime.now()
+)
+
+@Component
+class DatabaseEventListener(
+    private val discordWebhookService: DiscordWebhookService
+) {
+    
+    @EventListener
+    @Async
+    fun handleEntityCreation(event: EntityCreatedEvent) {
+        if (event.entityType == ImportantRecord::class.java) {
+            discordWebhookService.sendCustomNotification(
+                title = "New Important Record Created",
+                description = "Record ID: ${event.entityId}",
+                fields = mapOf(
+                    "Entity Type" to event.entityType.simpleName,
+                    "Created At" to event.timestamp.toString(),
+                    "Created By" to (event.createdBy ?: "System")
+                )
+            )
+        }
+    }
+}
+```
+
+#### Scheduled Task Notifications
+
+```kotlin
+@Component
+class ScheduledTaskNotifications(
+    private val discordWebhookService: DiscordWebhookService
+) {
+    
+    @Scheduled(cron = "0 0 9 * * MON")  // Every Monday at 9 AM
+    fun sendWeeklyReport() {
+        try {
+            val reportData = generateWeeklyReport()
+            
+            discordWebhookService.sendCustomNotification(
+                title = "📊 Weekly Report",
+                description = "Weekly system report generated",
+                color = "#3498db",
+                fields = mapOf(
+                    "Total Users" to reportData.totalUsers.toString(),
+                    "New Registrations" to reportData.newUsers.toString(),
+                    "Active Sessions" to reportData.activeSessions.toString(),
+                    "System Uptime" to reportData.uptime
+                )
+            )
+        } catch (ex: Exception) {
+            discordWebhookService.sendCustomNotification(
+                title = "❌ Report Generation Failed",
+                description = "Weekly report could not be generated",
+                color = "#e74c3c",
+                fields = mapOf(
+                    "Error" to ex.message.orEmpty(),
+                    "Time" to LocalDateTime.now().toString()
+                )
+            )
+        }
+    }
+}
+```
+
+#### Health Check Notifications
+
+```kotlin
+@Component
+class HealthCheckNotifications(
+    private val discordWebhookService: DiscordWebhookService
+) {
+    
+    @Scheduled(fixedDelay = 300000) // Every 5 minutes
+    fun performHealthCheck() {
+        val healthStatus = checkSystemHealth()
+        
+        if (!healthStatus.isHealthy) {
+            discordWebhookService.sendCustomNotification(
+                title = "⚠️ System Health Alert",
+                description = "System health check failed",
+                color = "#e74c3c",
+                fields = mapOf(
+                    "Database" to if (healthStatus.databaseHealthy) "✅ OK" else "❌ Failed",
+                    "Redis" to if (healthStatus.redisHealthy) "✅ OK" else "❌ Failed", 
+                    "External APIs" to if (healthStatus.externalApisHealthy) "✅ OK" else "❌ Failed",
+                    "Memory Usage" to "${healthStatus.memoryUsage}%",
+                    "CPU Usage" to "${healthStatus.cpuUsage}%"
+                )
+            )
+        }
+    }
+}
+```
+
+### 10. Testing Discord Notifications
+
+#### Unit Tests
+
+```kotlin
+@ExtendWith(MockitoExtension::class)
+class DiscordWebhookServiceTest {
+    
+    @Mock
+    private lateinit var restTemplate: RestTemplate
+    
+    private val properties = DiscordProperties(
+        webhook = DiscordProperties.WebhookProperties(
+            enabled = true,
+            url = "https://discord.com/api/webhooks/test/test",
+            timeout = 5000
+        ),
+        embed = DiscordProperties.EmbedProperties(),
+        locale = "en"
+    )
+    
+    @Test
+    fun `should send startup notification successfully`() {
+        val service = DiscordWebhookService(properties, restTemplate, "TestApp", "test")
+        
+        service.sendStartupNotification()
+        
+        verify(restTemplate).postForObject(
+            eq(properties.webhook.url),
+            any<Map<String, Any>>(),
+            eq(String::class.java)
+        )
+    }
+    
+    @Test
+    fun `should handle webhook errors gracefully`() {
+        whenever(restTemplate.postForObject(any<String>(), any(), any<Class<*>>()))
+            .thenThrow(RestClientException("Network error"))
+            
+        val service = DiscordWebhookService(properties, restTemplate, "TestApp", "test")
+        
+        // Should not throw exception
+        assertDoesNotThrow {
+            service.sendStartupNotification()
+        }
+    }
+}
+```
+
+#### Integration Tests
+
+```kotlin
+@SpringBootTest
+@TestPropertySource(properties = [
+    "peanut-butter.notification.discord.webhook.enabled=true",
+    "peanut-butter.notification.discord.webhook.url=https://discord.com/api/webhooks/test/test",
+    "spring.application.name=TestApp"
+])
+class DiscordIntegrationTest {
+    
+    @Autowired
+    private lateinit var discordWebhookService: DiscordWebhookService
+    
+    @Autowired
+    private lateinit var discordExceptionHandler: DiscordExceptionHandler
+    
+    @Test
+    fun `should configure Discord service correctly`() {
+        assertThat(discordWebhookService).isNotNull()
+        assertThat(discordExceptionHandler).isNotNull()
+    }
+    
+    @Test
+    @Disabled("Enable only for manual testing with real webhook")
+    fun `should send test notification`() {
+        discordWebhookService.sendCustomNotification(
+            title = "Integration Test",
+            description = "This is a test notification from integration tests",
+            color = "#3498db"
+        )
+    }
+}
+```
+
+### 11. Best Practices
+
+#### Security Best Practices
+
+```yaml
+# ✅ Good: Store webhook URLs in environment variables
+peanut-butter:
+  notification:
+    discord:
+      webhook:
+        url: "${DISCORD_WEBHOOK_URL}"  # Never hardcode webhook URLs
+
+# ❌ Avoid: Hardcoding webhook URLs in configuration
+peanut-butter:
+  notification:
+    discord:
+      webhook:
+        url: "https://discord.com/api/webhooks/123/abc..."  # Security risk!
+```
+
+#### Error Handling Best Practices
+
+```kotlin
+// ✅ Good: Handle exceptions gracefully
+@Service
+class SafeNotificationService(
+    private val discordExceptionHandler: DiscordExceptionHandler
+) {
+    
+    fun processWithNotification(data: Any) {
+        try {
+            processData(data)
+        } catch (ex: Exception) {
+            // Log locally first
+            logger.error("Processing failed", ex)
+            
+            // Then notify Discord
+            discordExceptionHandler.handleException(
+                exception = ex,
+                context = "Data processing failed",
+                includeRequestInfo = false  // Don't include sensitive request data
+            )
+            
+            // Handle gracefully
+            handleProcessingFailure(data)
+        }
+    }
+}
+```
+
+#### Performance Best Practices
+
+```kotlin
+// ✅ Good: Use async notifications to avoid blocking
+@Service
+class AsyncNotificationService(
+    private val discordWebhookService: DiscordWebhookService
+) {
+    
+    @Async
+    fun sendNotificationAsync(message: String) {
+        discordWebhookService.sendCustomNotification(
+            title = "Async Notification",
+            description = message
+        )
+    }
+    
+    // ✅ Good: Batch notifications to reduce Discord API calls
+    private val notificationQueue = mutableListOf<NotificationData>()
+    
+    @Scheduled(fixedDelay = 60000) // Every minute
+    fun processBatchedNotifications() {
+        if (notificationQueue.isNotEmpty()) {
+            val notifications = notificationQueue.toList()
+            notificationQueue.clear()
+            
+            val summary = notifications.joinToString("\n") { it.message }
+            discordWebhookService.sendCustomNotification(
+                title = "Batched Notifications (${notifications.size})",
+                description = summary
+            )
+        }
+    }
+}
+```
+
+### 12. Common Configuration Patterns
+
+| Use Case | Configuration | Notes |
+|----------|---------------|-------|
+| **Development** | Red embeds, longer timeouts | Easy to distinguish dev notifications |
+| **Production** | Green embeds, environment variables | Secure, production-ready setup |
+| **Error Monitoring** | Dedicated error webhook channel | Separate channel for critical issues |
+| **Business Events** | Blue embeds, custom footer | Professional business notifications |
+| **Multi-Language** | Locale-specific configurations | Support international teams |
+
+### 13. Troubleshooting
+
+#### Common Issues
+
+```kotlin
+// Issue: Notifications not sending
+// Solution: Check webhook URL and network connectivity
+peanut-butter:
+  notification:
+    discord:
+      webhook:
+        enabled: true
+        url: "${DISCORD_WEBHOOK_URL}"  # Ensure environment variable is set
+        timeout: 10000  # Increase timeout if needed
+
+// Issue: "Invalid Webhook Token"
+// Solution: Regenerate webhook URL from Discord
+// Go to Discord → Channel Settings → Integrations → Webhooks → Copy URL
+
+// Issue: Messages not formatted correctly
+// Solution: Check embed configuration and Discord limits
+peanut-butter:
+  notification:
+    discord:
+      embed:
+        color: "#3498db"  # Must be valid hex color
+        footer-text: "Footer text under 2048 characters"
+```
+
+#### Enable Debug Logging
+
+```yaml
+logging:
+  level:
+    com.github.snowykte0426.peanut.butter.notification.discord: DEBUG
+    org.springframework.web.client.RestTemplate: DEBUG
+```
+
+#### Testing Webhook URLs
+
+Use curl to test your webhook URL:
+
+```bash
+curl -X POST "${DISCORD_WEBHOOK_URL}" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Test notification",
+    "embeds": [{
+      "title": "Test Embed",
+      "description": "This is a test message",
+      "color": 3447003
+    }]
+  }'
 ```
 
 ---
