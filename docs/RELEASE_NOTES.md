@@ -2,6 +2,73 @@
 
 **Language**: [한국어](ko/RELEASE_NOTES.md)
 
+## v1.4.1
+
+### Summary
+Test infrastructure improvements with enhanced dependency management for JSON serialization in Redis-based refresh token storage tests, ensuring consistent test reliability and stability.
+
+### New Features
+- None (maintenance release focused on test infrastructure)
+
+### Improvements
+- **Test Stability**: Enhanced test infrastructure with proper Jackson module configuration for Java 8 time types
+- **Better Error Handling**: Improved test error reporting and diagnostic capabilities
+- **Dependency Management**: Added missing Jackson JSR310 module for comprehensive JSON serialization support
+
+### Bug Fixes
+- **Jackson JSR310 Module**: Added missing `jackson-datatype-jsr310` dependency to resolve `java.time.Instant` serialization issues in Redis refresh token store tests
+- **Test Dependencies**: Fixed test infrastructure with proper Jackson module configuration for Java 8 time types
+
+### Breaking Changes
+- None (fully backward compatible)
+
+### Deprecated
+- None
+
+### Key Highlights
+- All 361 tests now pass consistently with proper dependency resolution
+- Enhanced test stability and reliability across all modules
+- Zero breaking changes ensuring seamless upgrade experience
+
+### Requirements
+- Java 17+
+- SLF4J 2.0+
+- (Optional) Kotlin 1.9+ for Kotlin extensions
+- (Optional) Jakarta Bean Validation 3.0+ for validation features
+- (Optional) Kotlin Coroutines 1.7.3+ for async logging
+- (Optional) Spring Boot 3.1.x + Spring Security 6.3.x for JWT and CORS features
+- **Spring Web 6.2.8+ for Discord webhook HTTP client functionality**
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.4.1")
+    
+    // For Discord webhook features (required)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    
+    // For JWT features (optional)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    
+    // For Spring Security features (optional)
+    implementation("org.springframework.boot:spring-boot-starter-security")
+}
+```
+
+### Migration Guide
+**From v1.4.0 to v1.4.1**: Fully backward compatible. Simply update the version number.
+
+1. **Update Version**: Change dependency to `1.4.1`
+2. **No Code Changes Required**: All existing configurations and code remain unchanged
+3. **Enhanced Test Stability**: Benefit from improved test infrastructure automatically
+
+---
+*See README.md and docs/USAGE.md for detailed examples and usage patterns.*
+
+---
+
 ## v1.4.0
 
 ### Summary

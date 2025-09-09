@@ -27,7 +27,7 @@ Peanut-Butter는 JVM (Java & Kotlin) 프로젝트를 위한 **경량화, 모듈�
 ### Gradle (Kotlin DSL)
 ```kotlin
 dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.4.0")
+    implementation("com.github.snowykte0426:peanut-butter:1.4.1")
     
     // 선택사항: 필요한 것만 추가
     // 검증 기능 (제약 조건 + 파일 업로드)
@@ -65,7 +65,7 @@ dependencies {
 <dependency>
   <groupId>com.github.snowykte0426</groupId>
   <artifactId>peanut-butter</artifactId>
-  <version>1.4.0</version>
+  <version>1.4.1</version>
 </dependency>
 
 <!-- 선택사항: 검증 -->

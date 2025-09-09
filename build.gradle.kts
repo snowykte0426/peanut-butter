@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.github.snowykte0426"
-version = "1.3.1"
+version = "1.4.1"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

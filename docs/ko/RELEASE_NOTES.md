@@ -2,6 +2,73 @@
 
 **Language**: [English](../RELEASE_NOTES.md)
 
+## v1.4.1
+
+### 요약
+Redis 기반 리프레시 토큰 저장소 테스트에서 JSON 직렬화를 위한 향상된 의존성 관리로 일관된 테스트 신뢰성과 안정성을 보장하는 테스트 인프라 개선.
+
+### 새로운 기능
+- 없음 (테스트 인프라에 중점을 둔 유지보수 릴리즈)
+
+### 개선사항
+- **테스트 안정성**: Java 8 시간 타입을 위한 적절한 Jackson 모듈 구성으로 테스트 인프라 강화
+- **향상된 오류 처리**: 테스트 오류 리포팅 및 진단 기능 개선
+- **의존성 관리**: 포괄적인 JSON 직렬화 지원을 위한 누락된 Jackson JSR310 모듈 추가
+
+### 버그 수정
+- **Jackson JSR310 모듈**: Redis 리프레시 토큰 저장소 테스트에서 `java.time.Instant` 직렬화 문제를 해결하기 위해 누락된 `jackson-datatype-jsr310` 의존성을 추가
+- **테스트 의존성**: Java 8 시간 타입을 위한 적절한 Jackson 모듈 구성으로 테스트 인프라 수정
+
+### 호환성 변경사항
+- 없음 (완전한 하위 호환성)
+
+### 폐지됨
+- 없음
+
+### 주요 하이라이트
+- 적절한 의존성 해결로 361개의 모든 테스트가 일관되게 통과
+- 모든 모듈에서 테스트 안정성과 신뢰성 강화
+- 원활한 업그레이드 경험을 보장하는 호환성 변경사항 없음
+
+### 요구사항
+- Java 17+
+- SLF4J 2.0+
+- (선택적) Kotlin 확장을 위한 Kotlin 1.9+
+- (선택적) 검증 기능을 위한 Jakarta Bean Validation 3.0+
+- (선택적) 비동기 로깅을 위한 Kotlin Coroutines 1.7.3+
+- (선택적) JWT 및 CORS 기능을 위한 Spring Boot 3.1.x + Spring Security 6.3.x
+- **Discord 웹훅 HTTP 클라이언트 기능을 위한 Spring Web 6.2.8+**
+
+### 설치
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.4.1")
+    
+    // Discord 웹훅 기능용 (필수)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    
+    // JWT 기능용 (선택적)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    
+    // Spring Security 기능용 (선택적)
+    implementation("org.springframework.boot:spring-boot-starter-security")
+}
+```
+
+### 마이그레이션 가이드
+**v1.4.0에서 v1.4.1로**: 완전한 하위 호환성. 단순히 버전 번호를 업데이트하세요.
+
+1. **버전 업데이트**: 의존성을 `1.4.1`로 변경
+2. **코드 변경 불필요**: 모든 기존 구성과 코드가 변경 없이 유지됨
+3. **향상된 테스트 안정성**: 개선된 테스트 인프라의 혜택을 자동으로 받음
+
+---
+*자세한 예제와 사용 패턴은 README.md와 docs/USAGE.md를 참조하세요.*
+
+---
+
 ## v1.4.0
 
 ### 요약
@@ -293,7 +360,7 @@ dependencies {
 - (선택적) Kotlin 확장을 위한 Kotlin 1.9+
 - (선택적) 검증 기능을 위한 Jakarta Bean Validation 3.0+
 - (선택적) 비동기 로깅을 위한 Kotlin Coroutines 1.7.3+
-- (선택적) CORS 자동 구성을 위한 Spring Boot 3.1.x + Spring Security 6.3.x
+- (선택적) JWT 및 CORS 기능을 위한 Spring Boot 3.1.x + Spring Security 6.3.x
 - **새로움: JWT 기능을 위한 JJWT 0.12.3+**
 - **새로움: 데이터베이스 리프레시 토큰 스토리지를 위한 Spring Data JPA 3.1.x**
 - **새로움: Redis 리프레시 토큰 스토리지를 위한 Spring Data Redis 3.1.x**
@@ -873,94 +940,3 @@ suspend fun handleRequest(requestId: String) {
 }
 ```
 
----
-
-## v1.0.1
-
-### 요약
-peanut-butter 라이브러리에 포괄적인 Kotlin 지원과 로깅 유틸리티를 추가하는 주요 기능 확장. 이 릴리즈는 라이브러리를 Java 전용 검증 도구에서 Java와 Kotlin 개발 모두를 지원하는 완전한 기능의 유틸리티 라이브러리로 변환합니다.
-
-### 새로운 기능
-- **Kotlin 지원**: JVM 툴체인 17과 함께 완전한 Kotlin 호환성 추가
-- **로거 확장**: 모든 클래스를 위한 `logger()` 확장을 통한 간단한 로거 생성
-- **편리한 로깅**: 직접 로깅 메서드 - `logInfo()`, `logDebug()`, `logError()`, `logWarn()`, `logTrace()`
-- **성능 로깅**: `logExecutionTime()`과 `logMethodExecution()`을 통한 실행 시간 추적
-- **예외 처리**: `logOnException()`과 `logWarningOnException()`을 통한 안전한 실행
-- **조건부 로깅**: `logDebugIf{}`, `logInfoIf{}` 등을 통한 성능 최적화 로깅
-- **고급 로거 타입**: `lazyLogger()`를 통한 지연 초기화와 `companionLogger()`를 통한 컴패니언 객체 지원
-- **메모리 모니터링**: 메모리 사용량을 포함한 `logPerformance()`를 통한 성능 추적
-
-### 개선사항
-- **SLF4J 통합**: 핵심 로깅 기반으로 SLF4J 2.0.9 API 추가
-- **유연한 로깅 백엔드**: 기본 Logback 1.5.13이지만 Log4j2, JUL 등으로 쉽게 교체 가능
-- **향상된 테스트**: 포괄적인 Kotlin 테스트를 위한 Kotest 프레임워크 추가
-- **더 나은 문서**: 명확한 예제와 포괄적인 USAGE.md 가이드로 README 업데이트
-
-### 버그 수정
-- 검증 로직의 사소한 수정
-
-### 브레이킹 체인지
-없음 - v1.0.0과 완전한 하위 호환성. 모든 기존 Java 검증 기능은 변경 없이 유지됩니다.
-
-### 폐지됨
-없음
-
-### 주요 기능
-- 합리적인 기본값을 갖는 무설정 로깅 설정
-- SLF4J 호환성으로 로깅 프레임워크 간 전환 가능
-- 비싼 작업을 피하는 조건부 로깅을 통한 성능 우선 설계
-- 확장 함수를 통한 자연스러운 Kotlin 구문
-- 자동 로깅을 통한 포괄적인 예외 처리
-
-### 요구사항
-- Java 17+
-- Kotlin 1.9+ (Kotlin 기능용)
-- SLF4J 2.0+ (로깅 기능용)
-- Jakarta Bean Validation API 3.0+ (검증 기능용)
-
-### 설치
-```kotlin
-dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.0.1")
-}
-```
-
-### 마이그레이션 가이드
-v1.0.0에서 마이그레이션 불필요 - 단순히 버전 번호를 업데이트하세요. 모든 기존 코드는 변경 없이 계속 작동합니다.
-
-1. 의존성 버전을 1.0.1로 업데이트
-2. 새로운 Kotlin 로깅 기능 사용을 선택적으로 시작
-3. 기존 검증 기능에는 코드 변경 불필요
-
----
-
-## v1.0.0
-
-### 요약
-Java 개발을 위한 포괄적인 유틸리티 라이브러리인 Peanut-Butter의 초기 릴리즈.
-
-### 필드 검증 어노테이션
-- **@FieldEquals**: 지정된 필드들이 동일한 값을 갖는지 검증
-- **@FieldNotEquals**: 지정된 필드들이 다른 값을 갖는지 검증
-
-### 주요 기능
-- 클래스 수준 검증 어노테이션
-- Jakarta Bean Validation 호환성
-- 사용자 정의 오류 메시지
-- 상속 지원
-- Null 안전 검증
-
-### 요구사항
-- Java 17+
-- Jakarta Bean Validation API 3.0+
-
-### 설치
-```kotlin
-dependencies {
-    implementation("com.github.snowykte0426:peanut-butter:1.0.0")
-}
-```
-
----
-
-*자세한 사용 예제와 문서는 README.md와 USAGE.md를 참조하세요*
