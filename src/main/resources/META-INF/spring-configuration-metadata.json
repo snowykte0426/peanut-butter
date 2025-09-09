@@ -19,6 +19,11 @@
       "name": "peanut-butter.security.jwt.filter",
       "type": "com.github.snowykte0426.peanut.butter.security.jwt.JwtFilterProperties",
       "description": "Configuration properties for JWT authentication filter settings"
+    },
+    {
+      "name": "peanut-butter.notification.discord",
+      "type": "com.github.snowykte0426.peanut.butter.notification.discord.DiscordProperties",
+      "description": "Configuration properties for Discord webhook notifications"
     }
   ],
   "properties": [
@@ -146,6 +151,60 @@
       "type": "java.lang.Boolean",
       "defaultValue": true,
       "description": "Whether to automatically detect and exclude permitAll() paths from existing SecurityFilterChain configurations. When enabled, the filter will analyze Spring Security configurations and automatically exclude paths that are configured with permitAll() along with common endpoints like actuator health checks."
+    },
+    {
+      "name": "peanut-butter.notification.discord.webhook.enabled",
+      "type": "java.lang.Boolean",
+      "defaultValue": false,
+      "description": "Enable Discord webhook notifications"
+    },
+    {
+      "name": "peanut-butter.notification.discord.webhook.url",
+      "type": "java.lang.String",
+      "defaultValue": "",
+      "description": "Discord webhook URL for sending notifications"
+    },
+    {
+      "name": "peanut-butter.notification.discord.webhook.timeout",
+      "type": "java.lang.Long",
+      "defaultValue": 5000,
+      "description": "Timeout in milliseconds for Discord webhook requests"
+    },
+    {
+      "name": "peanut-butter.notification.discord.embed.color",
+      "type": "java.lang.Integer",
+      "defaultValue": 65280,
+      "description": "Color for Discord embed messages (hex color as integer)"
+    },
+    {
+      "name": "peanut-butter.notification.discord.embed.footer",
+      "type": "java.lang.String",
+      "defaultValue": "Powered by peanut-butter",
+      "description": "Footer text for Discord embed messages"
+    },
+    {
+      "name": "peanut-butter.notification.discord.embed.include-timestamp",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "Include timestamp in Discord embed messages"
+    },
+    {
+      "name": "peanut-butter.notification.discord.embed.include-hostname",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "Include hostname in Discord embed messages"
+    },
+    {
+      "name": "peanut-butter.notification.discord.embed.include-version",
+      "type": "java.lang.Boolean",
+      "defaultValue": true,
+      "description": "Include version information in Discord embed messages"
+    },
+    {
+      "name": "peanut-butter.notification.discord.locale",
+      "type": "java.lang.String",
+      "defaultValue": "en",
+      "description": "Locale for Discord notification messages. Supported values: 'en' (English), 'ko' (Korean)"
     }
   ]
 }

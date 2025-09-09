@@ -3,5 +3,6 @@ com.github.snowykte0426.peanut.butter.timezone.TimeZoneAutoConfiguration,\
 com.github.snowykte0426.peanut.butter.security.cors.CorsConfiguration,\
 com.github.snowykte0426.peanut.butter.security.cors.CorsSecurityFilterChain,\
 com.github.snowykte0426.peanut.butter.security.jwt.JwtAutoConfiguration,\
-com.github.snowykte0426.peanut.butter.security.jwt.JwtSecurityFilterChain
+com.github.snowykte0426.peanut.butter.security.jwt.JwtSecurityFilterChain,\
+com.github.snowykte0426.peanut.butter.notification.discord.DiscordAutoConfiguration
 
