@@ -2,6 +2,76 @@
 
 **Language**: [English](../RELEASE_NOTES.md)
 
+## v1.4.2
+
+### 요약
+Java 25 호환성 및 테스트 코드 정리를 통한 빌드 인프라 개선을 위한 Kotlin 2.1.0 업그레이드, 최신 Java 및 Kotlin 버전과의 forward compatibility를 보장합니다.
+
+### 새로운 기능
+- 없음
+
+### 개선사항
+- **Kotlin 2.1.0**: Java 25 지원 및 최신 언어 기능을 위해 Kotlin을 1.9.25에서 2.1.0으로 업그레이드
+- **빌드 구성**: 최적화된 JVM 설정 및 Java 17 툴체인 구성으로 gradle.properties 추가
+- **테스트 코드 품질**: 컴파일 충돌을 방지하기 위해 중복 테스트 파일 제거
+- **Forward 호환성**: 최신 Java 버전(Java 17-25)과의 호환성 향상
+
+### 버그 수정
+- **중복 테스트 파일**: Kotlin 버전과 충돌하는 `NotEmptyFileValidator`의 중복 Java 테스트 파일 제거
+- **Java 25 호환성**: 버전 업그레이드를 통해 Java 25와의 Kotlin 컴파일러 호환성 문제 수정
+
+### 호환성 변경사항
+- 없음 (완전한 하위 호환성)
+
+### 폐지됨
+- 없음
+
+### 주요 하이라이트
+- Java 17+ 하위 호환성을 유지하면서 Java 25 완전 지원
+- Kotlin 2.1.0으로 361개의 모든 테스트가 일관되게 통과
+- 원활한 업그레이드 경험을 보장하는 호환성 변경사항 없음
+- 적절한 Gradle 구성으로 빌드 안정성 향상
+
+### 요구사항
+- Java 17+ (Java 25까지 테스트됨)
+- SLF4J 2.0+
+- **Kotlin 확장을 위한 Kotlin 2.1.0+** (1.9+에서 업데이트됨)
+- (선택적) 검증 기능을 위한 Jakarta Bean Validation 3.0+
+- (선택적) 비동기 로깅을 위한 Kotlin Coroutines 1.7.3+
+- (선택적) JWT 및 CORS 기능을 위한 Spring Boot 3.1.x + Spring Security 6.3.x
+- Discord 웹훅 HTTP 클라이언트 기능을 위한 Spring Web 6.2.8+
+
+### 설치
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.4.2")
+
+    // Discord 웹훅 기능용 (필수)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+
+    // JWT 기능용 (선택적)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+
+    // Spring Security 기능용 (선택적)
+    implementation("org.springframework.boot:spring-boot-starter-security")
+}
+```
+
+### 마이그레이션 가이드
+**v1.4.1에서 v1.4.2로**: 완전한 하위 호환성. 단순히 버전 번호를 업데이트하세요.
+
+1. **버전 업데이트**: 의존성을 `1.4.2`로 변경
+2. **코드 변경 불필요**: 모든 기존 구성과 코드가 변경 없이 유지됨
+3. **Kotlin 프로젝트**: Kotlin 확장을 사용하는 경우 최적의 호환성을 위해 프로젝트의 Kotlin 버전을 2.1.0 이상으로 업데이트하는 것을 고려하세요
+4. **Java 25 사용자**: 이 릴리즈는 Java 25와의 모든 호환성 문제를 해결합니다
+
+---
+*자세한 예제와 사용 패턴은 README.md와 docs/USAGE.md를 참조하세요.*
+
+---
+
 ## v1.4.1
 
 ### 요약

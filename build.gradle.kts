@@ -1,11 +1,11 @@
 plugins {
     java
-    kotlin("jvm") version "1.9.25"
+    kotlin("jvm") version "2.1.0"
     `maven-publish`
 }
 
 group = "com.github.snowykte0426"
-version = "1.4.1"
+version = "1.4.2"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

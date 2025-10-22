@@ -2,6 +2,76 @@
 
 **Language**: [한국어](ko/RELEASE_NOTES.md)
 
+## v1.4.2
+
+### Summary
+Kotlin 2.1.0 upgrade for Java 25 compatibility and build infrastructure improvements with test code cleanup, ensuring forward compatibility with the latest Java and Kotlin versions.
+
+### New Features
+- None (maintenance release focused on build infrastructure)
+
+### Improvements
+- **Kotlin 2.1.0**: Upgraded Kotlin from 1.9.25 to 2.1.0 for Java 25 support and latest language features
+- **Build Configuration**: Added gradle.properties with optimized JVM settings and Java 17 toolchain configuration
+- **Test Code Quality**: Removed duplicate test files to prevent compilation conflicts
+- **Forward Compatibility**: Enhanced compatibility with modern Java versions (Java 17-25)
+
+### Bug Fixes
+- **Duplicate Test Files**: Removed duplicate Java test file for `NotEmptyFileValidator` that conflicted with Kotlin version
+- **Java 25 Compatibility**: Fixed Kotlin compiler compatibility issues with Java 25 through version upgrade
+
+### Breaking Changes
+- None (fully backward compatible)
+
+### Deprecated
+- None
+
+### Key Highlights
+- Full support for Java 25 while maintaining backward compatibility with Java 17+
+- All 361 tests pass consistently with Kotlin 2.1.0
+- Zero breaking changes ensuring seamless upgrade experience
+- Enhanced build stability with proper Gradle configuration
+
+### Requirements
+- Java 17+ (tested up to Java 25)
+- SLF4J 2.0+
+- **Kotlin 2.1.0+ for Kotlin extensions** (updated from 1.9+)
+- (Optional) Jakarta Bean Validation 3.0+ for validation features
+- (Optional) Kotlin Coroutines 1.7.3+ for async logging
+- (Optional) Spring Boot 3.1.x + Spring Security 6.3.x for JWT and CORS features
+- Spring Web 6.2.8+ for Discord webhook HTTP client functionality
+
+### Installation
+```kotlin
+dependencies {
+    implementation("com.github.snowykte0426:peanut-butter:1.4.2")
+
+    // For Discord webhook features (required)
+    implementation("org.springframework.boot:spring-boot-starter-web")
+
+    // For JWT features (optional)
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+
+    // For Spring Security features (optional)
+    implementation("org.springframework.boot:spring-boot-starter-security")
+}
+```
+
+### Migration Guide
+**From v1.4.1 to v1.4.2**: Fully backward compatible. Simply update the version number.
+
+1. **Update Version**: Change dependency to `1.4.2`
+2. **No Code Changes Required**: All existing configurations and code remain unchanged
+3. **Kotlin Projects**: If using Kotlin extensions, consider updating your project's Kotlin version to 2.1.0 or later for optimal compatibility
+4. **Java 25 Users**: This release resolves all compatibility issues with Java 25
+
+---
+*See README.md and docs/USAGE.md for detailed examples and usage patterns.*
+
+---
+
 ## v1.4.1
 
 ### Summary
